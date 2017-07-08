@@ -43,8 +43,8 @@
 	..()
 	name = text("[initial(name)] ([rand(1, 1000)])")
 	real_name = name
-	add_language("Cult")
-	add_language("Occult")
+	add_language(LANGUAGE_CULT)
+	add_language(LANGUAGE_OCCULT)
 	for(var/spell in construct_spells)
 		src.add_spell(new spell, "const_spell_ready")
 	updateicon()
@@ -254,9 +254,9 @@
 /mob/living/simple_animal/construct/Life()
 	. = ..()
 	if(.)
-		if(fire)
+/*		if(fire)
 			if(fire_alert)							fire.icon_state = "fire1"
-			else									fire.icon_state = "fire0"
+			else									fire.icon_state = "fire0"*/
 		if(pullin)
 			if(pulling)								pullin.icon_state = "pull1"
 			else									pullin.icon_state = "pull0"
@@ -267,7 +267,7 @@
 
 		silence_spells(purge)
 
-/mob/living/simple_animal/construct/armoured/Life()
+/*/mob/living/simple_animal/construct/armoured/Life()
 	..()
 	if(healths)
 		switch(health)
@@ -334,4 +334,4 @@
 			if(50 to 74)			healths.icon_state = "harvester_health4"
 			if(25 to 49)			healths.icon_state = "harvester_health5"
 			if(1 to 24)				healths.icon_state = "harvester_health6"
-			else					healths.icon_state = "harvester_health7"
+			else					healths.icon_state = "harvester_health7"*/

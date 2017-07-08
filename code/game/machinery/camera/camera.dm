@@ -8,7 +8,7 @@
 	active_power_usage = 10
 	layer = 5
 
-	var/list/network = list(NETWORK_EXODUS)
+	var/list/network = list(NETWORK_CEV_ERIS)
 	var/c_tag = null
 	var/c_tag_order = 999
 	var/status = 1
@@ -53,6 +53,11 @@
 			error("[src.name] in [get_area(src)]has errored. [src.network?"Empty network list":"Null network list"]")
 		ASSERT(src.network)
 		ASSERT(src.network.len > 0)
+
+	if(!c_tag)
+		var/area/A = get_area(src)
+		c_tag = A.get_camera_tag(src)
+
 	..()
 
 /obj/machinery/camera/Destroy()
@@ -125,7 +130,7 @@
 		add_hiddenprint(user)
 		destroy()
 
-/obj/machinery/camera/attackby(obj/W as obj, mob/living/user as mob)
+/obj/machinery/camera/attackby(obj/item/W as obj, mob/living/user as mob)
 	update_coverage()
 	// DECONSTRUCTION
 	if(isscrewdriver(W))
@@ -371,7 +376,7 @@
 	playsound(src.loc, 'sound/items/Welder.ogg', 50, 1)
 	WT.eyecheck(user)
 	busy = 1
-	if(do_after(user, 100))
+	if(do_after(user, 100, src))
 		busy = 0
 		if(!WT.isOn())
 			return 0
@@ -437,7 +442,7 @@
 
 /obj/machinery/camera/proc/nano_structure()
 	var/cam[0]
-	cam["name"] = sanitize(c_tag)
+	cam["name"] = strip_improper(sanitize(c_tag))
 	cam["deact"] = !can_use()
 	cam["camera"] = "\ref[src]"
 	cam["x"] = x

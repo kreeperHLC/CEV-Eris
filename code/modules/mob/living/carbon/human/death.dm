@@ -15,7 +15,7 @@
 		I.throw_at(get_edge_target_turf(src,pick(alldirs)), rand(1,3), round(30/I.w_class))
 
 	..(species.gibbed_anim)
-	gibs(loc, viruses, dna, null, species.flesh_color, species.blood_color)
+	gibs(loc, dna, null, species.flesh_color, species.blood_color)
 
 /mob/living/carbon/human/dust()
 	if(species)
@@ -33,7 +33,6 @@
 
 	//Handle species-specific deaths.
 	species.handle_death(src)
-	animate_tail_stop()
 
 	//Handle brain slugs.
 	var/obj/item/organ/external/head = get_organ("head")
@@ -56,17 +55,18 @@
 
 	callHook("death", list(src, gibbed))
 
-	if(!gibbed && species.death_sound)
-		playsound(loc, species.death_sound, 80, 1, 1)
-
 	if(ticker && ticker.mode)
-		sql_report_death(src)
+
 		ticker.mode.check_win()
 
 	if(wearing_rig)
 		wearing_rig.notify_ai("<span class='danger'>Warning: user death event. Mobility control passed to integrated intelligence system.</span>")
 
 	. = ..(gibbed,species.death_message)
+	if(!gibbed)
+		handle_organs()
+		if(species.death_sound)
+			playsound(loc, species.death_sound, 80, 1, 1)
 	handle_hud_list()
 
 /mob/living/carbon/human/proc/ChangeToHusk()

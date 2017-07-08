@@ -16,6 +16,9 @@
 	pass_flags = PASSTABLE
 //	causeerrorheresoifixthis
 	var/obj/item/master = null
+	var/list/origin_tech = null	//Used by R&D to determine what research bonuses it grants.
+	var/list/attack_verb = list() //Used in attackby() to say how something was attacked "[x] has been [z.attack_verb] by [y] with [z]"
+	var/force = 0
 
 	var/heat_protection = 0 //flags which determine which body parts are protected from heat. Use the HEAD, UPPER_TORSO, LOWER_TORSO, etc. flags. See setup.dm
 	var/cold_protection = 0 //flags which determine which body parts are protected from cold. Use the HEAD, UPPER_TORSO, LOWER_TORSO, etc. flags. See setup.dm
@@ -56,20 +59,18 @@
 	// Only slot_l_hand/slot_r_hand are implemented at the moment. Others to be implemented as needed.
 	var/list/item_icons = list()
 
-	//** These specify item/icon overrides for _species_
+/obj/item/get_fall_damage()
+	return w_class * 2
 
-	/* Species-specific sprites, concept stolen from Paradise//vg/.
-	ex:
-	sprite_sheets = list(
-		"Tajara" = 'icons/cat/are/bad'
-		)
-	If index term exists and icon_override is not set, this sprite sheet will be used.
-	*/
-	var/list/sprite_sheets = list()
-
-	// Species-specific sprite sheets for inventory sprites
-	// Works similarly to worn sprite_sheets, except the alternate sprites are used when the clothing/refit_for_species() proc is called.
-	var/list/sprite_sheets_obj = list()
+/obj/item/equipped()
+	..()
+	var/mob/M = loc
+	if(!istype(M))
+		return
+	if(M.l_hand)
+		M.l_hand.update_held_icon()
+	if(M.r_hand)
+		M.r_hand.update_held_icon()
 
 /obj/item/Destroy()
 	if(ismob(loc))
@@ -89,7 +90,7 @@
 		var/mob/M = src.loc
 		if(M.l_hand == src)
 			M.update_inv_l_hand()
-		if(M.r_hand == src)
+		else if(M.r_hand == src)
 			M.update_inv_r_hand()
 
 /obj/item/ex_act(severity)
@@ -172,7 +173,7 @@
 			return
 		var/mob/living/silicon/robot/R = user
 		R.activate_module(src)
-		R.hud_used.update_robot_modules_display()
+//		R.hud_used.update_robot_modules_display()
 
 // Due to storage type consolidation this should get used more now.
 // I have cleaned it up a little, but it could probably use more.  -Sayu
@@ -576,8 +577,8 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 		cannotzoom = 1
 
 	if(!zoom && !cannotzoom)
-		if(usr.hud_used.hud_shown)
-			usr.toggle_zoom_hud()	// If the user has already limited their HUD this avoids them having a HUD when they zoom in
+		//if(usr.hud_used.hud_shown)
+			//usr.toggle_zoom_hud()	// If the user has already limited their HUD this avoids them having a HUD when they zoom in
 		usr.client.view = viewsize
 		zoom = 1
 
@@ -602,8 +603,8 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 
 	else
 		usr.client.view = world.view
-		if(!usr.hud_used.hud_shown)
-			usr.toggle_zoom_hud()
+		//if(!usr.hud_used.hud_shown)
+			//usr.toggle_zoom_hud()
 		zoom = 0
 
 		usr.client.pixel_x = 0
@@ -616,3 +617,4 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 
 /obj/item/proc/pwr_drain()
 	return 0 // Process Kill
+

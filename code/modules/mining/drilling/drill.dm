@@ -9,6 +9,7 @@
 	name = "mining drill head"
 	desc = "An enormous drill."
 	icon_state = "mining_drill"
+	circuit = /obj/item/weapon/circuitboard/miningdrill
 	var/braces_needed = 2
 	var/list/supports = list()
 	var/supported = 0
@@ -21,7 +22,7 @@
 		"gold" = /obj/item/weapon/ore/gold,
 		"silver" = /obj/item/weapon/ore/silver,
 		"diamond" = /obj/item/weapon/ore/diamond,
-		"phoron" = /obj/item/weapon/ore/phoron,
+		"plasma" = /obj/item/weapon/ore/plasma,
 		"osmium" = /obj/item/weapon/ore/osmium,
 		"hydrogen" = /obj/item/weapon/ore/hydrogen,
 		"silicates" = /obj/item/weapon/ore/glass,
@@ -32,24 +33,12 @@
 	var/harvest_speed
 	var/capacity
 	var/charge_use
-	var/obj/item/weapon/cell/cell = null
+	var/obj/item/weapon/cell/big/cell = null
 
 	//Flags
 	var/need_update_field = 0
 	var/need_player_check = 0
 
-/obj/machinery/mining/drill/New()
-
-	..()
-
-	component_parts = list()
-	component_parts += new /obj/item/weapon/circuitboard/miningdrill(src)
-	component_parts += new /obj/item/weapon/stock_parts/matter_bin(src)
-	component_parts += new /obj/item/weapon/stock_parts/capacitor(src)
-	component_parts += new /obj/item/weapon/stock_parts/micro_laser(src)
-	component_parts += new /obj/item/weapon/cell/high(src)
-
-	RefreshParts()
 
 /obj/machinery/mining/drill/process()
 
@@ -150,7 +139,7 @@
 			return
 	if(!panel_open || active) return ..()
 
-	if(istype(O, /obj/item/weapon/cell))
+	if(istype(O, /obj/item/weapon/cell/big))
 		if(cell)
 			user << "The drill already has a cell installed."
 		else
@@ -217,7 +206,7 @@
 			capacity = 200 * P.rating
 		if(istype(P, /obj/item/weapon/stock_parts/capacitor))
 			charge_use -= 10 * P.rating
-	cell = locate(/obj/item/weapon/cell) in component_parts
+	cell = locate(/obj/item/weapon/cell/big) in component_parts
 
 /obj/machinery/mining/drill/proc/check_supports()
 
@@ -290,17 +279,23 @@
 	name = "mining drill brace"
 	desc = "A machinery brace for an industrial drill. It looks easily two feet thick."
 	icon_state = "mining_brace"
+	circuit = /obj/item/weapon/circuitboard/miningdrillbrace
 	var/obj/machinery/mining/drill/connected
 
 /obj/machinery/mining/brace/attackby(obj/item/weapon/W as obj, mob/user as mob)
+	if(connected && connected.active)
+		user << "<span class='notice'>You can't work with the brace of a running drill!</span>"
+		return
+
+	if(default_deconstruction_screwdriver(user, W))
+		return
+	if(default_deconstruction_crowbar(user, W))
+		return
+
 	if(istype(W,/obj/item/weapon/wrench))
 
 		if(istype(get_turf(src), /turf/space))
 			user << "<span class='notice'>You can't anchor something to empty space. Idiot.</span>"
-			return
-
-		if(connected && connected.active)
-			user << "<span class='notice'>You can't unanchor the brace of a running drill!</span>"
 			return
 
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 100, 1)

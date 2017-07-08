@@ -19,16 +19,10 @@ var/global/list/robot_modules = list(
 	w_class = 100.0
 	item_state = "electronic"
 	flags = CONDUCT
+	var/hide_on_manifest = 0
 	var/channels = list()
 	var/networks = list()
-	var/languages = list(
-		LANGUAGE_SOL_COMMON = 1,
-		LANGUAGE_TRADEBAND = 1,
-		LANGUAGE_UNATHI = 0,
-		LANGUAGE_SIIK_TAJR = 0,
-		LANGUAGE_SKRELLIAN = 0,
-		LANGUAGE_RESOMI = 0,
-		LANGUAGE_GUTTER = 0)
+	var/languages = list(LANGUAGE_SOL_COMMON = 1)
 	var/sprites = list()
 	var/can_be_pushed = 1
 	var/no_slip = 0
@@ -150,10 +144,12 @@ var/global/list/robot_modules = list(
 	added_networks.Cut()
 
 /obj/item/weapon/robot_module/proc/add_subsystems(var/mob/living/silicon/robot/R)
-	R.verbs |= subsystems
+	for(var/subsystem_type in subsystems)
+		R.init_subsystem(subsystem_type)
 
 /obj/item/weapon/robot_module/proc/remove_subsystems(var/mob/living/silicon/robot/R)
-	R.verbs -= subsystems
+	for(var/subsystem_type in subsystems)
+		R.remove_subsystem(subsystem_type)
 
 /obj/item/weapon/robot_module/proc/apply_status_flags(var/mob/living/silicon/robot/R)
 	if(!can_be_pushed)
@@ -186,7 +182,7 @@ var/global/list/robot_modules = list(
 	name = "medical robot module"
 	channels = list("Medical" = 1)
 	networks = list(NETWORK_MEDICAL)
-	subsystems = list(/mob/living/silicon/proc/subsystem_crew_monitor)
+	subsystems = list(/datum/nano_module/crew_monitor)
 	can_be_pushed = 0
 
 /obj/item/weapon/robot_module/medical/surgeon
@@ -308,7 +304,7 @@ var/global/list/robot_modules = list(
 	name = "engineering robot module"
 	channels = list("Engineering" = 1)
 	networks = list(NETWORK_ENGINEERING)
-	subsystems = list(/mob/living/silicon/proc/subsystem_power_monitor)
+	subsystems = list(/datum/nano_module/power_monitor)
 	supported_upgrades = list(/obj/item/borg/upgrade/rcd)
 	sprites = list(
 					"Basic" = "Engineering",
@@ -387,7 +383,7 @@ var/global/list/robot_modules = list(
 	name = "security robot module"
 	channels = list("Security" = 1)
 	networks = list(NETWORK_SECURITY)
-	subsystems = list(/mob/living/silicon/proc/subsystem_crew_monitor)
+	subsystems = list(/datum/nano_module/crew_monitor)
 	can_be_pushed = 0
 	supported_upgrades = list(/obj/item/borg/upgrade/tasercooler)
 
@@ -457,17 +453,7 @@ var/global/list/robot_modules = list(
 /obj/item/weapon/robot_module/clerical
 	name = "service robot module"
 	channels = list("Service" = 1)
-	languages = list(
-					LANGUAGE_SOL_COMMON	= 1,
-					LANGUAGE_UNATHI		= 1,
-					LANGUAGE_SIIK_MAAS	= 1,
-					LANGUAGE_SIIK_TAJR	= 0,
-					LANGUAGE_SKRELLIAN	= 1,
-					LANGUAGE_RESOMI		= 1,
-					LANGUAGE_ROOTSPEAK	= 1,
-					LANGUAGE_TRADEBAND	= 1,
-					LANGUAGE_GUTTER		= 1
-					)
+	languages = list(LANGUAGE_SOL_COMMON = 1)
 
 /obj/item/weapon/robot_module/clerical/butler
 	sprites = list(	"Waitress" = "Service",
@@ -606,14 +592,8 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/syndicate
 	name = "illegal robot module"
-	languages = list(
-					LANGUAGE_SOL_COMMON = 1,
-					LANGUAGE_TRADEBAND = 1,
-					LANGUAGE_UNATHI = 0,
-					LANGUAGE_SIIK_TAJR = 0,
-					LANGUAGE_SKRELLIAN = 0,
-					LANGUAGE_GUTTER = 1
-					)
+	hide_on_manifest = 1
+	languages = list(LANGUAGE_SOL_COMMON = 1)
 	sprites = list(
 					"Dread" = "securityrobot",
 				)
@@ -627,7 +607,7 @@ var/global/list/robot_modules = list(
 	src.modules += new /obj/item/weapon/card/emag(src)
 	var/jetpack = new/obj/item/weapon/tank/jetpack/carbondioxide(src)
 	src.modules += jetpack
-	R.internals = jetpack
+//	R.internals = jetpack
 
 	id = R.idcard
 	src.modules += id
@@ -640,6 +620,7 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/security/combat
 	name = "combat robot module"
+	hide_on_manifest = 1
 	sprites = list("Combat Android" = "droid-combat")
 
 /obj/item/weapon/robot_module/combat/New()
@@ -654,6 +635,7 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/drone
 	name = "drone module"
+	hide_on_manifest = 1
 	no_slip = 1
 	networks = list(NETWORK_ENGINEERING)
 
@@ -672,8 +654,10 @@ var/global/list/robot_modules = list(
 	src.modules += new /obj/item/device/pipe_painter(src)
 	src.modules += new /obj/item/device/floor_painter(src)
 
-	robot.internals = new/obj/item/weapon/tank/jetpack/carbondioxide(src)
-	src.modules += robot.internals
+//	robot.internals = new/obj/item/weapon/tank/jetpack/carbondioxide(src)
+//	src.modules += robot.internals
+
+	src.modules += new/obj/item/weapon/tank/jetpack/carbondioxide(src)
 
 	src.emag = new /obj/item/weapon/pickaxe/plasmacutter(src)
 	src.emag.name = "Plasma Cutter"
@@ -736,6 +720,7 @@ var/global/list/robot_modules = list(
 
 /obj/item/weapon/robot_module/drone/construction
 	name = "construction drone module"
+	hide_on_manifest = 1
 	channels = list("Engineering" = 1)
 	languages = list()
 

@@ -75,49 +75,41 @@
 
 	update_hair()
 
-/mob/living/carbon/human/proc/change_eye_color(var/red, var/green, var/blue)
-	if(red == r_eyes && green == g_eyes && blue == b_eyes)
+/mob/living/carbon/human/proc/change_eye_color(var/color)
+	if(color == eyes_color)
 		return
 
-	r_eyes = red
-	g_eyes = green
-	b_eyes = blue
+	eyes_color = color
 
 	update_eyes()
 	update_body()
 	return 1
 
-/mob/living/carbon/human/proc/change_hair_color(var/red, var/green, var/blue)
-	if(red == r_eyes && green == g_eyes && blue == b_eyes)
+/mob/living/carbon/human/proc/change_hair_color(var/color)
+	if(color == hair_color)
 		return
 
-	r_hair = red
-	g_hair = green
-	b_hair = blue
+	hair_color = color
 
 	force_update_limbs()
 	update_body()
 	update_hair()
 	return 1
 
-/mob/living/carbon/human/proc/change_facial_hair_color(var/red, var/green, var/blue)
-	if(red == r_facial && green == g_facial && blue == b_facial)
+/mob/living/carbon/human/proc/change_facial_hair_color(var/color)
+	if(color == facial_color)
 		return
 
-	r_facial = red
-	g_facial = green
-	b_facial = blue
+	facial_color = color
 
 	update_hair()
 	return 1
 
-/mob/living/carbon/human/proc/change_skin_color(var/red, var/green, var/blue)
-	if(red == r_skin && green == g_skin && blue == b_skin || !(species.appearance_flags & HAS_SKIN_COLOR))
+/mob/living/carbon/human/proc/change_skin_color(var/color)
+	if(color == skin_color || !(species.appearance_flags & HAS_SKIN_COLOR))
 		return
 
-	r_skin = red
-	g_skin = green
-	b_skin = blue
+	skin_color = color
 
 	force_update_limbs()
 	update_body()
@@ -142,7 +134,7 @@
 	for(var/current_species_name in all_species)
 		var/datum/species/current_species = all_species[current_species_name]
 
-		if(check_whitelist && config.usealienwhitelist && !check_rights(R_ADMIN, 0, src)) //If we're using the whitelist, make sure to check it!
+		if(check_whitelist && !check_rights(R_ADMIN, 0, src)) //If we're using the whitelist, make sure to check it!
 			if(!(current_species.spawn_flags & CAN_JOIN))
 				continue
 			if(whitelist.len && !(current_species_name in whitelist))

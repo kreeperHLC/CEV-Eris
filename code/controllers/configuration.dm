@@ -34,8 +34,6 @@ var/list/gamemode_cache = list()
 	var/allow_admin_rev = 1				// allows admin revives
 	var/vote_delay = 6000				// minimum time between voting sessions (deciseconds, 10 minute default)
 	var/vote_period = 600				// length of voting period (deciseconds, default 1 minute)
-	var/vote_autotransfer_initial = 108000 // Length of time before the first autotransfer vote is called
-	var/vote_autotransfer_interval = 36000 // length of time before next sequential autotransfer vote
 	var/vote_autogamemode_timeleft = 100 //Length of time before round start when autogamemode vote is called (in seconds, default 100).
 	var/vote_no_default = 0				// vote does not default to nochange/norestart (tbi)
 	var/vote_no_dead = 0				// dead people can't vote (tbi)
@@ -89,10 +87,6 @@ var/list/gamemode_cache = list()
 	var/disable_player_mice = 0
 	var/uneducated_mice = 0 //Set to 1 to prevent newly-spawned mice from understanding human speech
 
-	var/usealienwhitelist = 0
-	var/usealienwhitelistSQL = 0;
-	var/limitalienplayers = 0
-	var/alien_to_human_ratio = 0.5
 	var/allow_extra_antags = 0
 	var/guests_allowed = 1
 	var/debugparanoid = 0
@@ -142,6 +136,8 @@ var/list/gamemode_cache = list()
 	var/generate_asteroid = 0
 	var/no_click_cooldown = 0
 
+	var/asteroid_z_levels = list()
+
 	//Used for modifying movement speed for mobs.
 	//Unversal modifiers
 	var/run_speed = 0
@@ -178,14 +174,15 @@ var/list/gamemode_cache = list()
 	var/irc_bot_export = 0 // whether the IRC bot in use is a Bot32 (or similar) instance; Bot32 uses world.Export() instead of nudge.py/libnudge
 	var/main_irc = ""
 	var/admin_irc = ""
+	var/announce_shuttle_dock_to_irc = FALSE
 	var/python_path = "" //Path to the python executable.  Defaults to "python" on windows and "/usr/bin/env python2" on unix
 	var/use_lib_nudge = 0 //Use the C library nudge instead of the python nudge.
 	var/use_overmap = 0
 
-	var/list/station_levels = list(1)				// Defines which Z-levels the station exists on.
-	var/list/admin_levels= list(2)					// Defines which Z-levels which are for admin functionality, for example including such areas as Central Command and the Syndicate Shuttle
-	var/list/contact_levels = list(1, 5)			// Defines which Z-levels which, for example, a Code Red announcement may affect
-	var/list/player_levels = list(1, 3, 4, 5, 6)	// Defines all Z-levels a character can typically reach
+	var/list/station_levels = list(1, 2, 3, 4, 5)	// Defines which Z-levels the station exists on.
+	var/list/admin_levels= list(6)					// Defines which Z-levels which are for admin functionality, for example including such areas as Central Command and the Syndicate Shuttle
+	var/list/contact_levels = list(1, 2, 3, 4, 5)	// Defines which Z-levels which, for example, a Code Red announcement may affect
+	var/list/player_levels = list(1, 2, 3, 4, 5)	// Defines all Z-levels a character can typically reach
 	var/list/sealed_levels = list() 				// Defines levels that do not allow random transit at the edges.
 
 	// Event settings
@@ -201,14 +198,13 @@ var/list/gamemode_cache = list()
 	var/list/event_delay_upper = list(EVENT_LEVEL_MUNDANE = 9000,	EVENT_LEVEL_MODERATE = 27000,	EVENT_LEVEL_MAJOR = 42000)
 
 	var/aliens_allowed = 0
-	var/ninjas_allowed = 0
 	var/abandon_allowed = 1
 	var/ooc_allowed = 1
 	var/looc_allowed = 1
 	var/dooc_allowed = 1
 	var/dsay_allowed = 1
 
-	var/starlight = 0	// Whether space turfs have ambient light or not
+	var/starlight = "#ffffff"	// null if turned off
 
 	var/list/ert_species = list("Human")
 
@@ -219,7 +215,6 @@ var/list/gamemode_cache = list()
 	var/list/language_prefixes = list(",","#","-")//Default language prefixes
 
 	var/ghosts_can_possess_animals = 0
-	var/delist_when_no_admins = FALSE
 
 /datum/configuration/New()
 	var/list/L = typesof(/datum/game_mode) - /datum/game_mode
@@ -266,7 +261,7 @@ var/list/gamemode_cache = list()
 		if(type == "config")
 			switch (name)
 				if ("resource_urls")
-					config.resource_urls = text2list(value, " ")
+					config.resource_urls = splittext(value, " ")
 
 				if ("admin_legacy_system")
 					config.admin_legacy_system = 1
@@ -343,6 +338,12 @@ var/list/gamemode_cache = list()
 				if ("generate_asteroid")
 					config.generate_asteroid = 1
 
+				if ("asteroid_z_levels")
+					config.asteroid_z_levels = splittext(value, ";")
+					//Numbers get stored as strings, so we'll fix that right now.
+					for(var/z_level in config.asteroid_z_levels)
+						z_level = text2num(z_level)
+
 				if ("no_click_cooldown")
 					config.no_click_cooldown = 1
 
@@ -375,12 +376,6 @@ var/list/gamemode_cache = list()
 
 				if ("vote_period")
 					config.vote_period = text2num(value)
-
-				if ("vote_autotransfer_initial")
-					config.vote_autotransfer_initial = text2num(value)
-
-				if ("vote_autotransfer_interval")
-					config.vote_autotransfer_interval = text2num(value)
 
 				if ("vote_autogamemode_timeleft")
 					config.vote_autogamemode_timeleft = text2num(value)
@@ -466,9 +461,6 @@ var/list/gamemode_cache = list()
 
 				if ("aliens_allowed")
 					config.aliens_allowed = 1
-
-				if ("ninjas_allowed")
-					config.ninjas_allowed = 1
 
 				if ("objectives_disabled")
 					config.objectives_disabled = 1
@@ -574,14 +566,6 @@ var/list/gamemode_cache = list()
 				if("automute_on")
 					automute_on = 1
 
-				if("usealienwhitelist")
-					usealienwhitelist = 1
-				if("usealienwhitelist_sql") // above need to be enabled as well
-					usealienwhitelistSQL = 1;
-				if("alien_player_ratio")
-					limitalienplayers = 1
-					alien_to_human_ratio = text2num(value)
-
 				if("assistant_maint")
 					config.assistant_maint = 1
 
@@ -611,6 +595,9 @@ var/list/gamemode_cache = list()
 
 				if("admin_irc")
 					config.admin_irc = value
+
+				if("announce_shuttle_dock_to_irc")
+					config.announce_shuttle_dock_to_irc = TRUE
 
 				if("python_path")
 					if(value)
@@ -686,11 +673,10 @@ var/list/gamemode_cache = list()
 					config.event_delay_upper[EVENT_LEVEL_MAJOR] = MinutesToTicks(values[3])
 
 				if("starlight")
-					value = text2num(value)
-					config.starlight = value >= 0 ? value : 0
+					config.starlight = value ? value : 0
 
 				if("ert_species")
-					config.ert_species = text2list(value, ";")
+					config.ert_species = splittext(value, ";")
 					if(!config.ert_species.len)
 						config.ert_species += "Human"
 
@@ -701,15 +687,12 @@ var/list/gamemode_cache = list()
 					config.aggressive_changelog = 1
 
 				if("default_language_prefixes")
-					var/list/values = text2list(value, " ")
+					var/list/values = splittext(value, " ")
 					if(values.len > 0)
 						language_prefixes = values
 
 				if ("lobby_screens")
-					config.lobby_screens = text2list(value, ";")
-
-				if("delist_when_no_admins")
-					config.delist_when_no_admins = TRUE
+					config.lobby_screens = splittext(value, ";")
 
 				else
 					log_misc("Unknown setting in configuration: '[name]'")
@@ -809,56 +792,6 @@ var/list/gamemode_cache = list()
 				sqllogin = value
 			if ("password")
 				sqlpass = value
-			if ("feedback_database")
-				sqlfdbkdb = value
-			if ("feedback_login")
-				sqlfdbklogin = value
-			if ("feedback_password")
-				sqlfdbkpass = value
-			if ("enable_stat_tracking")
-				sqllogging = 1
-			else
-				log_misc("Unknown setting in configuration: '[name]'")
-
-/datum/configuration/proc/loadforumsql(filename)  // -- TLE
-	var/list/Lines = file2list(filename)
-	for(var/t in Lines)
-		if(!t)	continue
-
-		t = trim(t)
-		if (length(t) == 0)
-			continue
-		else if (copytext(t, 1, 2) == "#")
-			continue
-
-		var/pos = findtext(t, " ")
-		var/name = null
-		var/value = null
-
-		if (pos)
-			name = lowertext(copytext(t, 1, pos))
-			value = copytext(t, pos + 1)
-		else
-			name = lowertext(t)
-
-		if (!name)
-			continue
-
-		switch (name)
-			if ("address")
-				forumsqladdress = value
-			if ("port")
-				forumsqlport = value
-			if ("database")
-				forumsqldb = value
-			if ("login")
-				forumsqllogin = value
-			if ("password")
-				forumsqlpass = value
-			if ("activatedgroup")
-				forum_activated_group = value
-			if ("authenticatedgroup")
-				forum_authenticated_group = value
 			else
 				log_misc("Unknown setting in configuration: '[name]'")
 
@@ -886,3 +819,5 @@ var/list/gamemode_cache = list()
 			config.python_path = "/usr/bin/env python2"
 		else //probably windows, if not this should work anyway
 			config.python_path = "python"
+
+	world.name = station_name()

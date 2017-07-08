@@ -45,7 +45,7 @@
 	return bought_items
 
 /datum/uplink_item/item/badassery/random_many/purchase_log(obj/item/device/uplink/U)
-	feedback_add_details("traitor_uplink_items_bought", "[src]")
+
 	log_and_message_admins("used \the [U.loc] to buy \a [src]")
 
 /****************
@@ -59,7 +59,7 @@
 
 /datum/uplink_item/item/badassery/surplus/New()
 	..()
-	antag_roles = list(MODE_MERCENARY)
+	antag_roles = list(ROLE_MERCENARY)
 	desc = "A crate containing [item_worth] telecrystal\s worth of surplus leftovers."
 
 /datum/uplink_item/item/badassery/surplus/get_goods(var/obj/item/device/uplink/U, var/loc)

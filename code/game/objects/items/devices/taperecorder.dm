@@ -16,9 +16,17 @@
 	var/list/timestamp = new/list()
 	var/canprint = 1
 	flags = CONDUCT
-	throwforce = 2
+	throwforce = WEAPON_FORCE_HARMLESS
 	throw_speed = 4
 	throw_range = 20
+
+/obj/item/device/taperecorder/New()
+	..()
+	add_hearing()
+
+/obj/item/device/taperecorder/Destroy()
+	remove_hearing()
+	..()
 
 /obj/item/device/taperecorder/hear_talk(mob/living/M as mob, msg, var/verb="says", datum/language/speaking=null)
 	if(recording)

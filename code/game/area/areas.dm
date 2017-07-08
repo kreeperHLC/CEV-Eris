@@ -6,6 +6,7 @@
 /area
 	var/global/global_uid = 0
 	var/uid
+	var/tmp/camera_id = 0 // For automatic c_tag setting
 
 /area/New()
 	icon_state = ""
@@ -17,11 +18,6 @@
 		power_light = 0
 		power_equip = 0
 		power_environ = 0
-
-	if(lighting_use_dynamic)
-		luminosity = 0
-	else
-		luminosity = 1
 
 	..()
 
@@ -40,6 +36,9 @@
 	for (var/obj/machinery/camera/C in src)
 		cameras += C
 	return cameras
+
+/area/proc/get_camera_tag(var/obj/machinery/camera/C)
+	return "[name] [camera_id++]"
 
 /area/proc/atmosalert(danger_level, var/alarm_source)
 	if (danger_level == 0)
@@ -149,20 +148,31 @@
 	return
 
 /area/proc/updateicon()
-	if ((fire || eject || party) && (!requires_power||power_environ) && !istype(src, /area/space))//If it doesn't require power, can still activate this proc.
-		if(fire && !eject && !party)
-			icon_state = "blue"
-		/*else if(atmosalm && !fire && !eject && !party)
-			icon_state = "bluenew"*/
-		else if(!fire && eject && !party)
+	if ((fire || eject || party || atmosalm == 2) && (!requires_power||power_environ) && !istype(src, /area/space))//If it doesn't require power, can still activate this proc.
+		if(fire)
+			//icon_state = "blue"
+			for(var/obj/machinery/light/L in src)
+				if(istype(L, /obj/machinery/light/small))
+					continue
+				L.set_red()
+		else if (atmosalm == 2)
+			for(var/obj/machinery/light/L in src)
+				if(istype(L, /obj/machinery/light/small))
+					continue
+				L.set_blue()
+		else if(!fire && eject && !party && !(atmosalm == 2))
 			icon_state = "red"
-		else if(party && !fire && !eject)
+		else if(party && !fire && !eject && !(atmosalm == 2))
 			icon_state = "party"
-		else
-			icon_state = "blue-red"
+		//else
+			//icon_state = "blue-red"
 	else
 	//	new lighting behaviour with obj lights
 		icon_state = null
+		for(var/obj/machinery/light/L in src)
+			if(istype(L, /obj/machinery/light/small))
+				continue
+			L.reset_color()
 
 
 /*
@@ -242,29 +252,34 @@ var/list/mob/living/forced_ambiance_list = new
 	play_ambience(L)
 
 /area/proc/play_ambience(var/mob/living/L)
-	// Ambience goes down here -- make sure to list each area seperately for ease of adding things in later, thanks! Note: areas adjacent to each other should have the same sounds to prevent cutoff when possible.- LastyScratch
-	if(!(L && L.client && (L.client.prefs.toggles & SOUND_AMBIENCE)))	return
+    // Ambience goes down here -- make sure to list each area seperately for ease of adding things in later, thanks! Note: areas adjacent to each other should have the same sounds to prevent cutoff when possible.- LastyScratch
+	if(!(L && L.is_preference_enabled(/datum/client_preference/play_ambiance)))    return
 
-	// If we previously were in an area with force-played ambiance, stop it.
-	if(L in forced_ambiance_list)
-		L << sound(null, channel = 1)
-		forced_ambiance_list -= L
+	var/client/CL = L.client
 
-	if(!L.client.ambience_playing)
-		L.client.ambience_playing = 1
-		L << sound('sound/ambience/shipambience.ogg', repeat = 1, wait = 0, volume = 35, channel = 2)
+	if(CL.ambience_playing) // If any ambience already playing
+		if(forced_ambience && forced_ambience.len)
+			if(CL.ambience_playing in forced_ambience)
+				return 1
+			else
+				var/new_ambience = pick(pick(forced_ambience))
+				CL.ambience_playing = new_ambience
+				L << sound(new_ambience, repeat = 1, wait = 0, volume = 30, channel = SOUND_CHANNEL_AMBIENCE)
+				return 1
+		if(CL.ambience_playing in ambience)
+			return 1
 
-	if(forced_ambience)
-		if(forced_ambience.len)
-			forced_ambiance_list |= L
-			L << sound(pick(forced_ambience), repeat = 1, wait = 0, volume = 25, channel = 1)
-		else
-			L << sound(null, channel = 1)
-	else if(src.ambience.len && prob(35))
-		if((world.time >= L.client.played + 600))
+	if(ambience.len && prob(35))
+		if(world.time >= L.client.played + 600)
 			var/sound = pick(ambience)
-			L << sound(sound, repeat = 0, wait = 0, volume = 25, channel = 1)
+			CL.ambience_playing = sound
+			L << sound(sound, repeat = 0, wait = 0, volume = 10, channel = SOUND_CHANNEL_AMBIENCE)
 			L.client.played = world.time
+			return 1
+	else
+		var/sound = 'sound/ambience/shipambience.ogg'
+		CL.ambience_playing = sound
+		L << sound(sound, repeat = 1, wait = 0, volume = 30, channel = SOUND_CHANNEL_AMBIENCE)
 
 /area/proc/gravitychange(var/gravitystate = 0, var/area/A)
 	A.has_gravity = gravitystate
@@ -292,12 +307,14 @@ var/list/mob/living/forced_ambiance_list = new
 		mob << "<span class='notice'>The sudden appearance of gravity makes you fall to the floor!</span>"
 
 /area/proc/prison_break()
-	for(var/obj/machinery/power/apc/temp_apc in src)
-		temp_apc.overload_lighting(70)
-	for(var/obj/machinery/door/airlock/temp_airlock in src)
-		temp_airlock.prison_open()
-	for(var/obj/machinery/door/window/temp_windoor in src)
-		temp_windoor.open()
+	var/obj/machinery/power/apc/theAPC = get_apc()
+	if(theAPC.operating)
+		for(var/obj/machinery/power/apc/temp_apc in src)
+			temp_apc.overload_lighting(70)
+		for(var/obj/machinery/door/airlock/temp_airlock in src)
+			temp_airlock.prison_open()
+		for(var/obj/machinery/door/window/temp_windoor in src)
+			temp_windoor.open()
 
 /area/proc/has_gravity()
 	return has_gravity

@@ -14,7 +14,6 @@ var/list/department_radio_keys = list(
 	  ":u" = "Supply",		".u" = "Supply",
 	  ":v" = "Service",		".v" = "Service",
 	  ":p" = "AI Private",	".p" = "AI Private",
-	  ":z" = "Entertainment",".z" = "Entertainment",
 
 	  ":R" = "right ear",	".R" = "right ear",
 	  ":L" = "left ear",	".L" = "left ear",
@@ -30,22 +29,38 @@ var/list/department_radio_keys = list(
 	  ":U" = "Supply",		".U" = "Supply",
 	  ":V" = "Service",		".V" = "Service",
 	  ":P" = "AI Private",	".P" = "AI Private",
-	  ":Z" = "Entertainment",".Z" = "Entertainment",
 
 	  //kinda localization -- rastaf0
 	  //same keys as above, but on russian keyboard layout. This file uses cp1251 as encoding.
-	  ":�" = "right ear",	".�" = "right ear",
-	  ":�" = "left ear",	".�" = "left ear",
-	  ":�" = "intercom",	".�" = "intercom",
-	  ":�" = "department",	".�" = "department",
-	  ":�" = "Command",		".�" = "Command",
-	  ":�" = "Science",		".�" = "Science",
-	  ":�" = "Medical",		".�" = "Medical",
-	  ":�" = "Engineering",	".�" = "Engineering",
-	  ":�" = "Security",	".�" = "Security",
-	  ":�" = "whisper",		".�" = "whisper",
-	  ":�" = "Mercenary",	".�" = "Mercenary",
-	  ":�" = "Supply",		".�" = "Supply",
+	  ":ê" = "right ear",	".ê" = "right ear",
+	  ":ä" = "left ear",	".ä" = "left ear",
+	  ":ø" = "intercom",	".ø" = "intercom",
+	  ":ð" = "department",	".ð" = "department",
+	  ":ñ" = "Command",		".ñ" = "Command",
+	  ":ò" = "Science",		".ò" = "Science",
+	  ":ü" = "Medical",		".ü" = "Medical",
+	  ":ó" = "Engineering",	".ó" = "Engineering",
+	  ":û" = "Security",	".û" = "Security",
+	  ":ö" = "whisper",		".ö" = "whisper",
+	  ":å" = "Mercenary",	".å" = "Mercenary",
+	  ":ã" = "Supply",		".ã" = "Supply",
+	  ":ì" = "Service",		".ì" = "Service",
+	  ":ç" = "AI Private",	".ç" = "AI Private",
+
+	  ":Ê" = "right ear",	".Ê" = "right ear",
+	  ":Ä" = "left ear",	".Ä" = "left ear",
+	  ":Ø" = "intercom",	".Ø" = "intercom",
+	  ":Ð" = "department",	".Ð" = "department",
+	  ":Ñ" = "Command",		".Ñ" = "Command",
+	  ":Ò" = "Science",		".Ò" = "Science",
+	  ":Ü" = "Medical",		".Ü" = "Medical",
+	  ":Ó" = "Engineering",	".Ó" = "Engineering",
+	  ":Û" = "Security",	".Û" = "Security",
+	  ":Ö" = "whisper",		".Ö" = "whisper",
+	  ":Ó" = "Mercenary",	".Ó" = "Mercenary",
+	  ":Ã" = "Supply",		".Ã" = "Supply",
+	  ":Ì" = "Service",		".Ü" = "Service",
+	  ":Ç" = "AI Private",	".Ç" = "AI Private",
 )
 
 
@@ -178,7 +193,6 @@ proc/get_radio_key_from_channel(var/channel)
 	message = trim_left(message)
 
 	if(!(speaking && (speaking.flags & NO_STUTTER)))
-		message = handle_autohiss(message, speaking)
 
 		var/list/handle_s = handle_speech_problems(message, verb)
 		message = handle_s[1]
@@ -238,25 +252,19 @@ proc/get_radio_key_from_channel(var/channel)
 			italics = 1
 			sound_vol *= 0.5 //muffle the sound a bit, so it's like we're actually talking through contact
 
-		var/list/hear = get_mobs_or_objects_in_view(message_range,src)
-		var/list/hearturfs = list()
+		//DO NOT FUCKING CHANGE THIS TO GET_OBJ_OR_MOB_AND_BULLSHIT() -- Hugs and Kisses ~Ccomp
+		var/list/hear = hear(message_range,T)
 
-		for(var/I in hear)
-			if(ismob(I))
-				var/mob/M = I
-				listening += M
-				hearturfs += M.locs[1]
-			else if(isobj(I))
-				var/obj/O = I
-				hearturfs += O.locs[1]
+		for(var/mob/M in mob_list)
+			if(M.locs.len && M.locs[1] in hear)
+				listening |= M
+
+		for(var/obj/O in hearing_objects)
+			if(O.locs.len && O.locs[1] in hear)
 				listening_obj |= O
 
-
 		for(var/mob/M in player_list)
-			if(M.stat == DEAD && M.client && (M.client.prefs.toggles & CHAT_GHOSTEARS))
-				listening |= M
-				continue
-			if(M.loc && M.locs[1] in hearturfs)
+			if(M.stat == DEAD && M.is_preference_enabled(/datum/client_preference/ghost_ears))
 				listening |= M
 
 	var/speech_bubble_test = say_test(message)

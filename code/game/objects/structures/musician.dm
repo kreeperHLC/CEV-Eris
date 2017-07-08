@@ -17,6 +17,9 @@
 	var/edit = 1
 	var/repeat = 0
 
+/obj/structure/device/piano/get_fall_damage()
+	return FALL_GIB_DAMAGE
+
 /obj/structure/device/piano/New()
 	if(prob(50))
 		name = "space minimoog"
@@ -220,10 +223,10 @@
 
 		for(var/line in song.lines)
 			//world << line
-			for(var/beat in text2list(lowertext(line), ","))
+			for(var/beat in splittext(lowertext(line), ","))
 				//world << "beat: [beat]"
-				var/list/notes = text2list(beat, "/")
-				for(var/note in text2list(notes[1], "-"))
+				var/list/notes = splittext(beat, "/")
+				for(var/note in splittext(notes[1], "-"))
 					//world << "note: [note]"
 					if(!playing || !anchored)//If the piano is playing, or is loose
 						playing = 0
@@ -299,7 +302,7 @@
 					Combined, an example is: <i>E-E4/4,/2,G#/8,B/8,E3-E4/4</i>
 					<br>
 					Lines may be up to 50 characters.<br>
-					A song may only contain up to 50 lines.<br>
+					A song may only contain up to 200 lines.<br>
 					"}
 		else
 			dat += "<A href='?src=\ref[src];help=2'>Show Help</A><BR>"
@@ -337,10 +340,10 @@
 				spawn() playsong()
 
 		else if(href_list["newline"])
-			var/newline = html_encode(input("Enter your line: ", "Piano") as text|null)
+			var/newline = rhtml_encode(input("Enter your line: ", "Piano") as text|null)
 			if(!newline)
 				return
-			if(song.lines.len > 50)
+			if(song.lines.len > 200)
 				return
 			if(lentext(newline) > 50)
 				newline = copytext(newline, 1, 50)
@@ -354,7 +357,7 @@
 
 		else if(href_list["modifyline"])
 			var/num = round(text2num(href_list["modifyline"]),1)
-			var/content = html_encode(input("Enter your line: ", "Piano", song.lines[num]) as text|null)
+			var/content = rhtml_encode(input("Enter your line: ", "Piano", song.lines[num]) as text|null)
 			if(!content)
 				return
 			if(lentext(content) > 50)
@@ -375,26 +378,26 @@
 		else if(href_list["import"])
 			var/t = ""
 			do
-				t = html_encode(input(usr, "Please paste the entire song, formatted:", text("[]", src.name), t)  as message)
+				t = rhtml_encode(input(usr, "Please paste the entire song, formatted:", text("[]", src.name), t)  as message)
 				if (!in_range(src, usr))
 					return
 
-				if(lentext(t) >= 3072)
+				if(lentext(t) >= 12000)
 					var/cont = input(usr, "Your message is too long! Would you like to continue editing it?", "", "yes") in list("yes", "no")
 					if(cont == "no")
 						break
-			while(lentext(t) > 3072)
+			while(lentext(t) > 12000)
 
 			//split into lines
 			spawn()
-				var/list/lines = text2list(t, "\n")
+				var/list/lines = splittext(t, "\n")
 				var/tempo = 5
 				if(copytext(lines[1],1,6) == "BPM: ")
 					tempo = 600 / text2num(copytext(lines[1],6))
 					lines.Cut(1,2)
-				if(lines.len > 50)
+				if(lines.len > 200)
 					usr << "Too many lines!"
-					lines.Cut(51)
+					lines.Cut(201)
 				var/linenum = 1
 				for(var/l in lines)
 					if(lentext(l) > 50)
@@ -416,7 +419,7 @@
 		if (anchored)
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 			user << "<span class='notice'>You begin to loosen \the [src]'s casters...</span>"
-			if (do_after(user, 40))
+			if (do_after(user, 40, src))
 				user.visible_message( \
 					"[user] loosens \the [src]'s casters.", \
 					"<span class='notice'>You have loosened \the [src]. Now it can be pulled somewhere else.</span>", \
@@ -425,7 +428,7 @@
 		else
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 			user << "<span class='notice'>You begin to tighten \the [src] to the floor...</span>"
-			if (do_after(user, 20))
+			if (do_after(user, 20, src))
 				user.visible_message( \
 					"[user] tightens \the [src]'s casters.", \
 					"<span class='notice'>You have tightened \the [src]'s casters. Now it can be played again</span>.", \

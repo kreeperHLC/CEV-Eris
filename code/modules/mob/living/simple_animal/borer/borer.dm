@@ -43,7 +43,7 @@
 /mob/living/simple_animal/borer/New()
 	..()
 
-	add_language("Cortical Link")
+	add_language(LANGUAGE_CORTICAL)
 	verbs += /mob/living/proc/ventcrawl
 	verbs += /mob/living/proc/hide
 
@@ -83,7 +83,7 @@
 					return
 
 				if(prob(5))
-					host.adjustBrainLoss(rand(1,2))
+					host.adjustBrainLoss(0.1)
 
 				if(prob(host.brainloss/20))
 					host.say("*[pick(list("blink","blink_r","choke","aflap","drool","twitch","twitch_s","gasp"))]")
@@ -111,7 +111,7 @@
 
 	controlling = 0
 
-	host.remove_language("Cortical Link")
+	host.remove_language(LANGUAGE_CORTICAL)
 	host.verbs -= /mob/living/carbon/proc/release_control
 	host.verbs -= /mob/living/carbon/proc/punish_host
 	host.verbs -= /mob/living/carbon/proc/spawn_larvae

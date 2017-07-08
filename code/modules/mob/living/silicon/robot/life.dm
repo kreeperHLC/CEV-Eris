@@ -64,6 +64,8 @@
 			lights_on = 0
 			set_light(0)
 
+
+
 /mob/living/silicon/robot/handle_regular_status_updates()
 
 	if(src.camera && !scrambledcodes)
@@ -99,6 +101,8 @@
 
 		else	//Not stunned.
 			src.stat = 0
+
+		confused = max(0, confused - 1)
 
 	else //Dead.
 		src.blinded = 1
@@ -192,7 +196,11 @@
 			if (MED_HUD)
 				process_med_hud(src,0)
 
-	if (src.healths)
+	for (var/obj/screen/H in HUDprocess)
+//		var/obj/screen/B = H
+		H.process()
+
+/*	if (src.healths)
 		if (src.stat != 2)
 			if(istype(src,/mob/living/silicon/robot/drone))
 				switch(health)
@@ -227,7 +235,7 @@
 					else
 						src.healths.icon_state = "health6"
 		else
-			src.healths.icon_state = "health7"
+			src.healths.icon_state = "health7"*/
 
 	if (src.syndicate && src.client)
 		for(var/datum/mind/tra in traitors.current_antagonists)
@@ -242,7 +250,7 @@
 				src.mind.special_role = "traitor"
 				traitors.current_antagonists |= src.mind
 
-	if (src.cells)
+/*	if (src.cells)
 		if (src.cell)
 			var/cellcharge = src.cell.charge/src.cell.maxcharge
 			switch(cellcharge)
@@ -257,9 +265,9 @@
 				else
 					src.cells.icon_state = "charge0"
 		else
-			src.cells.icon_state = "charge-empty"
+			src.cells.icon_state = "charge-empty"*/
 
-	if(bodytemp)
+/*	if(bodytemp)
 		switch(src.bodytemperature) //310.055 optimal body temp
 			if(335 to INFINITY)
 				src.bodytemp.icon_state = "temp2"
@@ -270,7 +278,7 @@
 			if(260 to 300)
 				src.bodytemp.icon_state = "temp-1"
 			else
-				src.bodytemp.icon_state = "temp-2"
+				src.bodytemp.icon_state = "temp-2"*/
 
 //Oxygen and fire does nothing yet!!
 //	if (src.oxygen) src.oxygen.icon_state = "oxy[src.oxygen_alert ? 1 : 0]"
@@ -278,11 +286,11 @@
 
 	client.screen.Remove(global_hud.blurry,global_hud.druggy,global_hud.vimpaired)
 
-	if ((src.blind && src.stat != 2))
+/*	if ((src.blind && src.stat != 2))
 		if(src.blinded)
-			src.blind.layer = 18
+			src.blind.alpha = 255
 		else
-			src.blind.layer = 0
+			src.blind.alpha = 0
 			if (src.disabilities & NEARSIGHTED)
 				src.client.screen += global_hud.vimpaired
 
@@ -290,7 +298,7 @@
 				src.client.screen += global_hud.blurry
 
 			if (src.druggy)
-				src.client.screen += global_hud.druggy
+				src.client.screen += global_hud.druggy*/
 
 	if (src.stat != 2)
 		if (src.machine)
@@ -306,14 +314,14 @@
 	if (src.client)
 		src.client.screen -= src.contents
 		for(var/obj/I in src.contents)
-			if(I && !(istype(I,/obj/item/weapon/cell) || istype(I,/obj/item/device/radio)  || istype(I,/obj/machinery/camera) || istype(I,/obj/item/device/mmi)))
+			if(I && !(istype(I,/obj/item/weapon/cell/big) || istype(I,/obj/item/device/radio)  || istype(I,/obj/machinery/camera) || istype(I,/obj/item/device/mmi)))
 				src.client.screen += I
 	if(src.module_state_1)
-		src.module_state_1:screen_loc = ui_inv1
+		src.module_state_1:screen_loc = find_inv_position(1)
 	if(src.module_state_2)
-		src.module_state_2:screen_loc = ui_inv2
+		src.module_state_2:screen_loc = find_inv_position(2)
 	if(src.module_state_3)
-		src.module_state_3:screen_loc = ui_inv3
+		src.module_state_3:screen_loc = find_inv_position(3)
 	updateicon()
 
 /mob/living/silicon/robot/proc/process_killswitch()

@@ -55,8 +55,8 @@
 	icon_state = "riot"
 	flags = CONDUCT
 	slot_flags = SLOT_BACK
-	force = 5.0
-	throwforce = 5.0
+	force = WEAPON_FORCE_PAINFULL
+	throwforce = WEAPON_FORCE_PAINFULL
 	throw_speed = 1
 	throw_range = 4
 	w_class = 4.0
@@ -129,7 +129,7 @@
 		user.take_organ_damage(5)
 	active = !active
 	if (active)
-		force = 10
+		force = WEAPON_FORCE_PAINFULL
 		update_icon()
 		w_class = 4
 		playsound(user, 'sound/weapons/saberon.ogg', 50, 1)
@@ -157,36 +157,4 @@
 	else
 		set_light(0)
 
-/obj/item/weapon/cloaking_device
-	name = "cloaking device"
-	desc = "Use this to become invisible to the human eye."
-	icon = 'icons/obj/device.dmi'
-	icon_state = "shield0"
-	var/active = 0.0
-	flags = CONDUCT
-	item_state = "electronic"
-	throwforce = 10.0
-	throw_speed = 2
-	throw_range = 10
-	w_class = 2.0
-	origin_tech = list(TECH_MAGNET = 3, TECH_ILLEGAL = 4)
-
-
-/obj/item/weapon/cloaking_device/attack_self(mob/user as mob)
-	src.active = !( src.active )
-	if (src.active)
-		user << "<span class='notice'>\The [src] is now active.</span>"
-		src.icon_state = "shield1"
-	else
-		user << "<span class='notice'>\The [src] is now inactive.</span>"
-		src.icon_state = "shield0"
-	src.add_fingerprint(user)
-	return
-
-/obj/item/weapon/cloaking_device/emp_act(severity)
-	active = 0
-	icon_state = "shield0"
-	if(ismob(loc))
-		loc:update_icons()
-	..()
 

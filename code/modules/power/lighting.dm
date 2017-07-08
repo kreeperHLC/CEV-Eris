@@ -10,7 +10,7 @@
 #define LIGHT_BURNED 3
 #define LIGHT_BULB_TEMPERATURE 400 //K - used value for a 60W bulb
 
-/obj/machinery/light_construct
+/obj/machinery/light_construct // Добавить понятие "базовая иконка"
 	name = "light fixture frame"
 	desc = "A light fixture under construction."
 	icon = 'icons/obj/lighting.dmi'
@@ -26,6 +26,8 @@
 	..()
 	if (fixture_type == "bulb")
 		icon_state = "bulb-construct-stage1"
+	else if (istype(src, /obj/machinery/light_construct/floor))
+		icon_state = "floortube-construct-stage1"
 
 /obj/machinery/light_construct/examine(mob/user)
 	if(!..(user, 2))
@@ -47,8 +49,8 @@
 	if (istype(W, /obj/item/weapon/wrench))
 		if (src.stage == 1)
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
-			usr << "You begin deconstructing [src]."
-			if (!do_after(usr, 30))
+			usr << "You begin deconstructing \a [src]."
+			if (!do_after(usr, 30,src))
 				return
 			new /obj/item/stack/material/steel( get_turf(src.loc), sheets_refunded )
 			user.visible_message("[user.name] deconstructs [src].", \
@@ -68,7 +70,10 @@
 		src.stage = 1
 		switch(fixture_type)
 			if ("tube")
-				src.icon_state = "tube-construct-stage1"
+				if (!istype(src, /obj/machinery/light_construct/floor)) // TODO Переделать это
+					src.icon_state = "tube-construct-stage1"
+				else
+					src.icon_state = "floortube-construct-stage1"
 			if("bulb")
 				src.icon_state = "bulb-construct-stage1"
 		new /obj/item/stack/cable_coil(get_turf(src.loc), 1, "red")
@@ -83,7 +88,10 @@
 		if (coil.use(1))
 			switch(fixture_type)
 				if ("tube")
-					src.icon_state = "tube-construct-stage2"
+					if (!istype(src, /obj/machinery/light_construct/floor)) // TODO Переделать это
+						src.icon_state = "tube-construct-stage2"
+					else
+						src.icon_state = "floortube-construct-stage2"
 				if("bulb")
 					src.icon_state = "bulb-construct-stage2"
 			src.stage = 2
@@ -106,7 +114,10 @@
 			switch(fixture_type)
 
 				if("tube")
-					newlight = new /obj/machinery/light/built(src.loc)
+					if (!istype(src, /obj/machinery/light_construct/floor))
+						newlight = new /obj/machinery/light/built(src.loc)
+					else
+						newlight = new /obj/machinery/light/floor/built(src.loc)
 				if ("bulb")
 					newlight = new /obj/machinery/light/small/built(src.loc)
 
@@ -127,6 +138,11 @@
 	fixture_type = "bulb"
 	sheets_refunded = 1
 
+/obj/machinery/light_construct/floor //floorlight
+	name = "floorlight fixture frame"
+	icon_state = "floortube-construct-stage1"
+	layer = 2.5
+
 // the standard tube light fixture
 /obj/machinery/light
 	name = "light fixture"
@@ -142,8 +158,8 @@
 	power_channel = LIGHT //Lights are calc'd via area so they dont need to be in the machine list
 	var/on = 0					// 1 if on, 0 if off
 	var/on_gs = 0
-	var/brightness_range = 8	// luminosity when on, also used in power calculation
-	var/brightness_power = 3
+	var/brightness_range = 7	// luminosity when on, also used in power calculation
+	var/brightness_power = 2
 	var/brightness_color = null
 	var/status = LIGHT_OK		// LIGHT_OK, _EMPTY, _BURNED or _BROKEN
 	var/flickering = 0
@@ -151,10 +167,17 @@
 	var/fitting = "tube"
 	var/switchcount = 0			// count of number of times switched on/off
 								// this is used to calc the probability the light burns out
-
+	var/needsound
 	var/rigged = 0				// true if rigged to explode
-
+	var/firealarmed = 0
+	var/atmosalarmed = 0
 // the smaller bulb light fixture
+
+/obj/machinery/light/floor
+	name = "floorlight fixture"
+	base_state = "floortube"
+	icon_state = "floortube1"
+	layer = 2.5
 
 /obj/machinery/light/small
 	icon_state = "bulb1"
@@ -193,20 +216,26 @@
 	update(0)
 	..()
 
+/obj/machinery/light/floor/built/New() //WHAT IT IS?!?!??!?!?
+	status = LIGHT_EMPTY
+	update(0)
+	..()
+
 // create a new lighting fixture
 /obj/machinery/light/New()
 	..()
 
 	spawn(2)
-		on = has_power()
+		var/area/A = get_area(src)
+		if(A && !A.requires_power)
+			on = 1
 
-		switch(fitting)
-			if("tube")
-				if(prob(2))
-					broken(1)
-			if("bulb")
-				if(prob(5))
-					broken(1)
+		if(src.z == 1 || src.z == 5)
+			switch(fitting)
+				if("tube","bulb")
+					if(prob(2))
+						broken(1)
+
 		spawn(1)
 			update(0)
 
@@ -221,7 +250,12 @@
 
 	switch(status)		// set icon_states
 		if(LIGHT_OK)
-			icon_state = "[base_state][on]"
+			if(firealarmed && on && cmptext(base_state,"tube"))
+				icon_state = "[base_state]_alert"
+			else if(atmosalarmed && on && cmptext(base_state,"tube"))
+				icon_state = "[base_state]_alert_atmos"
+			else
+				icon_state = "[base_state][on]"
 		if(LIGHT_EMPTY)
 			icon_state = "[base_state]-empty"
 			on = 0
@@ -233,10 +267,41 @@
 			on = 0
 	return
 
+/obj/machinery/light/proc/set_blue()
+	if(on)
+		if(cmptext(base_state,"tube"))
+			atmosalarmed = 1
+			firealarmed = 0
+			brightness_color = "#6D6DFC"
+		update()
+
+/obj/machinery/light/proc/set_red()
+	if(on)
+		if(cmptext(base_state,"tube"))
+			firealarmed = 1
+			atmosalarmed = 0
+			brightness_color = "#FF3030"
+		update()
+
+/obj/machinery/light/proc/reset_color()
+	if(on)
+		if(cmptext(base_state,"tube"))
+			firealarmed = 0
+			atmosalarmed = 0
+			brightness_color = "#FFFFFF"
+		update()
+
+
 // update the icon_state and luminosity of the light depending on its state
 /obj/machinery/light/proc/update(var/trigger = 1)
 
 	update_icon()
+	if(on == 1)
+		if(needsound == 1)
+			playsound(src.loc, 'sound/effects/Custom_lights.ogg', 65, 1)
+			needsound = 0
+	else
+		needsound = 1
 	if(on)
 		if(light_range != brightness_range || light_power != brightness_power || light_color != brightness_color)
 			switchcount++
@@ -273,7 +338,7 @@
 	if(!(status == LIGHT_OK||status == LIGHT_BURNED))
 		return
 	visible_message("<span class='danger'>[user] smashes the light!</span>")
-	user.do_attack_animation(src)
+	attack_animation(user)
 	broken()
 	return 1
 
@@ -593,8 +658,8 @@
 
 /obj/item/weapon/light
 	icon = 'icons/obj/lighting.dmi'
-	force = 2
-	throwforce = 5
+	force = WEAPON_FORCE_HARMLESS
+	throwforce = WEAPON_FORCE_HARMLESS
 	w_class = 1
 	var/status = 0		// LIGHT_OK, LIGHT_BURNED or LIGHT_BROKEN
 	var/base_state
@@ -672,7 +737,7 @@
 
 
 // attack bulb/tube with object
-// if a syringe, can inject phoron to make it explode
+// if a syringe, can inject plasma to make it explode
 /obj/item/weapon/light/attackby(var/obj/item/I, var/mob/user)
 	..()
 	if(istype(I, /obj/item/weapon/reagent_containers/syringe))
@@ -680,10 +745,10 @@
 
 		user << "You inject the solution into the [src]."
 
-		if(S.reagents.has_reagent("phoron", 5))
+		if(S.reagents.has_reagent("plasma", 5))
 
-			log_admin("LOG: [user.name] ([user.ckey]) injected a light with phoron, rigging it to explode.")
-			message_admins("LOG: [user.name] ([user.ckey]) injected a light with phoron, rigging it to explode.")
+			log_admin("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
+			message_admins("LOG: [user.name] ([user.ckey]) injected a light with plasma, rigging it to explode.")
 
 			rigged = 1
 
@@ -709,7 +774,7 @@
 	if(status == LIGHT_OK || status == LIGHT_BURNED)
 		src.visible_message("\red [name] shatters.","\red You hear a small glass object shatter.")
 		status = LIGHT_BROKEN
-		force = 5
+		force = WEAPON_FORCE_WEAK
 		sharp = 1
 		playsound(src.loc, 'sound/effects/Glasshit.ogg', 75, 1)
 		update()

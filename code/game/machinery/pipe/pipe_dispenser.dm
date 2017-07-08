@@ -82,9 +82,9 @@
 	src.add_fingerprint(usr)
 	if(href_list["make"])
 		if(!wait)
-			var/p_type = text2num(href_list["make"])
+			var/pipe_type = text2num(href_list["make"])
 			var/p_dir = text2num(href_list["dir"])
-			var/obj/item/pipe/P = new (/*usr.loc*/ src.loc, pipe_type=p_type, dir=p_dir)
+			var/obj/item/pipe/P = new (/*usr.loc*/ src.loc, pipe_type=pipe_type, dir=p_dir)
 			P.update()
 			P.add_fingerprint(usr)
 			wait = 1
@@ -109,9 +109,9 @@
 		if (unwrenched==0)
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 			user << "<span class='notice'>You begin to unfasten \the [src] from the floor...</span>"
-			if (do_after(user, 40))
+			if (do_after(user, 40, src))
 				user.visible_message( \
-					"<span class='notice'>[user] unfastens \the [src].</span>", \
+					"<span class='notice'>\The [user] unfastens \the [src].</span>", \
 					"<span class='notice'>You have unfastened \the [src]. Now it can be pulled somewhere else.</span>", \
 					"You hear ratchet.")
 				src.anchored = 0
@@ -122,9 +122,9 @@
 		else /*if (unwrenched==1)*/
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 			user << "<span class='notice'>You begin to fasten \the [src] to the floor...</span>"
-			if (do_after(user, 20))
+			if (do_after(user, 20, src))
 				user.visible_message( \
-					"<span class='notice'>[user] fastens \the [src].</span>", \
+					"<span class='notice'>\The [user] fastens \the [src].</span>", \
 					"<span class='notice'>You have fastened \the [src]. Now it can dispense pipes.</span>", \
 					"You hear ratchet.")
 				src.anchored = 1
@@ -203,46 +203,46 @@ Nah
 			usr << browse(null, "window=pipedispenser")
 			return
 		if(!wait)
-			var/p_type = text2num(href_list["dmake"])
+			var/pipe_type = text2num(href_list["dmake"])
 			var/obj/structure/disposalconstruct/C = new (src.loc)
-			switch(p_type)
+			switch(pipe_type)
 				if(0)
-					C.ptype = 0
+					C.pipe_type = PIPE_TYPE_STRAIGHT
 				if(1)
-					C.ptype = 1
+					C.pipe_type = PIPE_TYPE_BENT
 				if(2)
-					C.ptype = 2
+					C.pipe_type = PIPE_TYPE_JUNC
 				if(3)
-					C.ptype = 4
+					C.pipe_type = PIPE_TYPE_JUNC_Y
 				if(4)
-					C.ptype = 5
+					C.pipe_type = PIPE_TYPE_TRUNK
 				if(5)
-					C.ptype = 6
+					C.pipe_type = PIPE_TYPE_BIN
 					C.density = 1
 				if(6)
-					C.ptype = 7
+					C.pipe_type = PIPE_TYPE_OUTLET
 					C.density = 1
 				if(7)
-					C.ptype = 8
+					C.pipe_type = PIPE_TYPE_INTAKE
 					C.density = 1
 				if(8)
-					C.ptype = 9
-					C.subtype = 0
+					C.pipe_type = PIPE_TYPE_JUNC_SORT
+					C.sort_mode = SORT_TYPE_NORMAL
 				if(9)
-					C.ptype = 9
-					C.subtype = 1
+					C.pipe_type = PIPE_TYPE_JUNC_SORT
+					C.sort_mode = SORT_TYPE_WILDCARD
 				if(10)
-					C.ptype = 9
-					C.subtype = 2
+					C.pipe_type = PIPE_TYPE_JUNC_SORT
+					C.sort_mode = SORT_TYPE_UNTAGGED
 				if(11)
-					C.ptype = 13
+					C.pipe_type = PIPE_TYPE_TAGGER
 				if(12)
-					C.ptype = 14
+					C.pipe_type = PIPE_TYPE_TAGGER_PART
 ///// Z-Level stuff
 				if(21)
-					C.ptype = 11
+					C.pipe_type = PIPE_TYPE_UP
 				if(22)
-					C.ptype = 12
+					C.pipe_type = PIPE_TYPE_DOWN
 ///// Z-Level stuff
 			C.add_fingerprint(usr)
 			C.update()

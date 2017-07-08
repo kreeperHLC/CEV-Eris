@@ -19,6 +19,7 @@
 	var/material/material
 	var/material/padding_material
 	var/base_icon = "bed"
+	var/applies_material_colour = 1
 
 /obj/structure/bed/New(var/newloc, var/new_material, var/new_padding_material)
 	..(newloc)
@@ -45,7 +46,8 @@
 	var/cache_key = "[base_icon]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
 		var/image/I = image('icons/obj/furniture.dmi', base_icon)
-		I.color = material.icon_colour
+		if(applies_material_colour)
+			I.color = material.icon_colour
 		stool_cache[cache_key] = I
 	overlays |= stool_cache[cache_key]
 	// Padding overlay.
@@ -130,7 +132,7 @@
 		var/obj/item/weapon/grab/G = W
 		var/mob/living/affecting = G.affecting
 		user.visible_message("<span class='notice'>[user] attempts to buckle [affecting] into \the [src]!</span>")
-		if(do_after(user, 20))
+		if(do_after(user, 20, src))
 			affecting.loc = loc
 			spawn(0)
 				if(buckle_mob(affecting))

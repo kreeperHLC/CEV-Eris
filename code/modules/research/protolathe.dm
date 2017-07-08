@@ -1,14 +1,14 @@
 /obj/machinery/r_n_d/protolathe
-	name = "Protolathe"
+	name = "\improper Protolathe"
 	icon_state = "protolathe"
 	flags = OPENCONTAINER
+	circuit = /obj/item/weapon/circuitboard/protolathe
 
 	use_power = 1
 	idle_power_usage = 30
 	active_power_usage = 5000
 
 	var/max_material_storage = 100000
-	var/list/materials = list(DEFAULT_WALL_MATERIAL = 0, "glass" = 0, "gold" = 0, "silver" = 0, "phoron" = 0, "uranium" = 0, "diamond" = 0)
 
 	var/list/datum/design/queue = list()
 	var/progress = 0
@@ -17,16 +17,8 @@
 	var/speed = 1
 
 /obj/machinery/r_n_d/protolathe/New()
+	materials = default_material_composition.Copy()
 	..()
-	component_parts = list()
-	component_parts += new /obj/item/weapon/circuitboard/protolathe(src)
-	component_parts += new /obj/item/weapon/stock_parts/matter_bin(src)
-	component_parts += new /obj/item/weapon/stock_parts/matter_bin(src)
-	component_parts += new /obj/item/weapon/stock_parts/manipulator(src)
-	component_parts += new /obj/item/weapon/stock_parts/manipulator(src)
-	component_parts += new /obj/item/weapon/reagent_containers/glass/beaker(src)
-	component_parts += new /obj/item/weapon/reagent_containers/glass/beaker(src)
-	RefreshParts()
 
 /obj/machinery/r_n_d/protolathe/process()
 	..()
@@ -115,9 +107,11 @@
 	if(!linked_console)
 		user << "<span class='notice'>\The [src] must be linked to an R&D console first!</span>"
 		return 1
+	if(is_robot_module(O))
+		return 0
 	if(!istype(O, /obj/item/stack/material))
 		user << "<span class='notice'>You cannot insert this item into \the [src]!</span>"
-		return 1
+		return 0
 	if(stat)
 		return 1
 
@@ -145,9 +139,9 @@
 	busy = 1
 	use_power(max(1000, (SHEET_MATERIAL_AMOUNT * amount / 10)))
 	if(t)
-		if(do_after(user, 16))
+		if(do_after(user, 16,src))
 			if(stack.use(amount))
-				user << "<span class='notice'>You add [amount] sheets to \the [src].</span>"
+				user << "<span class='notice'>You add [amount] sheet\s to \the [src].</span>"
 				materials[t] += amount * SHEET_MATERIAL_AMOUNT
 	busy = 0
 	updateUsrDialog()

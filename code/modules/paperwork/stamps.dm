@@ -16,23 +16,23 @@
 	icon_state = "stamp-cap"
 
 /obj/item/weapon/stamp/hop
-	name = "head of personnel's rubber stamp"
+	name = "first officer's rubber stamp"
 	icon_state = "stamp-hop"
 
 /obj/item/weapon/stamp/hos
-	name = "head of security's rubber stamp"
+	name = "ironhammer commander's rubber stamp"
 	icon_state = "stamp-hos"
 
 /obj/item/weapon/stamp/ce
-	name = "chief engineer's rubber stamp"
+	name = "exultant's rubber stamp"
 	icon_state = "stamp-ce"
 
 /obj/item/weapon/stamp/rd
-	name = "research director's rubber stamp"
+	name = "moebius expedition overseer's rubber stamp"
 	icon_state = "stamp-rd"
 
 /obj/item/weapon/stamp/cmo
-	name = "chief medical officer's rubber stamp"
+	name = "moebius biolab officer's rubber stamp"
 	icon_state = "stamp-cmo"
 
 /obj/item/weapon/stamp/denied
@@ -43,13 +43,9 @@
 	name = "clown's rubber stamp"
 	icon_state = "stamp-clown"
 
-/obj/item/weapon/stamp/internalaffairs
-	name = "internal affairs rubber stamp"
-	icon_state = "stamp-intaff"
-
-/obj/item/weapon/stamp/centcomm
-	name = "centcomm rubber stamp"
-	icon_state = "stamp-cent"
+/obj/item/weapon/stamp/qm
+	name = "guild merchant's stamp"
+	icon_state = "stamp-qm"
 
 // Syndicate stamp to forge documents.
 /obj/item/weapon/stamp/chameleon/attack_self(mob/user as mob)

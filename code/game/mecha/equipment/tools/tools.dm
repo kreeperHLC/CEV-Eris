@@ -32,6 +32,7 @@
 				return
 
 			occupant_message("You lift [target] and start to load it into cargo compartment.")
+			playsound(src,'sound/mecha/hydraulic.ogg',100,1)
 			chassis.visible_message("[chassis] lifts [target] and starts to load it into cargo compartment.")
 			set_ready_state(0)
 			chassis.use_power(energy_drain)
@@ -73,7 +74,7 @@
 	icon_state = "mecha_drill"
 	equip_cooldown = 30
 	energy_drain = 10
-	force = 15
+	force = WEAPON_FORCE_DANGEROUS
 	required_type = list(/obj/mecha/working/ripley, /obj/mecha/combat)
 
 	action(atom/target)
@@ -85,6 +86,7 @@
 		chassis.use_power(energy_drain)
 		chassis.visible_message("<span class='danger'>\The [chassis] starts to drill \the [target]</span>", "<span class='warning'>You hear a large drill.</span>")
 		occupant_message("<span class='danger'>You start to drill \the [target]</span>")
+		playsound(src,'sound/mecha/mechdrill.ogg',100,1)
 		var/T = chassis.loc
 		var/C = target.loc	//why are these backwards? we may never know -Pete
 		if(do_after_cooldown(target))
@@ -140,6 +142,7 @@
 		chassis.use_power(energy_drain)
 		chassis.visible_message("<span class='danger'>\The [chassis] starts to drill \the [target]</span>", "<span class='warning'>You hear a large drill.</span>")
 		occupant_message("<span class='danger'>You start to drill \the [target]</span>")
+		playsound(src,'sound/mecha/mechdrill.ogg',100,1)
 		var/T = chassis.loc
 		var/C = target.loc	//why are these backwards? we may never know -Pete
 		if(do_after_cooldown(target))
@@ -359,7 +362,7 @@
 	range = RANGED
 
 	action(atom/target)
-		if(!action_checks(target) || src.loc.z == 2) return
+		if(!action_checks(target) || src.loc.z == 6) return
 		var/turf/T = get_turf(target)
 		if(T)
 			set_ready_state(0)
@@ -380,7 +383,7 @@
 
 
 	action(atom/target)
-		if(!action_checks(target) || src.loc.z == 2) return
+		if(!action_checks(target) || src.loc.z == 6) return
 		var/list/theareas = list()
 		for(var/area/AR in orange(100, chassis))
 			if(AR in theareas) continue
@@ -764,10 +767,10 @@
 
 
 /obj/item/mecha_parts/mecha_equipment/generator
-	name = "phoron generator"
-	desc = "Generates power using solid phoron as fuel. Pollutes the environment."
+	name = "plasma generator"
+	desc = "Generates power using solid plasma as fuel. Pollutes the environment."
 	icon_state = "tesla"
-	origin_tech = list(TECH_PHORON = 2, TECH_POWER = 2, TECH_ENGINEERING = 1)
+	origin_tech = list(TECH_PLASMA = 2, TECH_POWER = 2, TECH_ENGINEERING = 1)
 	equip_cooldown = 10
 	energy_drain = 0
 	range = MELEE
@@ -790,7 +793,7 @@
 		..()
 
 	proc/init()
-		fuel = new /obj/item/stack/material/phoron(src)
+		fuel = new /obj/item/stack/material/plasma(src)
 		fuel.amount = 0
 		pr_mech_generator = new /datum/global_iterator/mecha_generator(list(src),0)
 		pr_mech_generator.set_delay(equip_cooldown)
@@ -863,12 +866,12 @@
 			return
 		var/datum/gas_mixture/GM = new
 		if(prob(10))
-			T.assume_gas("phoron", 100, 1500+T0C)
-			T.visible_message("The [src] suddenly disgorges a cloud of heated phoron.")
+			T.assume_gas("plasma", 100, 1500+T0C)
+			T.visible_message("The [src] suddenly disgorges a cloud of heated plasma.")
 			destroy()
 		else
-			T.assume_gas("phoron", 5, istype(T) ? T.air.temperature : T20C)
-			T.visible_message("The [src] suddenly disgorges a cloud of phoron.")
+			T.assume_gas("plasma", 5, istype(T) ? T.air.temperature : T20C)
+			T.visible_message("The [src] suddenly disgorges a cloud of plasma.")
 		T.assume_air(GM)
 		return
 
@@ -1020,12 +1023,12 @@
 	if (chassis)
 		chassis.visible_message("<span class='notice'>[user] starts to climb into [chassis].</span>")
 
-	if(do_after(user, 40, needhand=0))
+	if(do_after(user, 40, src, needhand=0))
 		if(!src.occupant)
 			user.forceMove(src)
 			occupant = user
-			log_message("[user] boarded.")
-			occupant_message("[user] boarded.")
+			log_message("\The [user] boarded.")
+			occupant_message("\The [user] boarded.")
 		else if(src.occupant != user)
 			user << "<span class='warning'>[src.occupant] was faster. Try better next time, loser.</span>"
 	else
@@ -1142,3 +1145,92 @@
 
 #undef LOCKED
 #undef OCCUPIED
+
+/obj/item/mecha_parts/mecha_equipment/jetpack
+	name = "jetpack"
+	desc = "Using directed ion bursts and cunning solar wind reflection technique, this device enables controlled space flight."
+	icon_state = "mecha_equip"
+	equip_cooldown = 5
+	energy_drain = 50
+	var/wait = 0
+	var/datum/effect/effect/system/ion_trail_follow/ion_trail
+
+
+	can_attach(obj/mecha/M as obj)
+		if(!locate(src.type) in M.equipment)
+			return ..()
+
+	attach(obj/mecha/M as obj)
+		..()
+		if(!ion_trail)
+			ion_trail = new
+		ion_trail.set_up(chassis)
+		return
+
+	proc/toggle()
+		if(!chassis)
+			return
+		!equip_ready? turn_off() : turn_on()
+		return equip_ready
+
+	proc/turn_on()
+		set_ready_state(0)
+		ion_trail.start()
+		occupant_message("Activated")
+		log_message("Activated")
+
+	proc/turn_off()
+		set_ready_state(1)
+		ion_trail.stop()
+		occupant_message("Deactivated")
+		log_message("Deactivated")
+
+	proc/do_move(direction)
+		if(!action_checks())
+			return chassis.do_move(direction)
+		var/move_result = 0
+		if(chassis.hasInternalDamage(MECHA_INT_CONTROL_LOST))
+			move_result = step_rand(chassis)
+		else if(chassis.dir!=direction)
+			chassis.set_dir(direction)
+			move_result = 1
+		else
+			move_result	= step(chassis,direction)
+			if(chassis.occupant)
+				for(var/obj/effect/speech_bubble/B in range(1, chassis))
+					if(B.parent == chassis.occupant)
+						B.loc = chassis.loc
+		if(move_result)
+			wait = 1
+			chassis.use_power(energy_drain)
+			if(!chassis.pr_inertial_movement.active())
+				chassis.pr_inertial_movement.start(list(chassis,direction))
+			else
+				chassis.pr_inertial_movement.set_process_args(list(chassis,direction))
+			do_after_cooldown()
+			return 1
+		return 0
+
+	action_checks()
+		if(equip_ready || wait)
+			return 0
+		if(energy_drain && !chassis.has_charge(energy_drain))
+			return 0
+		if(chassis.check_for_support())
+			return 0
+		return 1
+
+	get_equip_info()
+		if(!chassis) return
+		return "<span style=\"color:[equip_ready?"#0f0":"#f00"];\">*</span>&nbsp;[src.name] \[<a href=\"?src=\ref[src];toggle=1\">Toggle</a>\]"
+
+
+	Topic(href,href_list)
+		..()
+		if(href_list["toggle"])
+			toggle()
+
+	do_after_cooldown()
+		sleep(equip_cooldown)
+		wait = 0
+		return 1

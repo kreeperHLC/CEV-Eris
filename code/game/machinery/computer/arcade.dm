@@ -4,41 +4,41 @@
 	icon_state = "arcade"
 	icon_keyboard = null
 	icon_screen = "invaders"
-	var/list/prizes = list(	/obj/item/weapon/storage/box/snappops			= 2,
-							/obj/item/toy/blink								= 2,
-							/obj/item/clothing/under/syndicate/tacticool	= 2,
-							/obj/item/toy/sword								= 2,
-							/obj/item/weapon/gun/projectile/revolver/capgun	= 2,
-							/obj/item/toy/crossbow							= 2,
-							/obj/item/clothing/suit/syndicatefake			= 2,
-							/obj/item/weapon/storage/fancy/crayons			= 2,
-							/obj/item/toy/spinningtoy						= 2,
-							/obj/item/toy/prize/ripley						= 1,
-							/obj/item/toy/prize/fireripley					= 1,
-							/obj/item/toy/prize/deathripley					= 1,
-							/obj/item/toy/prize/gygax						= 1,
-							/obj/item/toy/prize/durand						= 1,
-							/obj/item/toy/prize/honk						= 1,
-							/obj/item/toy/prize/marauder					= 1,
-							/obj/item/toy/prize/seraph						= 1,
-							/obj/item/toy/prize/mauler						= 1,
-							/obj/item/toy/prize/odysseus					= 1,
-							/obj/item/toy/prize/phazon						= 1,
-							/obj/item/toy/waterflower						= 1,
-							/obj/random/action_figure						= 1,
-							/obj/random/plushie								= 1,
-							/obj/item/toy/cultsword							= 1
-							)
+	var/list/prizes = list(
+		/obj/item/weapon/storage/box/snappops			= 2,
+		/obj/item/toy/blink								= 2,
+		/obj/item/clothing/under/syndicate				= 2,
+		/obj/item/toy/sword								= 2,
+		/obj/item/weapon/gun/projectile/revolver/capgun	= 2,
+		/obj/item/toy/crossbow							= 2,
+		/obj/item/clothing/suit/syndicatefake			= 2,
+		/obj/item/weapon/storage/fancy/crayons			= 2,
+		/obj/item/toy/spinningtoy						= 2,
+		/obj/item/toy/prize/ripley						= 1,
+		/obj/item/toy/prize/fireripley					= 1,
+		/obj/item/toy/prize/deathripley					= 1,
+		/obj/item/toy/prize/gygax						= 1,
+		/obj/item/toy/prize/durand						= 1,
+		/obj/item/toy/prize/honk						= 1,
+		/obj/item/toy/prize/marauder					= 1,
+		/obj/item/toy/prize/seraph						= 1,
+		/obj/item/toy/prize/mauler						= 1,
+		/obj/item/toy/prize/odysseus					= 1,
+		/obj/item/toy/prize/phazon						= 1,
+		/obj/item/toy/waterflower						= 1,
+		/obj/random/action_figure						= 1,
+		/obj/random/plushie								= 1,
+		/obj/item/toy/cultsword							= 1
+	)
 
 /obj/machinery/computer/arcade/New()
-	..()
-	// If it's a generic arcade machine, pick a random arcade
-	// circuit board for it and make the new machine
 	if(!circuit)
-		var/choice = pick(typesof(/obj/item/weapon/circuitboard/arcade) - /obj/item/weapon/circuitboard/arcade)
-		var/obj/item/weapon/circuitboard/CB = new choice()
-		new CB.build_path(loc, CB)
+		circuit = pick(subtypesof(/obj/item/weapon/circuitboard/arcade))
+		var/build_path = initial(circuit.build_path)
+		new build_path (loc, circuit)
 		qdel(src)
+	else
+		..()
 
 /obj/machinery/computer/arcade/proc/prizevend()
 	if(!contents.len)
@@ -203,7 +203,7 @@
 			src.temp = "[src.enemy_name] has fallen! Rejoice!"
 
 			if(emagged)
-				feedback_inc("arcade_win_emagged")
+
 				new /obj/effect/spawner/newbomb/timer/syndicate(src.loc)
 				new /obj/item/clothing/head/collectable/petehat(src.loc)
 				message_admins("[key_name_admin(usr)] has outbombed Cuban Pete and been awarded a bomb.")
@@ -211,11 +211,9 @@
 				src.New()
 				emagged = 0
 			else if(!contents.len)
-				feedback_inc("arcade_win_normal")
 				src.prizevend()
 
 			else
-				feedback_inc("arcade_win_normal")
 				src.prizevend()
 
 	else if (emagged && (turtle >= 4))
@@ -234,10 +232,9 @@
 			sleep(10)
 			src.temp = "You have been drained! GAME OVER"
 			if(emagged)
-				feedback_inc("arcade_loss_mana_emagged")
+
 				usr.gib()
-			else
-				feedback_inc("arcade_loss_mana_normal")
+
 
 	else if ((src.enemy_hp <= 10) && (src.enemy_mp > 4))
 		src.temp = "[src.enemy_name] heals for 4 health!"
@@ -253,10 +250,9 @@
 		src.gameover = 1
 		src.temp = "You have been crushed! GAME OVER"
 		if(emagged)
-			feedback_inc("arcade_loss_hp_emagged")
+
 			usr.gib()
-		else
-			feedback_inc("arcade_loss_hp_normal")
+
 
 	src.blocked = 0
 	return

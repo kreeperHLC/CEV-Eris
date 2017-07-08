@@ -1,7 +1,7 @@
 var/datum/antagonist/xenos/borer/borers
 
 /datum/antagonist/xenos/borer
-	id = MODE_BORER
+	id = ROLE_BORER
 	role_text = "Cortical Borer"
 	role_text_plural = "Cortical Borers"
 	mob_path = /mob/living/simple_animal/borer
@@ -13,6 +13,7 @@ var/datum/antagonist/xenos/borer/borers
 	faction_role_text = "Borer Thrall"
 	faction_descriptor = "Unity"
 	faction_welcome = "You are now a thrall to a cortical borer. Please listen to what they have to say; they're in your head."
+	faction = "borer"
 
 	initial_spawn_req = 3
 	initial_spawn_target = 5

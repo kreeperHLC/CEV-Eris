@@ -36,8 +36,6 @@ obj/machinery/atmospherics/mains_pipe
 	icon = 'icons/obj/atmospherics/mainspipe.dmi'
 	layer = 2.4 //under wires with their 2.5
 
-	force = 20
-
 	var/volume = 0
 
 	var/alert_pressure = 80*ONE_ATMOSPHERE
@@ -153,6 +151,8 @@ obj/machinery/atmospherics/mains_pipe/simple
 		else
 			if(!nodes[1]&&!nodes[2])
 				qdel(src) //TODO: silent deleting looks weird
+				world.log << "PIPE-DELETE at ([x],[y],[z]). Missed nodes."
+				return
 			var/have_node1 = nodes[1]?1:0
 			var/have_node2 = nodes[2]?1:0
 			icon_state = "exposed[have_node1][have_node2][invisibility ? "-f" : "" ]"

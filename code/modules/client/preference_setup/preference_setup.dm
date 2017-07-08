@@ -8,11 +8,6 @@
 	sort_order = 1
 	category_item_type = /datum/category_item/player_setup_item/general
 
-/datum/category_group/player_setup_category/skill_preferences
-	name = "Skills"
-	sort_order = 2
-	category_item_type = /datum/category_item/player_setup_item/skills
-
 /datum/category_group/player_setup_category/occupation_preferences
 	name = "Occupation"
 	sort_order = 3
@@ -23,10 +18,26 @@
 	sort_order = 4
 	category_item_type = /datum/category_item/player_setup_item/antagonism
 
+/datum/category_group/player_setup_category/loadout_preferences
+	name = "Loadout"
+	sort_order = 5
+	category_item_type = /datum/category_item/player_setup_item/loadout
+
 /datum/category_group/player_setup_category/global_preferences
 	name = "Global"
-	sort_order = 5
+	sort_order = 6
 	category_item_type = /datum/category_item/player_setup_item/player_global
+
+
+/datum/category_group/player_setup_category/augmentation
+	name = "Augmentation"
+	sort_order = 7
+	category_item_type = /datum/category_item/player_setup_item/augmentation
+
+/datum/category_group/player_setup_category/matchmaking_preferences
+	name = "Matchmaking"
+	sort_order = 8
+	category_item_type = /datum/category_item/player_setup_item/matchmaking
 
 /****************************
 * Category Collection Setup *
@@ -68,7 +79,7 @@
 
 /datum/category_collection/player_setup_collection/proc/update_setup(var/savefile/preferences, var/savefile/character)
 	for(var/datum/category_group/player_setup_category/PS in categories)
-		. = . || PS.update_setup(preferences, character)
+		. = . && PS.update_setup(preferences, character)
 
 /datum/category_collection/player_setup_collection/proc/header()
 	var/dat = ""
@@ -143,7 +154,7 @@
 
 /datum/category_group/player_setup_category/proc/update_setup(var/savefile/preferences, var/savefile/character)
 	for(var/datum/category_item/player_setup_item/PI in items)
-		. = . || PI.update_setup(preferences, character)
+		. = . && PI.update_setup(preferences, character)
 
 /datum/category_group/player_setup_category/proc/content(var/mob/user)
 	. = "<table style='width:100%'><tr style='vertical-align:top'><td style='width:50%'>"
@@ -221,13 +232,17 @@
 /datum/category_item/player_setup_item/Topic(var/href,var/list/href_list)
 	if(..())
 		return 1
-	var/mob/user = usr
-	if(!user.client)
+	var/mob/pref_mob = preference_mob()
+
+	if(isnull(pref_mob))
+		return
+
+	if(!pref_mob || !pref_mob.client)
 		return 1
 
-	. = OnTopic(href, href_list, user)
+	. = OnTopic(href, href_list, usr)
 	if(. == TOPIC_REFRESH)
-		user.client.prefs.ShowChoices(user)
+		pref_mob.client.prefs.ShowChoices(usr)
 
 /datum/category_item/player_setup_item/CanUseTopic(var/mob/user)
 	return 1
@@ -236,5 +251,11 @@
 	return TOPIC_NOACTION
 
 /datum/category_item/player_setup_item/proc/preference_mob()
-	if(pref && pref.client && pref.client.mob)
+	if(!pref.client)
+		for(var/client/C)
+			if(C.ckey == pref.client_ckey)
+				pref.client = C
+				break
+
+	if(pref.client)
 		return pref.client.mob

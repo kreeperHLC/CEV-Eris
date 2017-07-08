@@ -2,11 +2,11 @@
 // charge from 0 to 100%
 // fits in APC to provide backup power
 
-/obj/item/weapon/cell/New()
+/obj/item/weapon/cell/big/New()
 	..()
 	charge = maxcharge
 
-/obj/item/weapon/cell/initialize()
+/obj/item/weapon/cell/big/initialize()
 	..()
 	update_icon()
 
@@ -60,7 +60,7 @@
 	return 1
 
 // recharge the cell
-/obj/item/weapon/cell/proc/give(var/amount)
+/obj/item/weapon/cell/big/proc/give(var/amount)
 	if(rigged && amount > 0)
 		explode()
 		return 0
@@ -87,12 +87,12 @@
 
 		user << "You inject the solution into the power cell."
 
-		if(S.reagents.has_reagent("phoron", 5))
+		if(S.reagents.has_reagent("plasma", 5))
 
 			rigged = 1
 
-			log_admin("LOG: [user.name] ([user.ckey]) injected a power cell with phoron, rigging it to explode.")
-			message_admins("LOG: [user.name] ([user.ckey]) injected a power cell with phoron, rigging it to explode.")
+			log_admin("LOG: [user.name] ([user.ckey]) injected a power cell with plasma, rigging it to explode.")
+			message_admins("LOG: [user.name] ([user.ckey]) injected a power cell with plasma, rigging it to explode.")
 
 		S.reagents.clear_reagents()
 
@@ -136,7 +136,8 @@
 		var/mob/living/silicon/robot/R = loc
 		severity *= R.cell_emp_mult
 
-	charge -= maxcharge / severity
+	// Lose 1/2, 1/4, 1/6 of the current charge per hit or 1/4, 1/8, 1/12 of the max charge per hit, whichever is highest
+	charge -= max(charge / (2 * severity), maxcharge/(4 * severity))
 	if (charge < 0)
 		charge = 0
 	..()

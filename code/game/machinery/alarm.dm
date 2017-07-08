@@ -75,7 +75,7 @@
 	var/pressure_dangerlevel = 0
 	var/oxygen_dangerlevel = 0
 	var/co2_dangerlevel = 0
-	var/phoron_dangerlevel = 0
+	var/plasma_dangerlevel = 0
 	var/temperature_dangerlevel = 0
 	var/other_dangerlevel = 0
 
@@ -93,7 +93,7 @@
 	req_access = list(access_rd, access_atmospherics, access_engine_equip)
 	TLV["oxygen"] =			list(-1.0, -1.0,-1.0,-1.0) // Partial pressure, kpa
 	TLV["carbon dioxide"] = list(-1.0, -1.0,   5,  10) // Partial pressure, kpa
-	TLV["phoron"] =			list(-1.0, -1.0, 0.2, 0.5) // Partial pressure, kpa
+	TLV["plasma"] =			list(-1.0, -1.0, 0.2, 0.5) // Partial pressure, kpa
 	TLV["other"] =			list(-1.0, -1.0, 0.5, 1.0) // Partial pressure, kpa
 	TLV["pressure"] =		list(0,ONE_ATMOSPHERE*0.10,ONE_ATMOSPHERE*1.40,ONE_ATMOSPHERE*1.60) /* kpa */
 	TLV["temperature"] =	list(20, 40, 140, 160) // K
@@ -128,7 +128,7 @@
 	alarm_area = get_area(src)
 	area_uid = alarm_area.uid
 	if (name == "alarm")
-		name = "[alarm_area.name] Air Alarm"
+		name = "[strip_improper(alarm_area.name)] Air Alarm"
 
 	if(!wires)
 		wires = new(src)
@@ -136,7 +136,7 @@
 	// breathable air according to human/Life()
 	TLV["oxygen"] =			list(16, 19, 135, 140) // Partial pressure, kpa
 	TLV["carbon dioxide"] = list(-1.0, -1.0, 5, 10) // Partial pressure, kpa
-	TLV["phoron"] =			list(-1.0, -1.0, 0.2, 0.5) // Partial pressure, kpa
+	TLV["plasma"] =			list(-1.0, -1.0, 0.2, 0.5) // Partial pressure, kpa
 	TLV["other"] =			list(-1.0, -1.0, 0.5, 1.0) // Partial pressure, kpa
 	TLV["pressure"] =		list(ONE_ATMOSPHERE*0.80,ONE_ATMOSPHERE*0.90,ONE_ATMOSPHERE*1.10,ONE_ATMOSPHERE*1.20) /* kpa */
 	TLV["temperature"] =	list(T0C-26, T0C, T0C+40, T0C+66) // K
@@ -248,7 +248,7 @@
 	pressure_dangerlevel = get_danger_level(environment_pressure, TLV["pressure"])
 	oxygen_dangerlevel = get_danger_level(environment.gas["oxygen"]*partial_pressure, TLV["oxygen"])
 	co2_dangerlevel = get_danger_level(environment.gas["carbon_dioxide"]*partial_pressure, TLV["carbon dioxide"])
-	phoron_dangerlevel = get_danger_level(environment.gas["phoron"]*partial_pressure, TLV["phoron"])
+	plasma_dangerlevel = get_danger_level(environment.gas["plasma"]*partial_pressure, TLV["plasma"])
 	temperature_dangerlevel = get_danger_level(environment.temperature, TLV["temperature"])
 	other_dangerlevel = get_danger_level(other_moles*partial_pressure, TLV["other"])
 
@@ -256,7 +256,7 @@
 		pressure_dangerlevel,
 		oxygen_dangerlevel,
 		co2_dangerlevel,
-		phoron_dangerlevel,
+		plasma_dangerlevel,
 		other_dangerlevel,
 		temperature_dangerlevel
 		)
@@ -326,7 +326,7 @@
 			icon_state = "alarm1"
 			new_color = "#DA0205"
 
-	set_light(l_range = 2, l_power = 0.5, l_color = new_color)
+	set_light(l_range = 1.5, l_power = 0.2, l_color = new_color)
 
 /obj/machinery/alarm/receive_signal(datum/signal/signal)
 	if(stat & (NOPOWER|BROKEN))
@@ -442,7 +442,7 @@
 /obj/machinery/alarm/proc/apply_danger_level(var/new_danger_level)
 	if (report_danger_level && alarm_area.atmosalert(new_danger_level, src))
 		post_alert(new_danger_level)
-
+	alarm_area.updateicon()
 	update_icon()
 
 /obj/machinery/alarm/proc/post_alert(alert_level)
@@ -517,7 +517,7 @@
 		environment_data[++environment_data.len] = list("name" = "Pressure", "value" = pressure, "unit" = "kPa", "danger_level" = pressure_dangerlevel)
 		environment_data[++environment_data.len] = list("name" = "Oxygen", "value" = environment.gas["oxygen"] / total * 100, "unit" = "%", "danger_level" = oxygen_dangerlevel)
 		environment_data[++environment_data.len] = list("name" = "Carbon dioxide", "value" = environment.gas["carbon_dioxide"] / total * 100, "unit" = "%", "danger_level" = co2_dangerlevel)
-		environment_data[++environment_data.len] = list("name" = "Toxins", "value" = environment.gas["phoron"] / total * 100, "unit" = "%", "danger_level" = phoron_dangerlevel)
+		environment_data[++environment_data.len] = list("name" = "Toxins", "value" = environment.gas["plasma"] / total * 100, "unit" = "%", "danger_level" = plasma_dangerlevel)
 		environment_data[++environment_data.len] = list("name" = "Temperature", "value" = environment.temperature, "unit" = "K ([round(environment.temperature - T0C, 0.1)]C)", "danger_level" = temperature_dangerlevel)
 	data["total_danger"] = danger_level
 	data["environment"] = environment_data
@@ -563,7 +563,7 @@
 				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Oxygen",			"command" = "o2_scrub",	"val" = info["filter_o2"]))
 				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Nitrogen",		"command" = "n2_scrub",	"val" = info["filter_n2"]))
 				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Carbon Dioxide", "command" = "co2_scrub","val" = info["filter_co2"]))
-				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Toxin"	, 		"command" = "tox_scrub","val" = info["filter_phoron"]))
+				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Toxin"	, 		"command" = "tox_scrub","val" = info["filter_plasma"]))
 				scrubbers[scrubbers.len]["filters"] += list(list("name" = "Nitrous Oxide",	"command" = "n2o_scrub","val" = info["filter_n2o"]))
 			data["scrubbers"] = scrubbers
 		if(AALARM_SCREEN_MODE)
@@ -583,7 +583,7 @@
 			var/list/gas_names = list(
 				"oxygen"         = "O<sub>2</sub>",
 				"carbon dioxide" = "CO<sub>2</sub>",
-				"phoron"         = "Toxin",
+				"plasma"         = "Toxin",
 				"other"          = "Other")
 			for (var/g in gas_names)
 				thresholds[++thresholds.len] = list("name" = gas_names[g], "settings" = list())
@@ -628,6 +628,7 @@
 
 	// hrefs that can always be called -walter0o
 	if(href_list["rcon"])
+		playsound(loc, 'sound/machines/button.ogg', 100, 1)
 		var/attempted_rcon_setting = text2num(href_list["rcon"])
 
 		switch(attempted_rcon_setting)
@@ -649,6 +650,7 @@
 				usr << "Temperature must be between [min_temperature]C and [max_temperature]C"
 			else
 				target_temperature = input_temperature + T0C
+		playsound(loc, 'sound/machines/button.ogg', 100, 1)
 		return 1
 
 	// hrefs that need the AA unlocked -walter0o
@@ -658,12 +660,14 @@
 			var/device_id = href_list["id_tag"]
 			switch(href_list["command"])
 				if("set_external_pressure")
+					playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 					var/input_pressure = input("What pressure you like the system to mantain?", "Pressure Controls") as num|null
 					if(isnum(input_pressure))
 						send_signal(device_id, list(href_list["command"] = input_pressure))
 					return 1
 
 				if("reset_external_pressure")
+					playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 					send_signal(device_id, list(href_list["command"] = ONE_ATMOSPHERE))
 					return 1
 
@@ -677,11 +681,12 @@
 					"n2o_scrub",
 					"panic_siphon",
 					"scrubbing")
-
+					playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 					send_signal(device_id, list(href_list["command"] = text2num(href_list["val"]) ) )
 					return 1
 
 				if("set_threshold")
+					playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 					var/env = href_list["env"]
 					var/threshold = text2num(href_list["var"])
 					var/list/selected = TLV[env]
@@ -733,10 +738,12 @@
 					return 1
 
 		if(href_list["screen"])
+			playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 			screen = text2num(href_list["screen"])
 			return 1
 
 		if(href_list["atmos_unlock"])
+			playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 			switch(href_list["atmos_unlock"])
 				if("0")
 					alarm_area.air_doors_close()
@@ -745,18 +752,21 @@
 			return 1
 
 		if(href_list["atmos_alarm"])
+			playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 			if (alarm_area.atmosalert(2, src))
 				apply_danger_level(2)
 			update_icon()
 			return 1
 
 		if(href_list["atmos_reset"])
+			playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 			if (alarm_area.atmosalert(0, src))
 				apply_danger_level(0)
 			update_icon()
 			return 1
 
 		if(href_list["mode"])
+			playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 			mode = text2num(href_list["mode"])
 			apply_mode()
 			return 1
@@ -770,6 +780,8 @@
 				//user << "You pop the Air Alarm's maintence panel open."
 				wiresexposed = !wiresexposed
 				user << "The wires have been [wiresexposed ? "exposed" : "unexposed"]"
+				var/sound = wiresexposed ? 'sound/machines/Custom_screwdriveropen.ogg' : 'sound/machines/Custom_screwdriverclose.ogg'
+				playsound(src.loc, sound, 100, 1)
 				update_icon()
 				return
 
@@ -899,16 +911,17 @@ FIRE ALARM
 		icon_state = "firep"
 		set_light(0)
 	else
-		if(!src.detecting)
+		var/area/area = get_area(src)
+		if(area.fire)
 			icon_state = "fire1"
-			set_light(l_range = 4, l_power = 2, l_color = COLOR_RED)
+			set_light(l_range = 1.5, l_power = 0.5, l_color = COLOR_RED)
 		else
 			icon_state = "fire0"
 			switch(seclevel)
-				if("green")	set_light(l_range = 2, l_power = 0.5, l_color = COLOR_LIME)
-				if("blue")	set_light(l_range = 2, l_power = 0.5, l_color = "#1024A9")
-				if("red")	set_light(l_range = 4, l_power = 2, l_color = COLOR_RED)
-				if("delta")	set_light(l_range = 4, l_power = 2, l_color = "#FF6633")
+				if("green")	set_light(l_range = 1.5, l_power = 0.2, l_color = COLOR_LIME)
+				if("blue")	set_light(l_range = 1.5, l_power = 0.2, l_color = "#1024A9")
+				if("red")	set_light(l_range = 1.5, l_power = 0.5, l_color = COLOR_RED)
+				if("delta")	set_light(l_range = 1.5, l_power = 0.5, l_color = "#FF6633")
 
 		src.overlays += image('icons/obj/monitors.dmi', "overlay_[seclevel]")
 
@@ -933,6 +946,8 @@ FIRE ALARM
 	src.add_fingerprint(user)
 
 	if (istype(W, /obj/item/weapon/screwdriver) && buildstage == 2)
+		var/sound = wiresexposed ? 'sound/machines/Custom_screwdriveropen.ogg' : 'sound/machines/Custom_screwdriverclose.ogg'
+		playsound(src.loc, sound, 100, 1)
 		wiresexposed = !wiresexposed
 		update_icon()
 		return
@@ -1085,6 +1100,7 @@ FIRE ALARM
 	else
 		usr << browse(null, "window=firealarm")
 		return
+	playsound(loc, 'sound/machines/machine_switch.ogg', 100, 1)
 	return
 
 /obj/machinery/firealarm/proc/reset()

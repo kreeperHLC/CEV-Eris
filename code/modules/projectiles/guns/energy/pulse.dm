@@ -1,15 +1,15 @@
 /obj/item/weapon/gun/energy/pulse_rifle
-	name = "pulse rifle"
+	name = "NT PR \"Dominion\""
 	desc = "A weapon that uses advanced pulse-based beam generation technology to emit powerful laser blasts. Because of its complexity and cost, it is rarely seen in use except by specialists."
 	icon_state = "pulse"
 	item_state = null	//so the human update icon uses the icon_state instead.
 	slot_flags = SLOT_BELT|SLOT_BACK
-	force = 10
+	force = WEAPON_FORCE_PAINFULL
 	fire_sound='sound/weapons/Laser.ogg'
 	projectile_type = /obj/item/projectile/beam
 	sel_mode = 2
 	max_shots = 10
-	
+
 	firemodes = list(
 		list(mode_name="stun", projectile_type=/obj/item/projectile/beam/stun, fire_sound='sound/weapons/Taser.ogg', fire_delay=null, charge_cost=null),
 		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam, fire_sound='sound/weapons/Laser.ogg', fire_delay=null, charge_cost=null),
@@ -21,9 +21,9 @@
 	use_external_power = 1
 
 /obj/item/weapon/gun/energy/pulse_rifle/destroyer
-	name = "pulse destroyer"
+	name = "NT PR \"Purger\""
 	desc = "A heavy-duty, pulse-based energy weapon. Because of its complexity and cost, it is rarely seen in use except by specialists."
-	cell_type = /obj/item/weapon/cell/super
+	cell_type = /obj/item/weapon/cell/big/super
 	fire_delay = 25
 	fire_sound='sound/weapons/pulse.ogg'
 	projectile_type=/obj/item/projectile/beam/pulse

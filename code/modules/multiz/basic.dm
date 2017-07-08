@@ -4,11 +4,11 @@ var/z_levels = 0 // Each bit represents a connection between adjacent levels.  S
 
 // If the height is more than 1, we mark all contained levels as connected.
 /obj/effect/landmark/map_data/New()
-	ASSERT(height <= z)
+	ASSERT(height > 1)
 	// Due to the offsets of how connections are stored v.s. how z-levels are indexed, some magic number silliness happened.
-	for(var/i = (z - height) to (z - 2))
-		z_levels |= (1 << i)
-	qdel(src)
+
+	for(var/i = (height-1); i--;)
+		z_levels |= (1 << (z+i-1))
 
 // The storage of connections between adjacent levels means some bitwise magic is needed.
 proc/HasAbove(var/z)
@@ -31,5 +31,6 @@ proc/GetAbove(var/atom/atom)
 proc/GetBelow(var/atom/atom)
 	var/turf/turf = get_turf(atom)
 	if(!turf)
+		world << "No turf"
 		return null
 	return HasBelow(turf.z) ? get_step(turf, DOWN) : null

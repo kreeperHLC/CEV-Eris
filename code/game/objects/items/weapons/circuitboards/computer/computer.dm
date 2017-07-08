@@ -21,11 +21,6 @@
 	name = T_BOARD("medical records console")
 	build_path = /obj/machinery/computer/med_data
 
-/obj/item/weapon/circuitboard/pandemic
-	name = T_BOARD("PanD.E.M.I.C. 2200")
-	build_path = /obj/machinery/computer/pandemic
-	origin_tech = list(TECH_DATA = 2, TECH_BIO = 2)
-
 /obj/item/weapon/circuitboard/scan_consolenew
 	name = T_BOARD("DNA machine")
 	build_path = /obj/machinery/computer/scan_consolenew
@@ -45,10 +40,6 @@
 	name = T_BOARD("security records console")
 	build_path = /obj/machinery/computer/secure_data
 
-/obj/item/weapon/circuitboard/skills
-	name = T_BOARD("employment records console")
-	build_path = /obj/machinery/computer/skills
-
 /obj/item/weapon/circuitboard/atmos_alert
 	name = T_BOARD("atmospheric alert console")
 	build_path = /obj/machinery/computer/atmos_alert
@@ -66,11 +57,6 @@
 	name = T_BOARD("drone control console")
 	build_path = /obj/machinery/computer/drone_control
 	origin_tech = list(TECH_DATA = 3)
-
-/obj/item/weapon/circuitboard/cloning
-	name = T_BOARD("cloning control console")
-	build_path = /obj/machinery/computer/cloning
-	origin_tech = list(TECH_DATA = 3, TECH_BIO = 3)
 
 /obj/item/weapon/circuitboard/arcade/battle
 	name = T_BOARD("battle arcade machine")

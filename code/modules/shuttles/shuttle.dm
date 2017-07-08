@@ -104,8 +104,6 @@
 		var/turf/D = locate(T.x, throwy - 1, 1)
 		for(var/atom/movable/AM as mob|obj in T)
 			AM.Move(D)
-		if(istype(T, /turf/simulated))
-			qdel(T)
 
 	for(var/mob/living/carbon/bug in destination)
 		bug.gib()
@@ -127,7 +125,6 @@
 		if(istype(M, /mob/living/carbon))
 			if(!M.buckled)
 				M.Weaken(3)
-
 	// Power-related checks. If shuttle contains power related machinery, update powernets.
 	var/update_power = 0
 	for(var/obj/machinery/power/P in destination)
@@ -137,6 +134,9 @@
 	for(var/obj/structure/cable/C in destination)
 		update_power = 1
 		break
+
+	for(var/obj/structure/plasticflaps/mining/F in destination)
+		F.update_turf_underneath(1)	//костыли вы мои костылики
 
 	if(update_power)
 		makepowernets()

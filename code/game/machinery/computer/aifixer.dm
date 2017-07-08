@@ -10,6 +10,7 @@
 	var/active = 0
 
 /obj/machinery/computer/aifixer/New()
+	..()
 	update_icon()
 
 /obj/machinery/computer/aifixer/proc/load_ai(var/mob/living/silicon/ai/transfer, var/obj/item/device/aicard/card, var/mob/user)
@@ -134,8 +135,8 @@
 
 	if(occupant)
 		if(occupant.stat)
-			overlays += image('icons/obj/computer.dmi', "ai-fixer-404", overlay_layer)
+			overlays += image('icons/obj/computer.dmi', "ai-fixer-404")
 		else
-			overlays += image('icons/obj/computer.dmi', "ai-fixer-full", overlay_layer)
+			overlays += image('icons/obj/computer.dmi', "ai-fixer-full")
 	else
-		overlays += image('icons/obj/computer.dmi', "ai-fixer-empty", overlay_layer)
+		overlays += image('icons/obj/computer.dmi', "ai-fixer-empty")

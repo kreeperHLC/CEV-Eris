@@ -138,10 +138,13 @@
 
 	//mask
 	if(wear_mask && !skipmask)
+		var/descriptor = "on [T.his] face"
+		if(istype(wear_mask, /obj/item/weapon/grenade))
+			descriptor = "in [T.his] mouth"
 		if(wear_mask.blood_DNA)
-			msg += "<span class='warning'>[T.He] [T.has] \icon[wear_mask] [wear_mask.gender==PLURAL?"some":"a"] [(wear_mask.blood_color != "#030303") ? "blood" : "oil"]-stained [wear_mask.name] on [T.his] face!</span>\n"
+			msg += "<span class='warning'>[T.He] [T.has] \icon[wear_mask] [wear_mask.gender==PLURAL?"some":"a"] [(wear_mask.blood_color != "#030303") ? "blood" : "oil"]-stained [wear_mask.name] [descriptor]!</span>\n"
 		else
-			msg += "[T.He] [T.has] \icon[wear_mask] \a [wear_mask] on [T.his] face.\n"
+			msg += "[T.He] [T.has] \icon[wear_mask] \a [wear_mask] [descriptor].\n"
 
 	//eyes
 	if(glasses && !skipeyes)
@@ -191,20 +194,19 @@
 		msg += "[T.He] [T.is] small halfling!\n"
 
 	var/distance = get_dist(usr,src)
-	if(istype(usr, /mob/dead/observer) || usr.stat == 2) // ghosts can see anything
+	if(isghost(usr) || usr.stat == DEAD) // ghosts can see anything
 		distance = 1
 	if (src.stat)
 		msg += "<span class='warning'>[T.He] [T.is]n't responding to anything around [T.him] and seems to be asleep.</span>\n"
-		if((stat == 2 || src.losebreath) && distance <= 3)
+		if((stat == DEAD || src.losebreath) && distance <= 3)
 			msg += "<span class='warning'>[T.He] [T.does] not appear to be breathing.</span>\n"
 		if(istype(usr, /mob/living/carbon/human) && !usr.stat && Adjacent(usr))
 			usr.visible_message("<b>[usr]</b> checks [src]'s pulse.", "You check [src]'s pulse.")
-		spawn(15)
-			if(distance <= 1 && usr.stat != 1)
-				if(pulse == PULSE_NONE)
-					usr << "<span class='deadsay'>[T.He] [T.has] no pulse[src.client ? "" : " and [T.his] soul has departed"]...</span>"
-				else
-					usr << "<span class='deadsay'>[T.He] [T.has] a pulse!</span>"
+		if(distance<=1 && do_mob(usr,src,15,progress=0))
+			if(pulse() == PULSE_NONE)
+				usr << "<span class='deadsay'>[T.He] [T.has] no pulse[src.client ? "" : " and [T.his] soul has departed"]...</span>"
+			else
+				usr << "<span class='deadsay'>[T.He] [T.has] a pulse!</span>"
 
 	if(fire_stacks)
 		msg += "[T.He] [T.is] covered in some liquid.\n"
@@ -224,9 +226,6 @@
 
 	msg += "</span>"
 
-	if(getBrainLoss() >= 60)
-		msg += "[T.He] [T.has] a stupid expression on [T.his] face.\n"
-
 	if(species.show_ssd && (!species.has_organ["brain"] || has_brain()) && stat != DEAD)
 		if(!key)
 			msg += "<span class='deadsay'>[T.He] [T.is] [species.show_ssd]. It doesn't look like [T.he] [T.is] waking up anytime soon.</span>\n"
@@ -238,8 +237,8 @@
 
 	for(var/organ_tag in species.has_limbs)
 
-		var/list/organ_data = species.has_limbs[organ_tag]
-		var/organ_descriptor = organ_data["descriptor"]
+		var/datum/organ_description/OD = species.has_limbs[organ_tag]
+		var/organ_descriptor = OD.name
 
 		var/obj/item/organ/external/E = organs_by_name[organ_tag]
 		if(!E)
@@ -400,6 +399,9 @@
 		msg += "<span class = 'deptradio'>Physical status:</span> <a href='?src=\ref[src];medical=1'>\[[medical]\]</a>\n"
 		msg += "<span class = 'deptradio'>Medical records:</span> <a href='?src=\ref[src];medrecord=`'>\[View\]</a> <a href='?src=\ref[src];medrecordadd=`'>\[Add comment\]</a>\n"
 
+		var/obj/item/clothing/under/U = w_uniform
+		if(U && istype(U) && U.sensor_mode >= 2) 
+			msg += "<span class='deptradio'><b>Damage Specifics:</span> <span style=\"color:blue\">[round(src.getOxyLoss(), 1)]</span>-<span style=\"color:green\">[round(src.getToxLoss(), 1)]</span>-<span style=\"color:#FFA500\">[round(src.getFireLoss(), 1)]</span>-<span style=\"color:red\">[round(src.getBruteLoss(), 1)]</span></b>\n"
 
 	if(print_flavor_text()) msg += "[print_flavor_text()]\n"
 

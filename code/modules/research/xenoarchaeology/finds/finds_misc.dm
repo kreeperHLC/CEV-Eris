@@ -1,5 +1,5 @@
 
-// Phoron shards have been moved to code/game/objects/items/weapons/shards.dm
+// Plasma shards have been moved to code/game/objects/items/weapons/shards.dm
 
 //legacy crystal
 /obj/machinery/crystal
@@ -10,3 +10,24 @@
 /obj/machinery/crystal/New()
 	if(prob(50))
 		icon_state = "crystal2"
+
+//Talk crystal
+
+/obj/item/weapon/talkingcrystal
+
+	name = "Crystal"
+	icon = 'icons/obj/mining.dmi'
+	icon_state = "talk_crystal"
+	//listening_to_players = 1
+	//speaking_to_players = 1
+
+/obj/item/weapon/talkingcrystal/New()
+	src.talking_atom = new (src)
+	if(prob(50))
+		icon_state = "talk_crystal2"
+	//processing_objects.Add(src)
+
+
+///obj/item/weapon/crystal/Destroy()
+	//..()
+	//processing_objects.Remove(src)

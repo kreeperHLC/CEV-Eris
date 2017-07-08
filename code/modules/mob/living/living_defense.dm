@@ -51,14 +51,6 @@
 
 /mob/living/bullet_act(var/obj/item/projectile/P, var/def_zone)
 
-	//Being hit while using a cloaking device
-	var/obj/item/weapon/cloaking_device/C = locate((/obj/item/weapon/cloaking_device) in src)
-	if(C && C.active)
-		C.attack_self(src)//Should shut it off
-		update_icons()
-		src << "\blue Your [C.name] was disrupted!"
-		Stun(2)
-
 	//Being hit while using a deadman switch
 	if(istype(get_active_hand(),/obj/item/device/assembly/signaler))
 		var/obj/item/device/assembly/signaler/signaler = get_active_hand()
@@ -161,6 +153,7 @@
 
 		if (prob(miss_chance))
 			visible_message("\blue \The [O] misses [src] narrowly!")
+			playsound(src, "miss_sound", 50, 1, -6)
 			return
 
 		src.visible_message("\red [src] has been hit by [O].")
@@ -234,7 +227,7 @@
 
 /mob/living/attack_generic(var/mob/user, var/damage, var/attack_message)
 
-	if(!damage)
+	if(!damage || !istype(user))
 		return
 
 	adjustBruteLoss(damage)
@@ -286,6 +279,11 @@
 	adjust_fire_stacks(2)
 	IgniteMob()
 
+/mob/living/proc/irradiate(amount)
+	if(amount)
+		var/blocked = run_armor_check(null, "rad")
+		apply_effect(amount, IRRADIATE, blocked)
+
 /mob/living/proc/get_cold_protection()
 	return 0
 
@@ -326,15 +324,15 @@
 	if(!hud_used) return
 	if(!client) return
 
-	if(hud_used.hud_shown != 1)	//Hud toggled to minimal
-		return
+	//if(hud_used.hud_shown != 1)	//Hud toggled to minimal
+	//	return
 
-	client.screen -= hud_used.hide_actions_toggle
+	//client.screen -= hud_used.hide_actions_toggle
 	for(var/datum/action/A in actions)
 		if(A.button)
 			client.screen -= A.button
 
-	if(hud_used.action_buttons_hidden)
+	/*if(hud_used.action_buttons_hidden)
 		if(!hud_used.hide_actions_toggle)
 			hud_used.hide_actions_toggle = new(hud_used)
 			hud_used.hide_actions_toggle.UpdateIcon()
@@ -345,7 +343,7 @@
 
 		client.screen += hud_used.hide_actions_toggle
 		return
-
+*/
 	var/button_number = 0
 	for(var/datum/action/A in actions)
 		button_number++
@@ -366,11 +364,12 @@
 			B.screen_loc = hud_used.ButtonNumberToScreenCoords(button_number)
 			//hud_used.SetButtonCoords(B,button_number)
 
-	if(button_number > 0)
-		if(!hud_used.hide_actions_toggle)
+//	if(button_number > 0)
+		/*if(!hud_used.hide_actions_toggle)
 			hud_used.hide_actions_toggle = new(hud_used)
 			hud_used.hide_actions_toggle.InitialiseIcon(src)
 		if(!hud_used.hide_actions_toggle.moved)
 			hud_used.hide_actions_toggle.screen_loc = hud_used.ButtonNumberToScreenCoords(button_number+1)
 			//hud_used.SetButtonCoords(hud_used.hide_actions_toggle,button_number+1)
-		client.screen += hud_used.hide_actions_toggle
+		client.screen += hud_used.hide_actions_toggle*/
+

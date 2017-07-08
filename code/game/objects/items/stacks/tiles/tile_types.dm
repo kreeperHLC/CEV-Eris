@@ -4,6 +4,7 @@
  *		Grass
  *		Wood
  *		Carpet
+ *		Linoleum
  */
 
 /obj/item/stack/tile
@@ -26,8 +27,8 @@
 	singular_name = "grass floor tile"
 	desc = "A patch of grass like they often use on golf courses."
 	icon_state = "tile_grass"
-	force = 1.0
-	throwforce = 1.0
+	force = WEAPON_FORCE_NORMAL
+	throwforce = WEAPON_FORCE_NORMAL
 	throw_speed = 5
 	throw_range = 20
 	flags = 0
@@ -41,8 +42,8 @@
 	singular_name = "wood floor tile"
 	desc = "An easy to fit wooden floor tile."
 	icon_state = "tile-wood"
-	force = 1.0
-	throwforce = 1.0
+	force = WEAPON_FORCE_NORMAL
+	throwforce = WEAPON_FORCE_NORMAL
 	throw_speed = 5
 	throw_range = 20
 	flags = 0
@@ -63,55 +64,68 @@
 	singular_name = "carpet"
 	desc = "A piece of carpet. It is the same size as a normal floor tile!"
 	icon_state = "tile-carpet"
-	force = 1.0
-	throwforce = 1.0
+	force = WEAPON_FORCE_NORMAL
+	throwforce = WEAPON_FORCE_NORMAL
 	throw_speed = 5
 	throw_range = 20
 	flags = 0
+
+/obj/item/stack/tile/carpet/bcarpet
+	icon_state = "tile-bcarpet"
+/obj/item/stack/tile/carpet/blucarpet
+	icon_state = "tile-blucarpet"
+/obj/item/stack/tile/carpet/turcarpet
+	icon_state = "tile-turcarpet"
+/obj/item/stack/tile/carpet/sblucarpet
+	icon_state = "tile-sblucarpet"
+/obj/item/stack/tile/carpet/gaycarpet
+	icon_state = "tile-gaycarpet"
+/obj/item/stack/tile/carpet/purcarpet
+	icon_state = "tile-purcarpet"
+/obj/item/stack/tile/carpet/oracarpet
+	icon_state = "tile-oracarpet"
 
 /obj/item/stack/tile/floor
 	name = "floor tile"
 	singular_name = "floor tile"
 	desc = "Those could work as a pretty decent throwing weapon" //why?
 	icon_state = "tile"
-	force = 6.0
+	force = WEAPON_FORCE_NORMAL
 	matter = list(DEFAULT_WALL_MATERIAL = 937.5)
-	throwforce = 15.0
+	throwforce = WEAPON_FORCE_PAINFULL
 	throw_speed = 5
 	throw_range = 20
 	flags = CONDUCT
 
-/obj/item/stack/tile/floor_red
-	name = "red floor tile"
-	singular_name = "red floor tile"
-	color = COLOR_RED_GRAY
-	icon_state = "tile_white"
+/obj/item/stack/tile/floor/techgrey
+	name = "grey techfloor tile"
+	singular_name = "grey techfloor tile"
+	icon_state = "techtile_grey"
 
-/obj/item/stack/tile/floor_steel
+/obj/item/stack/tile/floor/techgrid
+	name = "grid techfloor tile"
+	singular_name = "grid techfloor tile"
+	icon_state = "techtile_grid"
+
+/obj/item/stack/tile/floor/steel
 	name = "steel floor tile"
 	singular_name = "steel floor tile"
 	icon_state = "tile_steel"
 	matter = list("plasteel" = 937.5)
 
-/obj/item/stack/tile/floor_white
+/obj/item/stack/tile/floor/white
 	name = "white floor tile"
 	singular_name = "white floor tile"
 	icon_state = "tile_white"
 	matter = list("plastic" = 937.5)
 
-/obj/item/stack/tile/floor_yellow
-	name = "yellow floor tile"
-	singular_name = "yellow floor tile"
-	color = COLOR_BROWN
-	icon_state = "tile_white"
-
-/obj/item/stack/tile/floor_dark
+/obj/item/stack/tile/floor/dark
 	name = "dark floor tile"
 	singular_name = "dark floor tile"
 	icon_state = "fr_tile"
 	matter = list("plasteel" = 937.5)
 
-/obj/item/stack/tile/floor_freezer
+/obj/item/stack/tile/floor/freezer
 	name = "freezer floor tile"
 	singular_name = "freezer floor tile"
 	icon_state = "tile_freezer"
@@ -126,3 +140,14 @@
 	charge_costs = list(250)
 	stacktype = /obj/item/stack/tile/floor
 	build_type = /obj/item/stack/tile/floor
+
+/obj/item/stack/tile/linoleum
+	name = "linoleum"
+	singular_name = "linoleum"
+	desc = "A piece of linoleum. It is the same size as a normal floor tile!"
+	icon_state = "tile-linoleum"
+	force = 1.0
+	throwforce = 1.0
+	throw_speed = 5
+	throw_range = 20
+	flags = 0

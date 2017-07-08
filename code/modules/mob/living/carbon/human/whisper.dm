@@ -37,7 +37,7 @@
 //This is used by both the whisper verb and human/say() to handle whispering
 /mob/living/carbon/human/proc/whisper_say(var/message, var/datum/language/speaking = null, var/alt_name="", var/verb="whispers")
 
-	if (istype(src.wear_mask, /obj/item/clothing/mask/muzzle))
+	if (istype(src.wear_mask, /obj/item/clothing/mask/muzzle) || istype(src.wear_mask, /obj/item/weapon/grenade))
 		src << "<span class='danger'>You're muzzled and cannot speak!</span>"
 		return
 
@@ -58,7 +58,7 @@
 	else
 		not_heard = "[verb] something" //TODO get rid of the null language and just prevent speech if language is null
 
-	message = capitalize(trim(message))
+	message = capitalize_cp1251(trim(message))
 
 	if(speech_problem_flag)
 		var/list/handle_r = handle_speech_problems(message)
@@ -92,7 +92,7 @@
 
 	if(voice_sub == "Unknown")
 		if(copytext(message, 1, 2) != "*")
-			var/list/temp_message = text2list(message, " ")
+			var/list/temp_message = splittext(message, " ")
 			var/list/pick_list = list()
 			for(var/i = 1, i <= temp_message.len, i++)
 				pick_list += i
@@ -101,7 +101,7 @@
 				if(findtext(temp_message[H], "*") || findtext(temp_message[H], ";") || findtext(temp_message[H], ":")) continue
 				temp_message[H] = ninjaspeak(temp_message[H])
 				pick_list -= H
-			message = list2text(temp_message, " ")
+			message = jointext(temp_message, " ")
 			message = replacetext(message, "o", "¤")
 			message = replacetext(message, "p", "þ")
 			message = replacetext(message, "l", "£")
@@ -116,7 +116,7 @@
 	for (var/mob/M in dead_mob_list)	//does this include players who joined as observers as well?
 		if (!(M.client))
 			continue
-		if(M.stat == DEAD && M.client && (M.client.prefs.toggles & CHAT_GHOSTEARS))
+		if(M.stat == DEAD && M.is_preference_enabled(/datum/client_preference/ghost_ears))
 			listening |= M
 
 	//Pass whispers on to anything inside the immediate listeners.

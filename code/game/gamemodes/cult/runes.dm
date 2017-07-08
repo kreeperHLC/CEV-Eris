@@ -159,7 +159,7 @@ var/list/sacrificed = list()
 							target << "<span class='cult'>Your entire broken soul and being is engulfed in corruption and flames as your mind shatters away into nothing.</span>"
 							target.hallucination += 5000
 							target.apply_effect(15, STUTTER)
-							target.adjustBrainLoss(rand(1,5))
+							target.adjustBrainLoss(1)
 
 				initial_message = 1
 				if (target.species && (target.species.flags & NO_PAIN))
@@ -301,7 +301,7 @@ var/list/sacrificed = list()
 					else
 						corpse_to_raise = M
 						if(M.key)
-							M.ghostize(1)	//kick them out of their body
+							M.daemonize()	//kick them out of their body
 						break
 			if(!corpse_to_raise)
 				if(is_sacrifice_target)
@@ -328,8 +328,8 @@ var/list/sacrificed = list()
 					usr << "<span class='warning'>The sacrifical corpse is not dead. You must free it from this world of illusions before it may be used.</span>"
 				return fizzle()
 
-			var/mob/dead/observer/ghost
-			for(var/mob/dead/observer/O in loc)
+			var/mob/observer/ghost/ghost
+			for(var/mob/observer/ghost/O in loc)
 				if(!O.client)	continue
 				if(O.mind && O.mind.current && O.mind.current.stat != DEAD)	continue
 				ghost = O
@@ -352,7 +352,7 @@ var/list/sacrificed = list()
 			"<span class='danger'>You hear a thousand voices, all crying in pain.</span>")
 			body_to_sacrifice.gib()
 
-//			if(ticker.mode.name == "cult")
+//			if(ticker.mode.name == MODE_CULT)
 //				ticker.mode:add_cultist(corpse_to_raise.mind)
 //			else
 //				ticker.mode.cult |= corpse_to_raise.mind
@@ -423,8 +423,8 @@ var/list/sacrificed = list()
 			src = null
 			if(usr.loc!=this_rune.loc)
 				return this_rune.fizzle()
-			var/mob/dead/observer/ghost
-			for(var/mob/dead/observer/O in this_rune.loc)
+			var/mob/observer/ghost/ghost
+			for(var/mob/observer/ghost/O in this_rune.loc)
 				if(!O.client)	continue
 				if(!O.MayRespawn()) continue
 				if(O.mind && O.mind.current && O.mind.current.stat != DEAD)	continue
@@ -450,11 +450,9 @@ var/list/sacrificed = list()
 			D.universal_speak = 1
 			D.status_flags &= ~GODMODE
 			D.s_tone = 35
-			D.b_eyes = 200
-			D.r_eyes = 200
-			D.g_eyes = 200
+			D.eyes_color = "#C8C8C8"
 			D.update_eyes()
-			D.underwear = 0
+			D.all_underwear.Cut()
 			D.key = ghost.key
 			cult.add_antagonist(D.mind)
 
@@ -599,7 +597,7 @@ var/list/sacrificed = list()
 				usr.whisper("O bidai nabora se[pick("'","`")]sma!")
 				usr.whisper("[input]")
 
-			input = sanitize(input)
+			input = capitalize_cp1251(sanitize(input))
 			log_and_message_admins("used a communicate rune to say '[input]'")
 			for(var/datum/mind/H in cult.current_antagonists)
 				if (H.current)
@@ -639,7 +637,7 @@ var/list/sacrificed = list()
 					if(lamb.species.rarity_value > 3)
 						worth = 1
 
-				if (ticker.mode.name == "cult")
+				if (ticker.mode.name == MODE_CULT)
 					if(H.mind == cult.sacrifice_target)
 						if(cultsinrange.len >= 3)
 							sacrificed += H.mind
@@ -1036,7 +1034,8 @@ var/list/sacrificed = list()
 				for(var/mob/living/L in viewers(src))
 					if(iscarbon(L))
 						var/mob/living/carbon/C = L
-						flick("e_flash", C.flash)
+						if (C.HUDtech.Find("flash"))
+							flick("e_flash", C.HUDtech["flash"])
 						if(C.stuttering < 1 && (!(HULK in C.mutations)))
 							C.stuttering = 1
 						C.Weaken(1)
@@ -1065,7 +1064,8 @@ var/list/sacrificed = list()
 						admin_attack_log(usr, T, "Used a stun rune.", "Was victim of a stun rune.", "used a stun rune on")
 					else if(iscarbon(T))
 						var/mob/living/carbon/C = T
-						flick("e_flash", C.flash)
+						if (C.HUDtech.Find("flash"))
+							flick("e_flash", C.HUDtech["flash"])
 						if (!(HULK in C.mutations))
 							C.silent += 15
 						C.Weaken(25)
@@ -1087,7 +1087,6 @@ var/list/sacrificed = list()
 			user.equip_to_slot_or_del(new /obj/item/clothing/head/culthood/alt(user), slot_head)
 			user.equip_to_slot_or_del(new /obj/item/clothing/suit/cultrobes/alt(user), slot_wear_suit)
 			user.equip_to_slot_or_del(new /obj/item/clothing/shoes/cult(user), slot_shoes)
-			user.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/cultpack(user), slot_back)
 			//the above update their overlay icons cache but do not call update_icons()
 			//the below calls update_icons() at the end, which will update overlay icons by using the (now updated) cache
 			user.put_in_hands(new /obj/item/weapon/melee/cultblade(user))	//put in hands or on floor

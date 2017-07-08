@@ -7,7 +7,7 @@
 	var/oxygen = 0
 	var/carbon_dioxide = 0
 	var/nitrogen = 0
-	var/phoron = 0
+	var/plasma = 0
 
 	//Properties for airtight tiles (/wall)
 	var/thermal_conductivity = 0.05
@@ -21,7 +21,6 @@
 	var/icon_old = null
 	var/pathweight = 1          // How much does it cost to pathfind over this turf?
 	var/blessed = 0             // Has the turf been blessed?
-	var/dynamic_lighting = 1    // Does the turf use dynamic lighting?
 
 	var/list/decals
 
@@ -32,11 +31,6 @@
 			src.Entered(AM)
 			return
 	turfs |= src
-
-	if(dynamic_lighting)
-		luminosity = 0
-	else
-		luminosity = 1
 
 /turf/proc/update_icon()
 	return
@@ -78,7 +72,7 @@
 
 	..()
 
-	if (!mover || !isturf(mover.loc))
+	if (!mover || !isturf(mover.loc) || isobserver(mover))
 		return 1
 
 	//First, check objects to block exit that are not on the border
@@ -137,7 +131,10 @@ var/const/enterloopsanity = 100
 		else if(is_space())
 			M.inertia_dir = 0
 			M.make_floating(0)
-	..()
+		if(isliving(M))
+			var/mob/living/L = M
+			L.handle_footstep(src)
+
 	var/objects = 0
 	if(A && (A.flags & PROXMOVE))
 		for(var/atom/movable/thing in range(1))
@@ -234,3 +231,15 @@ var/const/enterloopsanity = 100
 
 /turf/proc/update_blood_overlays()
 	return
+
+/turf/get_footstep_sound(var/mobtype)
+
+	var/sound
+
+	var/obj/structure/catwalk/catwalk = locate(/obj/structure/catwalk) in src
+	if(catwalk)
+		sound = safepick(catwalk.footstep_sounds[mobtype])
+	else
+		sound = safepick(footstep_sounds[mobtype])
+
+	return sound

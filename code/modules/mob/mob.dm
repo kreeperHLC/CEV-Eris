@@ -13,33 +13,34 @@
 		client.screen = list()
 	if(mind && mind.current == src)
 		spellremove(src)
-	for(var/infection in viruses)
-		qdel(infection)
 	ghostize()
 	..()
 
-/mob/proc/remove_screen_obj_references()
-	flash = null
-	blind = null
+/mob/get_fall_damage()
+	return 15
+
+/mob/proc/remove_screen_obj_references()//FIX THIS SHIT
+//	flash = null
+//	blind = null
 	hands = null
 	pullin = null
 	purged = null
-	internals = null
-	oxygen = null
+//	internals = null
+//	oxygen = null
 	i_select = null
 	m_select = null
-	toxin = null
-	fire = null
-	bodytemp = null
-	healths = null
-	throw_icon = null
-	nutrition_icon = null
-	pressure = null
-	damageoverlay = null
-	pain = null
-	item_use_icon = null
-	gun_move_icon = null
-	gun_setting_icon = null
+//	toxin = null
+//	fire = null
+//	bodytemp = null
+//	healths = null
+//	throw_icon = null
+//	nutrition_icon = null
+//	pressure = null
+//	damageoverlay = null
+//	pain = null
+//	item_use_icon = null
+//	gun_move_icon = null
+//	gun_setting_icon = null
 	spell_masters = null
 	zone_sel = null
 
@@ -162,7 +163,7 @@
 
 /mob/proc/is_physically_disabled()
 	return incapacitated(INCAPACITATION_DISABLED)
-	
+
 /mob/proc/incapacitated(var/incapacitation_flags = INCAPACITATION_DEFAULT)
 	if ((incapacitation_flags & INCAPACITATION_DISABLED) && (stat || paralysis || stunned || weakened || resting || sleeping || (status_flags & FAKEDEATH)))
 		return 1
@@ -202,21 +203,6 @@
 
 
 /mob/proc/show_inv(mob/user as mob)
-	user.set_machine(src)
-	var/dat = {"
-	<B><HR><FONT size=3>[name]</FONT></B>
-	<BR><HR>
-	<BR><B>Head(Mask):</B> <A href='?src=\ref[src];item=mask'>[(wear_mask ? wear_mask : "Nothing")]</A>
-	<BR><B>Left Hand:</B> <A href='?src=\ref[src];item=l_hand'>[(l_hand ? l_hand  : "Nothing")]</A>
-	<BR><B>Right Hand:</B> <A href='?src=\ref[src];item=r_hand'>[(r_hand ? r_hand : "Nothing")]</A>
-	<BR><B>Back:</B> <A href='?src=\ref[src];item=back'>[(back ? back : "Nothing")]</A> [((istype(wear_mask, /obj/item/clothing/mask) && istype(back, /obj/item/weapon/tank) && !( internal )) ? text(" <A href='?src=\ref[];item=internal'>Set Internal</A>", src) : "")]
-	<BR>[(internal ? text("<A href='?src=\ref[src];item=internal'>Remove Internal</A>") : "")]
-	<BR><A href='?src=\ref[src];item=pockets'>Empty Pockets</A>
-	<BR><A href='?src=\ref[user];refresh=1'>Refresh</A>
-	<BR><A href='?src=\ref[user];mach_close=mob[name]'>Close</A>
-	<BR>"}
-	user << browse(dat, text("window=mob[];size=325x500", name))
-	onclose(user, "mob[name]")
 	return
 
 //mob verbs are faster than object verbs. See http://www.byond.com/forum/?post=1326139&page=2#comment8198716 for why this isn't atom/verb/examine()
@@ -355,19 +341,15 @@
 	set src in usr
 	if(usr != src)
 		usr << "No."
-	var/msg = sanitize(input(usr,"Set the flavor text in your 'examine' verb. Can also be used for OOC notes about your character.","Flavor Text",html_decode(flavor_text)) as message|null, extra = 0)
+	var/msg = sanitize(input(usr,"Set the flavor text in your 'examine' verb. Can also be used for OOC notes about your character.","Flavor Text",rhtml_decode(flavor_text)) as message|null, extra = 0)
 
 	if(msg != null)
 		flavor_text = msg
 
-/mob/proc/warn_flavor_changed()
-	if(flavor_text && flavor_text != "") // don't spam people that don't use it!
-		src << "<h2 class='alert'>OOC Warning:</h2>"
-		src << "<span class='alert'>Your flavor text is likely out of date! <a href='byond://?src=\ref[src];flavor_change=1'>Change</a></span>"
-
 /mob/proc/print_flavor_text()
 	if (flavor_text && flavor_text != "")
-		var/msg = replacetext(flavor_text, "\n", " ")
+		var/msg = trim(replacetext(flavor_text, "\n", " "))
+		if(!msg) return ""
 		if(lentext(msg) <= 40)
 			return "\blue [msg]"
 		else
@@ -390,11 +372,12 @@
 	if ((stat != DEAD || !( ticker )))
 		usr << "<span class='notice'><B>You must be dead to use this!</B></span>"
 		return
-	if (ticker.mode.deny_respawn) //BS12 EDIT
+	if (ticker.mode && ticker.mode.deny_respawn)
 		usr << "<span class='notice'>Respawn is disabled for this roundtype.</span>"
 		return
 	else if(!MayRespawn(1, config.respawn_delay))
-		return
+		if(!check_rights(0, 0) || alert("Normal players must wait at least [config.respawn_delay] minutes to respawn! Would you?","Warning", "No", "Ok") != "Ok")
+			return
 
 	usr << "You can respawn now, enjoy your new life!"
 
@@ -548,8 +531,9 @@
 		src << browse(null, t1)
 
 	if(href_list["flavor_more"])
-		usr << browse(text("<HTML><HEAD><TITLE>[]</TITLE></HEAD><BODY><TT>[]</TT></BODY></HTML>", name, replacetext(flavor_text, "\n", "<BR>")), text("window=[];size=500x200", name))
-		onclose(usr, "[name]")
+		if(src in view(usr))
+			usr << browse(text("<HTML><HEAD><TITLE>[]</TITLE></HEAD><BODY><TT>[]</TT></BODY></HTML>", name, cp1251_to_utf8(replacetext(flavor_text, "\n", "<BR>"))), text("window=[];size=500x200", name))
+			onclose(usr, "[name]")
 	if(href_list["flavor_change"])
 		update_flavor_text()
 //	..()
@@ -585,8 +569,8 @@
 	if(pulling)
 		pulling.pulledby = null
 		pulling = null
-		if(pullin)
-			pullin.icon_state = "pull0"
+		/*if(pullin)
+			pullin.icon_state = "pull0"*/
 
 /mob/proc/start_pulling(var/atom/movable/AM)
 
@@ -637,8 +621,8 @@
 	src.pulling = AM
 	AM.pulledby = src
 
-	if(pullin)
-		pullin.icon_state = "pull1"
+	/*if(pullin)
+		pullin.icon_state = "pull1"*/
 
 	if(ishuman(AM))
 		var/mob/living/carbon/human/H = AM
@@ -662,7 +646,7 @@
 /mob/proc/is_mechanical()
 	if(mind && (mind.assigned_role == "Cyborg" || mind.assigned_role == "AI"))
 		return 1
-	return istype(src, /mob/living/silicon) || get_species() == "Machine"
+	return istype(src, /mob/living/silicon)
 
 /mob/proc/is_ready()
 	return client && !!mind
@@ -686,8 +670,8 @@
 
 	if(.)
 		if(statpanel("Status") && ticker && ticker.current_state != GAME_STATE_PREGAME)
-			stat("Station Time", worldtime2text())
-			stat("Round Duration", round_duration())
+			stat("Station Time", stationtime2text())
+			stat("Round Duration", roundduration2text())
 
 		if(client.holder)
 			if(statpanel("Status"))
@@ -703,7 +687,7 @@
 				listed_turf = null
 			else
 				if(statpanel("Turf"))
-					stat("\icon[listed_turf]", listed_turf.name)
+					stat(listed_turf)
 					for(var/atom/A in listed_turf)
 						if(!A.mouse_opacity)
 							continue
@@ -908,7 +892,12 @@
 	return ""
 
 /mob/proc/flash_weak_pain()
-	flick("weak_pain",pain)
+	if(istype(src,/mob/living))
+		var/mob/living/L = src
+//		flick("weak_pain",L.flash["pain"])
+		if (L.HUDtech.Find("pain"))
+			flick("weak_pain",L.HUDtech["pain"])
+
 
 /mob/proc/get_visible_implants(var/class = 0)
 	var/list/visible_implants = list()
@@ -961,7 +950,7 @@ mob/proc/yank_out_object()
 	else
 		U << "<span class='warning'>You attempt to get a good grip on [selection] in [S]'s body.</span>"
 
-	if(!do_after(U, 30))
+	if(!do_mob(U, S, 30))
 		return
 	if(!selection || !S || !U)
 		return
@@ -995,13 +984,13 @@ mob/proc/yank_out_object()
 		if (ishuman(U))
 			var/mob/living/carbon/human/human_user = U
 			human_user.bloody_hands(H)
-			
+
 	else if(issilicon(src))
 		var/mob/living/silicon/robot/R = src
 		R.embedded -= selection
 		R.adjustBruteLoss(5)
 		R.adjustFireLoss(10)
-	
+
 	selection.forceMove(get_turf(src))
 	if(!(U.l_hand && U.r_hand))
 		U.put_in_hands(selection)
@@ -1082,7 +1071,7 @@ mob/proc/yank_out_object()
 		usr << "You are now facing [dir2text(facing_dir)]."
 
 /mob/proc/set_face_dir(var/newdir)
-	if(newdir == facing_dir)
+	if(!isnull(facing_dir) && newdir == facing_dir)
 		facing_dir = null
 	else if(newdir)
 		set_dir(newdir)
@@ -1134,10 +1123,21 @@ mob/proc/yank_out_object()
 
 /mob/proc/throw_mode_off()
 	src.in_throw_mode = 0
-	if(src.throw_icon) //in case we don't have the HUD and we use the hotkey
-		src.throw_icon.icon_state = "act_throw_off"
+	/*for (var/obj/screen/HUDthrow/HUD in src.client.screen.)
+		if(HUD.name == "throw") //in case we don't have the HUD and we use the hotkey
+			//src.throw_icon.icon_state = "act_throw_off"
+			HUD.toggle_throw_mode()
+			break*/
 
 /mob/proc/throw_mode_on()
 	src.in_throw_mode = 1
-	if(src.throw_icon)
-		src.throw_icon.icon_state = "act_throw_on"
+	/*if(src.throw_icon)
+		src.throw_icon.icon_state = "act_throw_on"*/
+	/*for (var/obj/screen/HUDthrow/HUD in src.client.screen.)
+		if(HUD.name == "throw") //in case we don't have the HUD and we use the hotkey
+			//src.throw_icon.icon_state = "act_throw_off"
+			HUD.toggle_throw_mode()
+			break*/
+
+/mob/proc/swap_hand()
+	return

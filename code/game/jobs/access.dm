@@ -186,15 +186,13 @@
 		"Death Commando",
 		"Research Officer",
 		"BlackOps Commander",
-		"Supreme Commander",
-		"Emergency Response Team",
-		"Emergency Response Team Leader")
+		"Supreme Commander")
 
 /mob/proc/GetIdCard()
 	return null
 
 var/obj/item/weapon/card/id/all_access/ghost_all_access
-/mob/dead/observer/GetIdCard()
+/mob/observer/ghost/GetIdCard()
 	if(!is_admin(src))
 		return
 

@@ -47,6 +47,7 @@
 
 	var/trans = target.reagents.trans_to_obj(src, target:amount_per_transfer_from_this)
 	user << "<span class='notice'>You fill [src] with [trans] units of the contents of [target].</span>"
+	playsound(loc, 'sound/effects/watersplash.ogg', 100, 1)
 	return 1
 
 /obj/item/weapon/reagent_containers/proc/standard_splash_mob(var/mob/user, var/mob/target) // This goes into afterattack
@@ -103,7 +104,7 @@
 
 		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN) //puts a limit on how fast people can eat/drink things
 		self_feed_message(user)
-		reagents.trans_to_mob(user, amount_per_transfer_from_this, CHEM_INGEST)
+		reagents.trans_to_mob(user, issmall(user) ? ceil(amount_per_transfer_from_this/2) : amount_per_transfer_from_this, CHEM_INGEST)
 		feed_sound(user)
 		return 1
 	else
@@ -155,5 +156,6 @@
 		return 1
 
 	var/trans = reagents.trans_to(target, amount_per_transfer_from_this)
+	playsound(src,'sound/effects/Liquid_transfer_mono.wav',50,1)
 	user << "<span class='notice'>You transfer [trans] units of the solution to [target].</span>"
 	return 1

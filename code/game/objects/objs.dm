@@ -2,17 +2,31 @@
 	//Used to store information about the contents of the object.
 	var/list/matter
 	var/w_class // Size of the object.
-	var/list/origin_tech = null	//Used by R&D to determine what research bonuses it grants.
 	var/unacidable = 0 //universal "unacidabliness" var, here so you can use it in any obj.
 	animate_movement = 2
 	var/throwforce = 1
-	var/list/attack_verb = list() //Used in attackby() to say how something was attacked "[x] has been [z.attack_verb] by [y] with [z]"
 	var/sharp = 0		// whether this object cuts
 	var/edge = 0		// whether this object is more likely to dismember
 	var/in_use = 0 // If we have a user using us, this will be set on. We will check if the user has stopped using us, and thus stop updating and LAGGING EVERYTHING!
 	var/damtype = "brute"
-	var/force = 0
 	var/armor_penetration = 0
+	var/corporation = null
+
+/obj/get_fall_damage()
+	return w_class * 2
+
+/obj/examine(mob/user,distance=-1)
+	if(..(user,2))
+		if (corporation)
+			if (corporation in global.global_corporations)
+				var/datum/corporation/C = global_corporations[corporation]
+				user << "<font color='[C.textcolor]'>You think this [src.name] create a \
+				<IMG CLASS=icon SRC=\ref[C.icon] ICONSTATE='[C.icon_state]'>\
+				[C.name]. [C.about]</font>"
+			else
+				user << "You think this [src.name] create a [corporation]."
+	return distance == -1 || (get_dist(src, user) <= distance)
+
 
 /obj/Destroy()
 	processing_objects -= src
@@ -171,3 +185,9 @@
 
 /obj/proc/show_message(msg, type, alt, alt_type)//Message, type of message (1 or 2), alternative message, alt message type (1 or 2)
 	return
+
+/obj/proc/add_hearing()
+	hearing_objects |= src
+
+/obj/proc/remove_hearing()
+	hearing_objects.Remove(src)

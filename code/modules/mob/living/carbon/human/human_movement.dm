@@ -13,7 +13,7 @@
 	if(CE_SPEEDBOOST in chem_effects)
 		return -1
 
-	var/health_deficiency = (100 - health)
+	var/health_deficiency = (maxHealth - health)
 	if(health_deficiency >= 40) tally += (health_deficiency / 25)
 
 	if (!(species && (species.flags & NO_PAIN)))
@@ -107,3 +107,46 @@
 	if(shoes && (shoes.item_flags & NOSLIP) && istype(shoes, /obj/item/clothing/shoes/magboots))  //magboots + dense_object = no floating
 		return 1
 	return 0
+
+/mob/living/carbon/human/handle_footstep(atom/T)
+	if(..())
+
+		if(m_intent == "run")
+			if(!(step_count % 2)) //every other turf makes a sound
+				return
+
+		if(istype(shoes, /obj/item/clothing/shoes))
+			var/obj/item/clothing/shoes/footwear = shoes
+			if(footwear.silence_steps)
+				return //silent
+
+		if(!has_organ("l_foot") && !has_organ("r_foot"))
+			return //no feet no footsteps
+
+		if(buckled || lying || throwing)
+			return //people flying, lying down or sitting do not step
+
+		if(!has_gravity(src))
+			if(step_count % 3) //this basically says, every three moves make a noise
+				return //1st - none, 1%3==1, 2nd - none, 2%3==2, 3rd - noise, 3%3==0
+
+		if(species.silent_steps)
+			return //species is silent
+
+
+		var/S = T.get_footstep_sound("human")
+		if(S)
+			var/range = -(world.view - 2)
+			if(m_intent == "walk")
+				range -= 0.333
+			if(!shoes)
+				range -= 0.333
+
+			var/volume = 90
+			if(m_intent == "walk")
+				volume -= 55
+			if(!shoes)
+				volume -= 70
+
+			playsound(T, S, volume, 1, range)
+			return

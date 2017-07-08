@@ -18,7 +18,7 @@
 	var/material/reinf_material
 	var/last_state
 	var/construction_stage
-
+	var/hitsound = 'sound/weapons/Genhit.ogg'
 	var/list/wall_connections = list("0", "0", "0", "0")
 
 // Walls always hide the stuff below them.
@@ -35,7 +35,7 @@
 	if(!isnull(rmaterialtype))
 		reinf_material = get_material_by_name(rmaterialtype)
 	update_material()
-
+	hitsound = material.hitsound
 	processing_turfs |= src
 
 /turf/simulated/wall/Destroy()
@@ -165,8 +165,8 @@
 		material.place_dismantled_product(src,devastated)
 
 	for(var/obj/O in src.contents) //Eject contents!
-		if(istype(O,/obj/structure/sign/poster))
-			var/obj/structure/sign/poster/P = O
+		if(istype(O,/obj/item/weapon/contraband/poster))
+			var/obj/item/weapon/contraband/poster/P = O
 			P.roll_and_drop(src)
 		else
 			O.loc = src
@@ -247,5 +247,5 @@
 			src.ChangeTurf(/turf/simulated/floor)
 			for(var/turf/simulated/wall/W in range(3,src))
 				W.burn((temperature/4))
-			for(var/obj/machinery/door/airlock/phoron/D in range(3,src))
+			for(var/obj/machinery/door/airlock/plasma/D in range(3,src))
 				D.ignite(temperature/4)

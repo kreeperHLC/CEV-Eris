@@ -32,11 +32,6 @@
 	siemens_coefficient = 0.9
 	body_parts_covered = 0
 
-/obj/item/clothing/head/redcoat
-	name = "redcoat's hat"
-	icon_state = "redcoat"
-	desc = "<i>'I guess it's a redhead.'</i>"
-	body_parts_covered = 0
 
 /obj/item/clothing/head/mailman
 	name = "station cap"
@@ -76,14 +71,6 @@
 	desc = "A plastic replica of a bloodthirsty mercenary's space helmet, you'll look just like a real murderous criminal operative in this! This is a toy, it is not made for use in space!"
 	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE|BLOCKHAIR
 	siemens_coefficient = 2.0
-	body_parts_covered = HEAD|FACE|EYES
-
-/obj/item/clothing/head/cueball
-	name = "cueball helmet"
-	desc = "A large, featureless white orb mean to be worn on your head. How do you even see out of this thing?"
-	icon_state = "cueball"
-	item_state = "cueball"
-	flags_inv = BLOCKHAIR
 	body_parts_covered = HEAD|FACE|EYES
 
 /obj/item/clothing/head/greenbandana
@@ -250,3 +237,23 @@
 	desc = "An orange piece of cloth, worn on the head."
 	icon_state = "orange_bandana"
 	body_parts_covered = 0
+
+/obj/item/clothing/head/hijab
+	name = "hijab"
+	desc = "A veil that is wrapped to cover the head and chest"
+	icon_state = "hijab"
+	body_parts_covered = 0
+	flags_inv = BLOCKHAIR
+
+/obj/item/clothing/head/kippa
+	name = "kippa"
+	desc = "A small, brimless cap."
+	icon_state = "kippa"
+	body_parts_covered = 0
+
+/obj/item/clothing/head/turban
+	name = "turban"
+	desc = "A cloth used to wind around the head"
+	icon_state = "turban"
+	body_parts_covered = 0
+	flags_inv = BLOCKHAIR

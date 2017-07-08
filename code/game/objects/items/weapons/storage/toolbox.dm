@@ -5,8 +5,8 @@
 	icon_state = "red"
 	item_state = "toolbox_red"
 	flags = CONDUCT
-	force = 5
-	throwforce = 10
+	force = WEAPON_FORCE_PAINFULL
+	throwforce = WEAPON_FORCE_NORMAL
 	throw_speed = 1
 	throw_range = 7
 	w_class = 4
@@ -59,7 +59,7 @@
 		new /obj/item/stack/cable_coil(src,30,color)
 		new /obj/item/stack/cable_coil(src,30,color)
 		if(prob(5))
-			new /obj/item/clothing/gloves/yellow(src)
+			new /obj/item/clothing/gloves/insulated(src)
 		else
 			new /obj/item/stack/cable_coil(src,30,color)
 
@@ -68,11 +68,11 @@
 	icon_state = "syndicate"
 	item_state = "toolbox_syndi"
 	origin_tech = list(TECH_COMBAT = 1, TECH_ILLEGAL = 1)
-	force = 7.0
+	force = WEAPON_FORCE_DANGEROUS
 
 	New()
 		..()
-		new /obj/item/clothing/gloves/yellow(src)
+		new /obj/item/clothing/gloves/insulated(src)
 		new /obj/item/weapon/screwdriver(src)
 		new /obj/item/weapon/wrench(src)
 		new /obj/item/weapon/weldingtool(src)

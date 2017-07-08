@@ -28,7 +28,8 @@
 // Parameters: 1 (user - Person which clicked this computer)
 // Description: Opens UI of this machine.
 /obj/machinery/computer/rcon/attack_hand(var/mob/user as mob)
-	..()
+	if(..())
+		return
 	ui_interact(user)
 
 // Proc: ui_interact()
@@ -40,4 +41,4 @@
 /obj/machinery/computer/rcon/update_icon()
 	..()
 	if(is_operable())
-		overlays += image('icons/obj/computer.dmi', "ai-fixer-empty", overlay_layer)
+		overlays += image('icons/obj/computer.dmi', "ai-fixer-empty")

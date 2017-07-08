@@ -214,11 +214,11 @@ other types of metals and chemistry for reagents).
 
 /datum/design/item/powercell/AssembleDesignDesc()
 	if(build_path)
-		var/obj/item/weapon/cell/C = build_path
+		var/obj/item/weapon/cell/big/C = build_path
 		desc = "Allows the construction of power cells that can hold [initial(C.maxcharge)] units of energy."
 
 /datum/design/item/powercell/Fabricate()
-	var/obj/item/weapon/cell/C = ..()
+	var/obj/item/weapon/cell/big/C = ..()
 	C.charge = 0 //shouldn't produce power out of thin air.
 	return C
 
@@ -228,7 +228,7 @@ other types of metals and chemistry for reagents).
 	id = "basic_cell"
 	req_tech = list(TECH_POWER = 1)
 	materials = list(DEFAULT_WALL_MATERIAL = 700, "glass" = 50)
-	build_path = /obj/item/weapon/cell
+	build_path = /obj/item/weapon/cell/big
 	category = "Misc"
 	sort_string = "DAAAA"
 
@@ -238,7 +238,7 @@ other types of metals and chemistry for reagents).
 	id = "high_cell"
 	req_tech = list(TECH_POWER = 2)
 	materials = list(DEFAULT_WALL_MATERIAL = 700, "glass" = 60)
-	build_path = /obj/item/weapon/cell/high
+	build_path = /obj/item/weapon/cell/big/high
 	category = "Misc"
 	sort_string = "DAAAB"
 
@@ -247,7 +247,7 @@ other types of metals and chemistry for reagents).
 	id = "super_cell"
 	req_tech = list(TECH_POWER = 3, TECH_MATERIAL = 2)
 	materials = list(DEFAULT_WALL_MATERIAL = 700, "glass" = 70)
-	build_path = /obj/item/weapon/cell/super
+	build_path = /obj/item/weapon/cell/big/super
 	category = "Misc"
 	sort_string = "DAAAC"
 
@@ -256,7 +256,7 @@ other types of metals and chemistry for reagents).
 	id = "hyper_cell"
 	req_tech = list(TECH_POWER = 5, TECH_MATERIAL = 4)
 	materials = list(DEFAULT_WALL_MATERIAL = 400, "gold" = 150, "silver" = 150, "glass" = 70)
-	build_path = /obj/item/weapon/cell/hyper
+	build_path = /obj/item/weapon/cell/big/hyper
 	category = "Misc"
 	sort_string = "DAAAD"
 
@@ -313,8 +313,8 @@ other types of metals and chemistry for reagents).
 
 /datum/design/item/weapon/mining/plasmacutter
 	id = "plasmacutter"
-	req_tech = list(TECH_MATERIAL = 4, TECH_PHORON = 3, TECH_ENGINEERING = 3)
-	materials = list(DEFAULT_WALL_MATERIAL = 1500, "glass" = 500, "gold" = 500, "phoron" = 500)
+	req_tech = list(TECH_MATERIAL = 4, TECH_PLASMA = 3, TECH_ENGINEERING = 3)
+	materials = list(DEFAULT_WALL_MATERIAL = 1500, "glass" = 500, "gold" = 500, "plasma" = 500)
 	build_path = /obj/item/weapon/pickaxe/plasmacutter
 	sort_string = "KAAAC"
 
@@ -335,8 +335,8 @@ other types of metals and chemistry for reagents).
 /////////Shield Generators/////////
 ///////////////////////////////////
 /datum/design/circuit/shield
-	req_tech = list(TECH_BLUESPACE = 4, TECH_PHORON = 3)
-	materials = list("$glass" = 2000, "sacid" = 20, "$phoron" = 10000, "$diamond" = 5000, "$gold" = 10000)
+	req_tech = list(TECH_BLUESPACE = 4, TECH_PLASMA = 3)
+	materials = list("$glass" = 2000, "sacid" = 20, "$plasma" = 10000, "$diamond" = 5000, "$gold" = 10000)
 
 /datum/design/item/medical
 	materials = list(DEFAULT_WALL_MATERIAL = 30, "glass" = 20)
@@ -398,7 +398,7 @@ other types of metals and chemistry for reagents).
 	desc = "A bluespace beaker, powered by experimental bluespace technology and Element Cuban combined with the Compound Pete. Can hold up to 300 units."
 	id = "bluespacebeaker"
 	req_tech = list(TECH_BLUESPACE = 2, TECH_MATERIAL = 6)
-	materials = list(DEFAULT_WALL_MATERIAL = 3000, "phoron" = 3000, "diamond" = 500)
+	materials = list(DEFAULT_WALL_MATERIAL = 3000, "plasma" = 3000, "diamond" = 500)
 	build_path = /obj/item/weapon/reagent_containers/glass/beaker/bluespace
 	sort_string = "MADAB"
 
@@ -500,10 +500,10 @@ other types of metals and chemistry for reagents).
 	build_path = /obj/item/weapon/gun/energy/lasercannon
 	sort_string = "TAAAC"
 
-/datum/design/item/weapon/phoronpistol
+/datum/design/item/weapon/plasmapistol
 	id = "ppistol"
-	req_tech = list(TECH_COMBAT = 5, TECH_PHORON = 4)
-	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 1000, "phoron" = 3000)
+	req_tech = list(TECH_COMBAT = 5, TECH_PLASMA = 4)
+	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 1000, "plasma" = 3000)
 	build_path = /obj/item/weapon/gun/energy/toxgun
 	sort_string = "TAAAD"
 
@@ -653,7 +653,7 @@ other types of metals and chemistry for reagents).
 	id = "posibrain"
 	req_tech = list(TECH_ENGINEERING = 4, TECH_MATERIAL = 6, TECH_BLUESPACE = 2, TECH_DATA = 4)
 	build_type = PROTOLATHE | MECHFAB
-	materials = list(DEFAULT_WALL_MATERIAL = 2000, "glass" = 1000, "silver" = 1000, "gold" = 500, "phoron" = 500, "diamond" = 100)
+	materials = list(DEFAULT_WALL_MATERIAL = 2000, "glass" = 1000, "silver" = 1000, "gold" = 500, "plasma" = 500, "diamond" = 100)
 	build_path = /obj/item/device/mmi/digital/posibrain
 	category = "Misc"
 	sort_string = "VACAB"
@@ -1025,24 +1025,11 @@ CIRCUITS BELOW
 	build_path = /obj/item/weapon/circuitboard/operating
 	sort_string = "FACAA"
 
-/datum/design/circuit/pandemic
-	name = "PanD.E.M.I.C. 2200"
-	id = "pandemic"
-	build_path = /obj/item/weapon/circuitboard/pandemic
-	sort_string = "FAEAA"
-
 /datum/design/circuit/scan_console
 	name = "DNA machine"
 	id = "scan_console"
 	build_path = /obj/item/weapon/circuitboard/scan_consolenew
 	sort_string = "FAGAA"
-
-/datum/design/circuit/clonecontrol
-	name = "cloning control console"
-	id = "clonecontrol"
-	req_tech = list(TECH_DATA = 3, TECH_BIO = 3)
-	build_path = /obj/item/weapon/circuitboard/cloning
-	sort_string = "FAGAC"
 
 /datum/design/circuit/clonepod
 	name = "clone pod"
@@ -1239,7 +1226,7 @@ CIRCUITS BELOW
 /datum/design/circuit/pacman
 	name = "PACMAN-type generator"
 	id = "pacman"
-	req_tech = list(TECH_DATA = 3, TECH_PHORON = 3, TECH_POWER = 3, TECH_ENGINEERING = 3)
+	req_tech = list(TECH_DATA = 3, TECH_PLASMA = 3, TECH_POWER = 3, TECH_ENGINEERING = 3)
 	build_path = /obj/item/weapon/circuitboard/pacman
 	sort_string = "JBAAA"
 
@@ -1314,17 +1301,29 @@ CIRCUITS BELOW
 	build_path = /obj/item/weapon/circuitboard/biogenerator
 	sort_string = "KBAAA"
 
+/datum/design/circuit/miningdrill
+	name = "mining drill head"
+	id = "mining drill head"
+	req_tech = list(TECH_DATA = 1, TECH_ENGINEERING = 1)
+	build_path = /obj/item/weapon/circuitboard/miningdrill
+	sort_string = "KCAAA"
+
+/datum/design/circuit/miningdrillbrace
+	name = "mining drill brace"
+	id = "mining drill brace"
+	req_tech = list(TECH_DATA = 1, TECH_ENGINEERING = 1)
+	build_path = /obj/item/weapon/circuitboard/miningdrillbrace
+	sort_string = "KCAAB"
+
 /datum/design/circuit/comconsole
 	name = "communications console"
 	id = "comconsole"
 	build_path = /obj/item/weapon/circuitboard/communications
 	sort_string = "LAAAA"
 
-/datum/design/circuit/emp_data
-	name = "employment records console"
-	id = "emp_data"
-	build_path = /obj/item/weapon/circuitboard/skills
-	sort_string = "LAAAC"
+///////////////////////////////////
+////////////Mecha Modules//////////
+///////////////////////////////////
 
 /datum/design/circuit/mecha
 	req_tech = list(TECH_DATA = 3)
@@ -1333,6 +1332,8 @@ CIRCUITS BELOW
 	name = "Exosuit module circuit design ([name])"
 /datum/design/circuit/mecha/AssembleDesignDesc()
 	desc = "Allows for the construction of \a [name] module."
+
+//Ripley ==============================================
 
 /datum/design/circuit/mecha/ripley_main
 	name = "APLU 'Ripley' central control"
@@ -1345,6 +1346,8 @@ CIRCUITS BELOW
 	id = "ripley_peri"
 	build_path = /obj/item/weapon/circuitboard/mecha/ripley/peripherals
 	sort_string = "NAAAB"
+
+//Odysseus ==============================================
 
 /datum/design/circuit/mecha/odysseus_main
 	name = "'Odysseus' central control"
@@ -1359,6 +1362,8 @@ CIRCUITS BELOW
 	req_tech = list(TECH_DATA = 3,TECH_BIO = 2)
 	build_path = /obj/item/weapon/circuitboard/mecha/odysseus/peripherals
 	sort_string = "NAABB"
+
+//Gygax ==============================================
 
 /datum/design/circuit/mecha/gygax_main
 	name = "'Gygax' central control"
@@ -1381,6 +1386,8 @@ CIRCUITS BELOW
 	build_path = /obj/item/weapon/circuitboard/mecha/gygax/targeting
 	sort_string = "NAACC"
 
+//Durand ==============================================
+
 /datum/design/circuit/mecha/durand_main
 	name = "'Durand' central control"
 	id = "durand_main"
@@ -1401,6 +1408,31 @@ CIRCUITS BELOW
 	req_tech = list(TECH_DATA = 4, TECH_COMBAT = 2)
 	build_path = /obj/item/weapon/circuitboard/mecha/durand/targeting
 	sort_string = "NAADC"
+
+//Phazon ==============================================
+
+/datum/design/circuit/mecha/phazon_main
+	name = "'Phazon' central control"
+	id = "phazon_main"
+	req_tech = list(TECH_DATA = 4, TECH_BLUESPACE = 2)
+	build_path = /obj/item/weapon/circuitboard/mecha/phazon/main
+	sort_string = "NAAEA"
+
+/datum/design/circuit/mecha/phazon_peri
+	name = "'Phazon' peripherals control"
+	id = "phazon_peri"
+	req_tech = list(TECH_DATA = 4, TECH_BLUESPACE = 2)
+	build_path = /obj/item/weapon/circuitboard/mecha/phazon/peripherals
+	sort_string = "NAAEB"
+
+/datum/design/circuit/mecha/phazon_targ
+	name = "'Phazon' weapon control and targeting"
+	id = "phazon_targ"
+	req_tech = list(TECH_DATA = 4, TECH_COMBAT = 3, TECH_BLUESPACE = 5)
+	build_path = /obj/item/weapon/circuitboard/mecha/phazon/targeting
+	sort_string = "NAAEC"
+
+
 
 /datum/design/circuit/tcom
 	req_tech = list(TECH_DATA = 4, TECH_ENGINEERING = 4)
@@ -1456,7 +1488,7 @@ CIRCUITS BELOW
 	sort_string = "PAAAG"
 
 /datum/design/circuit/shield
-	req_tech = list(TECH_BLUESPACE = 4, TECH_PHORON = 3)
+	req_tech = list(TECH_BLUESPACE = 4, TECH_PLASMA = 3)
 	materials = list("glass" = 2000, "gold" = 1000)
 
 /datum/design/circuit/shield/AssembleDesignName()
@@ -1745,26 +1777,26 @@ datum/design/rust_fuel_compressor
 	name = "Circuit Design (RUST fuel compressor)"
 	desc = "Allows for the construction of circuit boards used to build a fuel compressor of the RUST fusion engine."
 	id = "rust_fuel_compressor"
-	req_tech = list("materials" = 6, "phorontech" = 4)
+	req_tech = list("materials" = 6, "plasmatech" = 4)
 	build_type = IMPRINTER
-	materials = list("glass" = 2000, "sacid" = 20, "phoron" = 3000, "diamond" = 1000)
+	materials = list("glass" = 2000, "sacid" = 20, "plasma" = 3000, "diamond" = 1000)
 	build_path = "/obj/item/weapon/module/rust_fuel_compressor"
 
 datum/design/rust_core
 	name = "Internal circuitry (RUST tokamak core)"
 	desc = "The circuit board that for a RUST-pattern tokamak fusion core."
 	id = "pacman"
-	req_tech = list(bluespace = 3, phorontech = 4, magnets = 5, powerstorage = 6)
+	req_tech = list(bluespace = 3, plasmatech = 4, magnets = 5, powerstorage = 6)
 	build_type = IMPRINTER
-	materials = list("glass" = 2000, "sacid" = 20, "phoron" = 3000, "diamond" = 2000)
+	materials = list("glass" = 2000, "sacid" = 20, "plasma" = 3000, "diamond" = 2000)
 	build_path = "/obj/item/weapon/circuitboard/rust_core"
 
 datum/design/rust_injector
 	name = "Internal circuitry (RUST tokamak core)"
 	desc = "The circuit board that for a RUST-pattern particle accelerator."
 	id = "pacman"
-	req_tech = list(powerstorage = 3, engineering = 4, phorontech = 4, materials = 6)
+	req_tech = list(powerstorage = 3, engineering = 4, plasmatech = 4, materials = 6)
 	build_type = IMPRINTER
-	materials = list("glass" = 2000, "sacid" = 20, "phoron" = 3000, "uranium" = 2000)
+	materials = list("glass" = 2000, "sacid" = 20, "plasma" = 3000, "uranium" = 2000)
 	build_path = "/obj/item/weapon/circuitboard/rust_core"
 */

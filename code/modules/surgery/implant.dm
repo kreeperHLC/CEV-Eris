@@ -121,6 +121,7 @@
 		user.visible_message("[user] starts putting \the [tool] inside [target]'s [get_cavity(affected)] cavity.", \
 		"You start putting \the [tool] inside [target]'s [get_cavity(affected)] cavity." )
 		target.custom_pain("The pain in your chest is living hell!",1)
+		playsound(target.loc, 'sound/effects/squelch1.ogg', 50, 1)
 		..()
 
 	end_step(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
@@ -135,6 +136,7 @@
 			affected.owner.custom_pain("You feel something rip in your [affected.name]!", 1)
 		user.drop_item()
 		affected.implants += tool
+		target.update_implants()
 		tool.loc = affected
 		affected.cavity = 0
 
@@ -169,12 +171,25 @@
 		var/find_prob = 0
 
 		if (affected.implants.len)
+			var/list/implants = list()
 
-			var/obj/item/obj = pick(affected.implants)
+			for(var/obj/item/I in affected.implants)
+				if(istype(I,/obj/item/weapon/implant))
+					var/obj/item/weapon/implant/IM = I
+					if(IM.is_external())
+						continue
+				implants.Add(I)
+
+			if(!implants.len)
+				user.visible_message("\blue [user] could not find anything inside [target]'s [affected.name], and pulls \the [tool] out.", \
+				"\blue You could not find anything inside [target]'s [affected.name]." )
+				return
+
+			var/obj/item/obj = pick(implants)
 
 			if(istype(obj,/obj/item/weapon/implant))
-				var/obj/item/weapon/implant/imp = obj
-				if (imp.islegal())
+				var/obj/item/weapon/implant/implant = obj
+				if (implant.is_legal)
 					find_prob +=60
 				else
 					find_prob +=40
@@ -185,8 +200,7 @@
 				user.visible_message("\blue [user] takes something out of incision on [target]'s [affected.name] with \the [tool].", \
 				"\blue You take [obj] out of incision on [target]'s [affected.name]s with \the [tool]." )
 				affected.implants -= obj
-
-				BITSET(target.hud_updateflag, IMPLOYAL_HUD)
+				target.update_implants()
 
 				//Handle possessive brain borers.
 				if(istype(obj,/mob/living/simple_animal/borer))
@@ -201,8 +215,9 @@
 					obj.update_icon()
 					if(istype(obj,/obj/item/weapon/implant))
 						var/obj/item/weapon/implant/imp = obj
-						imp.imp_in = null
+						imp.wearer = null
 						imp.implanted = 0
+				playsound(target.loc, 'sound/effects/squelch1.ogg', 50, 1)
 			else
 				user.visible_message("\blue [user] removes \the [tool] from [target]'s [affected.name].", \
 				"\blue There's something inside [target]'s [affected.name], but you just missed it this time." )
@@ -221,5 +236,5 @@
 				user.visible_message("\red Something beeps inside [target]'s [affected.name]!")
 				playsound(imp.loc, 'sound/items/countdown.ogg', 75, 1, -3)
 				spawn(25)
-					imp.activate()
+					imp.malfunction()
 

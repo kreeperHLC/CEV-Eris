@@ -2,7 +2,7 @@
 
 //Start of a breath chain, calls breathe()
 /mob/living/carbon/handle_breathing()
-	if(air_master.current_cycle%4==2 || failed_last_breath || (health < config.health_threshold_crit)) 	//First, resolve location and get a breath
+	if(life_tick%2==0 || failed_last_breath || (health < config.health_threshold_crit)) 	//First, resolve location and get a breath
 		breathe()
 
 /mob/living/carbon/proc/breathe()
@@ -35,12 +35,18 @@
 		if (!(wear_mask && (wear_mask.item_flags & AIRTIGHT)))
 			internal = null
 		if(internal)
-			if (internals)
-				internals.icon_state = "internal1"
+/*			if (internals)
+				internals.icon_state = "internal1"*/
+			if(HUDneed.Find("internal"))
+				var/obj/screen/HUDelm = HUDneed["internal"]
+				HUDelm.icon_state = "internal1"
 			return internal.remove_air_volume(volume_needed)
 		else
-			if (internals)
-				internals.icon_state = "internal0"
+/*			if (internals)
+				internals.icon_state = "internal0"*/
+			if(HUDneed.Find("internal"))
+				var/obj/screen/HUDelm = HUDneed["internal"]
+				HUDelm.icon_state = "internal0"
 	return null
 
 /mob/living/carbon/proc/get_breath_from_environment(var/volume_needed=BREATH_VOLUME)

@@ -122,6 +122,13 @@ research holder datum.
 			KT.level = max(KT.level + 1, level - 1)
 	return
 
+// A simple helper proc to find the name of a tech with a given ID.
+/proc/CallTechName(var/ID)
+	for(var/T in subtypesof(/datum/tech))
+		var/datum/tech/check_tech = T
+		if(initial(check_tech.id) == ID)
+			return  initial(check_tech.name)
+
 /***************************************************************
 **						Technology Datums					  **
 **	Includes all the various technoliges and what they make.  **
@@ -143,10 +150,10 @@ research holder datum.
 	desc = "Development of new and improved engineering parts."
 	id = TECH_ENGINEERING
 
-/datum/tech/phorontech
-	name = "Phoron Research"
-	desc = "Research into the mysterious substance colloqually known as 'phoron'."
-	id = TECH_PHORON
+/datum/tech/plasmatech
+	name = "Plasma Research"
+	desc = "Research into the mysterious substance colloqually known as 'plasma'."
+	id = TECH_PLASMA
 
 /datum/tech/powerstorage
 	name = "Power Manipulation Technology"

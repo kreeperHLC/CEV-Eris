@@ -80,7 +80,7 @@
 
 			var/obj/item/rig_module/mod = W
 			user << "You begin installing \the [mod] into \the [src]."
-			if(!do_after(user,40))
+			if(!do_after(user,40,src))
 				return
 			if(!user || !W)
 				return
@@ -92,7 +92,7 @@
 			update_icon()
 			return 1
 
-		else if(!cell && istype(W,/obj/item/weapon/cell))
+		else if(!cell && istype(W,/obj/item/weapon/cell/big))
 
 			if(!user.unEquip(W)) return
 			user << "You jack \the [W] into \the [src]'s battery mount."

@@ -11,6 +11,7 @@
 	var/turf/throw_source = null
 	var/throw_speed = 2
 	var/throw_range = 7
+	var/fall_sound = null
 	var/moved_recently = 0
 	var/mob/pulledby = null
 	var/item_state = null // Used to specify the item state for the on-mob overlays.
@@ -34,12 +35,9 @@
 
 /atom/movable/Destroy()
 	. = ..()
-	if(reagents)
-		qdel(reagents)
-		reagents = null
 	for(var/atom/movable/AM in contents)
 		qdel(AM)
-	loc = null
+	forceMove(null)
 	if (pulledby)
 		if (pulledby.pulling == src)
 			pulledby.pulling = null
@@ -55,14 +53,46 @@
 		src.throwing = 0
 
 	spawn(0)
-		if ((A && yes))
+		if (A && yes)
 			A.last_bumped = world.time
 			A.Bumped(src)
 		return
 	..()
 	return
 
-/atom/movable/proc/forceMove(atom/destination)
+/atom/movable/proc/forceMove(atom/destination, var/special_event)
+	if(loc == destination)
+		return 0
+
+	var/is_origin_turf = isturf(loc)
+	var/is_destination_turf = isturf(destination)
+	// It is a new area if:
+	//  Both the origin and destination are turfs with different areas.
+	//  When either origin or destination is a turf and the other is not.
+	var/is_new_area = (is_origin_turf ^ is_destination_turf) || (is_origin_turf && is_destination_turf && loc.loc != destination.loc)
+
+	var/atom/origin = loc
+	loc = destination
+
+	if(origin)
+		origin.Exited(src, destination)
+		if(is_origin_turf)
+			for(var/atom/movable/AM in origin)
+				AM.Uncrossed(src)
+			if(is_new_area && is_origin_turf)
+				origin.loc.Exited(src, destination)
+
+	if(destination)
+		destination.Entered(src, origin, special_event)
+		if(is_destination_turf) // If we're entering a turf, cross all movable atoms
+			for(var/atom/movable/AM in loc)
+				if(AM != src)
+					AM.Crossed(src)
+			if(is_new_area && is_destination_turf)
+				destination.loc.Entered(src, origin)
+	return 1
+
+/atom/movable/proc/forceMoveOld(atom/destination)
 	if(destination)
 		if(loc)
 			loc.Exited(src)
@@ -110,6 +140,8 @@
 	//use a modified version of Bresenham's algorithm to get from the atom's current position to that of the target
 
 	src.throwing = 1
+	if(target.allow_spin && src.allow_spin)
+		SpinAnimation(5,1)
 	src.thrower = thrower
 	src.throw_source = get_turf(src)	//store the origin turf
 
@@ -198,7 +230,11 @@
 			a = get_area(src.loc)
 
 	//done throwing, either because it hit something or it finished moving
-	if(isobj(src)) src.throw_impact(get_turf(src),speed)
+	var/turf/new_loc = get_turf(src)
+	if(isobj(src)) src.throw_impact(new_loc,speed)
+	if(fall_sound)
+		playsound(src, fall_sound, 100)
+	new_loc.Entered(src)
 	src.throwing = 0
 	src.thrower = null
 	src.throw_source = null

@@ -2,105 +2,149 @@
 //Contents: Ladders, Stairs.//
 //////////////////////////////
 
-/obj/structure/ladder
+/obj/structure/multiz
+	name = "ladder"
+	density = FALSE
+	opacity = FALSE
+	anchored = TRUE
+	icon = 'icons/obj/stairs.dmi'
+	var/istop = TRUE
+	var/obj/structure/multiz/target
+
+/obj/structure/multiz/New()
+	. = ..()
+	for(var/obj/structure/multiz/M in loc)
+		if(M != src)
+			spawn(1)
+				world.log << "##MAP_ERROR: Multiple [initial(name)] at ([x],[y],[z])"
+				qdel(src)
+			return .
+
+/obj/structure/multiz/CanPass(obj/mover, turf/source, height, airflow)
+	return airflow || !density
+
+/obj/structure/multiz/proc/find_target()
+	return
+
+/obj/structure/multiz/initialize()
+	find_target()
+
+/obj/structure/multiz/attack_tk(mob/user)
+	return
+
+/obj/structure/multiz/attack_ghost(mob/user)
+	. = ..()
+	user.Move(get_turf(target))
+
+/obj/structure/multiz/attack_ai(mob/living/silicon/ai/user)
+	var/turf/T = get_turf(target)
+	T.move_camera_by_click()
+
+/obj/structure/multiz/attackby(obj/item/C, mob/user)
+	. = ..()
+	attack_hand(user)
+	return
+
+
+
+////LADDER////
+
+/obj/structure/multiz/ladder
 	name = "ladder"
 	desc = "A ladder.  You can climb it up and down."
 	icon_state = "ladderdown"
-	icon = 'icons/obj/structures.dmi'
-	density = 0
-	opacity = 0
-	anchored = 1
 
-	var/obj/structure/ladder/target
+/obj/structure/multiz/ladder/find_target()
+	var/turf/targetTurf = istop ? GetBelow(src) : GetAbove(src)
+	target = locate(/obj/structure/multiz/ladder) in targetTurf
 
-	initialize()
-		// the upper will connect to the lower
-		if(icon_state == "ladderup")
-			return
+/obj/structure/multiz/ladder/up
+	icon_state = "ladderup"
+	istop = FALSE
 
-		for(var/obj/structure/ladder/L in GetBelow(src))
-			if(L.icon_state == "ladderup")
-				target = L
-				L.target = src
-				return
+/obj/structure/multiz/ladder/Destroy()
+	if(target && istop)
+		qdel(target)
+	return ..()
 
-	Destroy()
-		if(target && icon_state == "ladderdown")
-			qdel(target)
-		return ..()
-
-	attackby(obj/item/C as obj, mob/user as mob)
-		. = ..()
-		attack_hand(user)
+/obj/structure/multiz/ladder/attack_hand(var/mob/M)
+	if(!target || !istype(target.loc, /turf))
+		M << "<span class='notice'>\The [src] is incomplete and can't be climbed.</span>"
 		return
 
-	attack_hand(var/mob/M)
-		if(!target || !istype(target.loc, /turf))
-			M << "<span class='notice'>\The [src] is incomplete and can't be climbed.</span>"
+	var/turf/T = target.loc
+	for(var/atom/A in T)
+		if(A.density)
+			M << "<span class='notice'>\A [A] is blocking \the [src].</span>"
 			return
 
-		var/turf/T = target.loc
-		for(var/atom/A in T)
-			if(A.density)
-				M << "<span class='notice'>\A [A] is blocking \the [src].</span>"
-				return
+	M.visible_message(
+		"<span class='notice'>\A [M] climbs [istop ? "down" : "up"] \a [src]!</span>",
+		"You climb [istop ? "down" : "up"] \the [src]!",
+		"You hear the grunting and clanging of a metal ladder being used."
+	)
+	T.visible_message(
+		"<span class='warning'>Someone climbs [istop ? "down" : "up"] \a [src]!</span>",
+		"You hear the grunting and clanging of a metal ladder being used."
+	)
 
-		M.visible_message("<span class='notice'>\A [M] climbs [icon_state == "ladderup" ? "up" : "down"] \a [src]!</span>",
-			"You climb [icon_state == "ladderup"  ? "up" : "down"] \the [src]!",
-			"You hear the grunting and clanging of a metal ladder being used.")
+	if(do_after(M, 10, src))
 		M.Move(T)
 
-	CanPass(obj/mover, turf/source, height, airflow)
-		return airflow || !density
 
-/obj/structure/stairs
+
+////STAIRS////
+
+/obj/structure/multiz/stairs
 	name = "Stairs"
 	desc = "Stairs leading to another deck.  Not too useful if the gravity goes out."
-	icon = 'icons/obj/stairs.dmi'
-	density = 0
-	opacity = 0
-	anchored = 1
+	icon_state = "rampup"
+	layer = 2.4
 
-	initialize()
-		for(var/turf/turf in locs)
-			var/turf/simulated/open/above = GetAbove(turf)
-			if(!above)
-				warning("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
-				return qdel(src)
-			if(!istype(above))
-				above.ChangeTurf(/turf/simulated/open)
+/obj/structure/multiz/stairs/enter
+	icon_state = "ramptop"
 
-	Uncross(atom/movable/A)
-		if(A.dir == dir)
-			// This is hackish but whatever.
-			var/turf/target = get_step(GetAbove(A), dir)
-			var/turf/source = A.loc
-			if(target.Enter(A, source))
-				A.loc = target
-				target.Entered(A, source)
-			return 0
-		return 1
+/obj/structure/multiz/stairs/enter/bottom
+	icon_state = "rampbottom"
+	istop = FALSE
 
-	CanPass(obj/mover, turf/source, height, airflow)
-		return airflow || !density
+/obj/structure/multiz/stairs/active
+	density = TRUE
 
-	// type paths to make mapping easier.
-	north
-		dir = NORTH
-		bound_height = 64
-		bound_y = -32
-		pixel_y = -32
+/obj/structure/multiz/stairs/active/find_target()
+	var/turf/targetTurf = istop ? GetBelow(src) : GetAbove(src)
+	target = locate(/obj/structure/multiz/stairs/enter) in targetTurf
 
-	south
-		dir = SOUTH
-		bound_height = 64
+/obj/structure/multiz/stairs/active/Bumped(var/atom/movable/AM)
+	if(isnull(AM))
+		return
 
-	east
-		dir = EAST
-		bound_width = 64
-		bound_x = -32
-		pixel_x = -32
+	if(!target)
+		return
 
-	west
-		dir = WEST
-		bound_width = 64
+	var/obj/structure/multiz/stairs/enter/ES = locate(/obj/structure/multiz/stairs/enter) in get_turf(AM)
+
+	if(!ES && !istop)
+		return
+
+	AM.forceMove(get_turf(target))
+
+	if(ismob(AM) && (ES && ES.istop == istop))
+		var/mob/M = AM
+		if(M.pulling)
+			var/atom/movable/P = M.pulling
+			var/turf/pull_target = istop ? GetBelow(ES) : GetAbove(ES)
+			P.forceMove(pull_target ? pull_target : get_turf(M))
+
+/obj/structure/multiz/stairs/active/attack_robot(mob/user)
+	. = ..()
+	if(Adjacent(user))
+		Bumped(user)
+
+/obj/structure/multiz/stairs/active/attack_hand(mob/user)
+	. = ..()
+	Bumped(user)
+
+/obj/structure/multiz/stairs/active/bottom
+	icon_state = "rampdark"
+	istop = FALSE

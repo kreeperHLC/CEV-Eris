@@ -25,6 +25,7 @@
 	var/old_dynamic_lighting = dynamic_lighting
 	var/list/old_affecting_lights = affecting_lights
 	var/old_lighting_overlay = lighting_overlay
+	var/list/old_lighting_corners = corners
 
 	//world << "Replacing [src.type] with [N]"
 
@@ -51,9 +52,6 @@
 		if(air_master)
 			air_master.mark_for_update(src) //handle the addition of the new turf.
 
-		for(var/turf/space/S in range(W,1))
-			S.update_starlight()
-
 		W.levelupdate()
 		. = W
 
@@ -70,18 +68,36 @@
 		if(air_master)
 			air_master.mark_for_update(src)
 
-		for(var/turf/space/S in range(W,1))
-			S.update_starlight()
-
 		W.levelupdate()
 		. =  W
 
+	for(var/turf/space/SP in orange(src,1))
+		SP.update_starlight()
+
 	lighting_overlay = old_lighting_overlay
 	affecting_lights = old_affecting_lights
+	corners = old_lighting_corners
+
+	for(var/atom/A in contents)
+		if(A.light)
+			A.light.force_update = 1
+
+	for(var/i = 1 to 4)//Generate more light corners when needed. If removed - pitch black shuttles will come for your soul!
+		if(corners[i]) // Already have a corner on this direction.
+			continue
+		corners[i] = new/datum/lighting_corner(src, LIGHTING_CORNER_DIAGONAL[i])
+
+	if(force_lighting_update)
+		if(old_lighting_overlay)
+			var/atom/movable/lighting_overlay/old_overlay = old_lighting_overlay
+			old_overlay.Destroy() // This is fastest way to fix double overlays for mine turfs.. Deleting overlay.
+			lighting_build_overlay() // Rebuild overlay!
+
 	if((old_opacity != opacity) || (dynamic_lighting != old_dynamic_lighting) || force_lighting_update)
-		reconsider_lights()
+		reconsider_lights() //  Without this turf will be pitch black at lighting_build_overlay(). Updating affecting lights.
+
 	if(dynamic_lighting != old_dynamic_lighting)
 		if(dynamic_lighting)
-			lighting_build_overlays()
+			lighting_build_overlay()
 		else
-			lighting_clear_overlays()
+			lighting_clear_overlay()

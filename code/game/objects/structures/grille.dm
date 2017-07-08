@@ -8,7 +8,7 @@
 	flags = CONDUCT
 	layer = 2.9
 	explosion_resistance = 1
-	var/health = 10
+	var/health = 50
 	var/destroyed = 0
 
 
@@ -64,7 +64,7 @@
 	//Flimsy grilles aren't so great at stopping projectiles. However they can absorb some of the impact
 	var/damage = Proj.get_structure_damage()
 	var/passthrough = 0
-	
+
 	if(!damage) return
 
 	//20% chance that the grille provides a bit more cover than usual. Support structure for example might take up 20% of the grille's area.
@@ -135,7 +135,7 @@
 				user << "<span class='notice'>There is already a window facing this way there.</span>"
 				return
 		user << "<span class='notice'>You start placing the window.</span>"
-		if(do_after(user,20))
+		if(do_after(user,20,src))
 			for(var/obj/structure/window/WINDOW in loc)
 				if(WINDOW.dir == dir_to_set)//checking this for a 2nd time to check if a window was made while we were waiting.
 					user << "<span class='notice'>There is already a window facing this way there.</span>"
@@ -213,10 +213,27 @@
 
 /obj/structure/grille/attack_generic(var/mob/user, var/damage, var/attack_verb)
 	visible_message("<span class='danger'>[user] [attack_verb] the [src]!</span>")
-	user.do_attack_animation(src)
+	attack_animation(user)
 	health -= damage
 	spawn(1) healthcheck()
 	return 1
+	
+/obj/structure/grille/hitby(AM as mob|obj)
+	..()
+	visible_message("<span class='danger'>[src] was hit by [AM].</span>")
+	playsound(loc, 'sound/effects/grillehit.ogg', 80, 1)
+	var/tforce = 0
+	if(ismob(AM))
+		tforce = 10
+	else if(isobj(AM))
+		var/obj/item/I = AM
+		tforce = I.throwforce
+	health = max(0, health - tforce)
+	if(health <= 0)
+		destroyed=1
+		PoolOrNew(/obj/item/stack/rods, get_turf(src))
+		density=0
+		update_icon()
 
 // Used in mapping to avoid
 /obj/structure/grille/broken

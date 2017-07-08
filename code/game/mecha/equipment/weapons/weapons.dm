@@ -51,7 +51,7 @@
 	var/def_zone
 	if(chassis && istype(chassis.occupant,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = chassis.occupant
-		def_zone = H.zone_sel.selecting
+		def_zone = H.targeted_organ
 	P.launch(target, def_zone)
 
 /obj/item/mecha_parts/mecha_equipment/weapon/energy
@@ -196,7 +196,7 @@
 	name = "\improper LBX AC 10 \"Scattershot\""
 	icon_state = "mecha_scatter"
 	equip_cooldown = 20
-	projectile = /obj/item/projectile/bullet/pistol/medium
+	projectile = /obj/item/projectile/bullet/a10mm
 	fire_sound = 'sound/weapons/Gunshot.ogg'
 	fire_volume = 80
 	projectiles = 40
@@ -208,7 +208,7 @@
 	name = "\improper Ultra AC 2"
 	icon_state = "mecha_uac2"
 	equip_cooldown = 10
-	projectile = /obj/item/projectile/bullet/pistol/medium
+	projectile = /obj/item/projectile/bullet/a10mm
 	fire_sound = 'sound/weapons/Gunshot.ogg'
 	projectiles = 300
 	projectiles_per_shot = 3
@@ -222,6 +222,24 @@
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/Fire(atom/movable/AM, atom/target)
 	AM.throw_at(target,missile_range, missile_speed, chassis)
+
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flare
+	name = "\improper BNI Flare Launcher"
+	icon_state = "mecha_flaregun"
+	projectile = /obj/item/device/flashlight/flare
+	fire_sound = 'sound/weapons/tablehit1.ogg'
+	auto_rearm = 1
+	fire_cooldown = 20
+	projectiles_per_shot = 1
+	projectile_energy_cost = 20
+	missile_speed = 1
+	missile_range = 15
+	required_type = /obj/mecha  //Why restrict it to just mining or combat mechs?
+
+/obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flare/Fire(atom/movable/AM, atom/target, turf/aimloc)
+	var/obj/item/device/flashlight/flare/fired = AM
+	fired.turn_on()
+	..()
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/explosive
 	name = "\improper SRM-8 missile rack"
@@ -242,6 +260,7 @@
 	icon_state = "missile"
 	var/primed = null
 	throwforce = 15
+	allow_spin = 0
 
 	throw_impact(atom/hit_atom)
 		if(primed)

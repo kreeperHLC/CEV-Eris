@@ -3,10 +3,11 @@
 	icon = 'icons/obj/computer.dmi'
 	icon_keyboard = "med_key"
 	icon_screen = "dna"
+	light_color = COLOR_LIME
 	circuit = /obj/item/weapon/circuitboard/curefab
 	var/curing
 	var/virusing
-
+	CheckFaceFlag = 0
 	var/obj/item/weapon/reagent_containers/container = null
 
 /obj/machinery/computer/curer/attackby(var/obj/I as obj, var/mob/user as mob)

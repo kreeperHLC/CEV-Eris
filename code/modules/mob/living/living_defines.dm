@@ -8,6 +8,9 @@
 
 	var/hud_updateflag = 0
 
+
+	var/inventory_shown = 1
+
 	//Damage related vars, NOTE: THESE SHOULD ONLY BE MODIFIED BY PROCS
 	var/bruteloss = 0.0	//Brutal damage caused by brute force (punching, being clubbed by a toolbox ect... this also accounts for pressure damage)
 	var/oxyloss = 0.0	//Oxygen depravation damage (no air in lungs)
@@ -23,7 +26,7 @@
 
 	var/last_special = 0 //Used by the resist verb, likely used to prevent players from bypassing next_move by logging in/out.
 
-	var/t_phoron = null
+	var/t_plasma = null
 	var/t_oxygen = null
 	var/t_sl_gas = null
 	var/t_n2 = null
@@ -36,6 +39,7 @@
 
 	var/mob/living/cameraFollow = null
 	var/list/datum/action/actions = list()
+	var/step_count = 0
 
 	var/tod = null // Time of death
 	var/update_slimes = 1
@@ -45,3 +49,13 @@
 
 	var/failed_last_breath = 0 //This is used to determine if the mob failed a breath. If they did fail a brath, they will attempt to breathe each tick, otherwise just once per 4 ticks.
 	var/possession_candidate // Can be possessed by ghosts if unplayed.
+
+	var/eye_blind = null	//Carbon
+	var/eye_blurry = null	//Carbon
+	var/ear_damage = null	//Carbon
+	var/stuttering = null	//Carbon
+	var/slurring = null		//Carbon
+
+	var/job = null//Living
+
+	var/image/static_overlay // For static overlays on living mobs

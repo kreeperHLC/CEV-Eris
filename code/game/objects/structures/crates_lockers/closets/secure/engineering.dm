@@ -1,5 +1,5 @@
 /obj/structure/closet/secure_closet/engineering_chief
-	name = "chief engineer's locker"
+	name = "technomancer exultant's locker"
 	req_access = list(access_ce)
 	icon_state = "securece1"
 	icon_closed = "securece"
@@ -20,11 +20,11 @@
 		else
 			new /obj/item/clothing/accessory/storage/webbing(src)
 		new /obj/item/blueprints(src)
-		new /obj/item/clothing/under/rank/chief_engineer(src)
+		new /obj/item/clothing/under/rank/exultant(src)
 		new /obj/item/clothing/head/hardhat/white(src)
 		new /obj/item/clothing/head/welding(src)
-		new /obj/item/clothing/gloves/yellow(src)
-		new /obj/item/clothing/shoes/brown(src)
+		new /obj/item/clothing/gloves/insulated(src)
+		new /obj/item/clothing/shoes/color/brown(src)
 		new /obj/item/weapon/cartridge/ce(src)
 		new /obj/item/device/radio/headset/heads/ce(src)
 		new /obj/item/weapon/storage/toolbox/mechanical(src)
@@ -33,6 +33,10 @@
 		new /obj/item/device/multitool(src)
 		new /obj/item/device/flash(src)
 		new /obj/item/taperoll/engineering(src)
+		new /obj/item/weapon/hatton(src)
+		new /obj/item/weapon/hatton_magazine(src)
+		new /obj/item/weapon/hatton_magazine(src)
+		new /obj/item/weapon/hatton_magazine(src)
 		return
 
 
@@ -50,8 +54,8 @@
 
 	New()
 		..()
-		new /obj/item/clothing/gloves/yellow(src)
-		new /obj/item/clothing/gloves/yellow(src)
+		new /obj/item/clothing/gloves/insulated(src)
+		new /obj/item/clothing/gloves/insulated(src)
 		new /obj/item/weapon/storage/toolbox/electrical(src)
 		new /obj/item/weapon/storage/toolbox/electrical(src)
 		new /obj/item/weapon/storage/toolbox/electrical(src)
@@ -92,7 +96,7 @@
 
 
 /obj/structure/closet/secure_closet/engineering_personal
-	name = "engineer's locker"
+	name = "technomancer's locker"
 	req_access = list(access_engine_equip)
 	icon_state = "secureeng1"
 	icon_closed = "secureeng"
@@ -119,34 +123,4 @@
 		new /obj/item/clothing/glasses/meson(src)
 		new /obj/item/weapon/cartridge/engineering(src)
 		new /obj/item/taperoll/engineering(src)
-		return
-/obj/structure/closet/secure_closet/atmos_personal
-	name = "technician's locker"
-	req_access = list(access_atmospherics)
-	icon_state = "secureatm1"
-	icon_closed = "secureatm"
-	icon_locked = "secureatm1"
-	icon_opened = "secureatmopen"
-	icon_broken = "secureatmbroken"
-	icon_off = "secureatmoff"
-
-
-	New()
-		..()
-		if(prob(50))
-			new /obj/item/weapon/storage/backpack/industrial(src)
-		else
-			new /obj/item/weapon/storage/backpack/satchel_eng(src)
-		if (prob(70))
-			new /obj/item/clothing/accessory/storage/brown_vest(src)
-		else
-			new /obj/item/clothing/accessory/storage/webbing(src)
-		new /obj/item/clothing/suit/fire/firefighter(src)
-		new /obj/item/device/flashlight(src)
-		new /obj/item/weapon/extinguisher(src)
-		new /obj/item/device/radio/headset/headset_eng(src)
-		new /obj/item/clothing/suit/storage/hazardvest(src)
-		new /obj/item/clothing/mask/gas(src)
-		new /obj/item/weapon/cartridge/atmos(src)
-		new /obj/item/taperoll/atmos(src)
 		return

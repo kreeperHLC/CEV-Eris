@@ -427,7 +427,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 		var/mob/M = old_list[named]
 		if(issilicon(M))
 			AI_list |= M
-		else if(isobserver(M) || M.stat == 2)
+		else if(isghost(M) || M.stat == DEAD)
 			Dead_list |= M
 		else if(M.key && M.client)
 			keyclient_list |= M
@@ -462,7 +462,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 		if (M.real_name && M.real_name != M.name)
 			name += " \[[M.real_name]\]"
 		if (M.stat == 2)
-			if(istype(M, /mob/dead/observer/))
+			if(istype(M, /mob/observer/ghost/))
 				name += " \[ghost\]"
 			else
 				name += " \[dead\]"
@@ -474,7 +474,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 /proc/sortmobs()
 	var/list/moblist = list()
 	var/list/sortmob = sortAtom(mob_list)
-	for(var/mob/eye/M in sortmob)
+	for(var/mob/observer/eye/M in sortmob)
 		moblist.Add(M)
 	for(var/mob/living/silicon/ai/M in sortmob)
 		moblist.Add(M)
@@ -488,7 +488,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 		moblist.Add(M)
 	for(var/mob/living/carbon/alien/M in sortmob)
 		moblist.Add(M)
-	for(var/mob/dead/observer/M in sortmob)
+	for(var/mob/observer/ghost/M in sortmob)
 		moblist.Add(M)
 	for(var/mob/new_player/M in sortmob)
 		moblist.Add(M)
@@ -646,47 +646,6 @@ proc/GaussRandRound(var/sigma,var/roundto)
 
 	else return get_step(ref, base_dir)
 
-/proc/do_mob(var/mob/user, var/mob/target, var/delay = 30, var/numticks = 5, var/needhand = 1) //This is quite an ugly solution but i refuse to use the old request system.
-	if(!user || !target)	return 0
-	if(numticks == 0)		return 0
-
-	var/delayfraction = round(delay/numticks)
-	var/original_user_loc = user.loc
-	var/original_target_loc = target.loc
-	var/holding = user.get_active_hand()
-
-	for(var/i = 0, i<numticks, i++)
-		sleep(delayfraction)
-
-		if(!user || user.stat || user.weakened || user.stunned || user.loc != original_user_loc)
-			return 0
-		if(!target || target.loc != original_target_loc)
-			return 0
-		if(needhand && !(user.get_active_hand() == holding))	//Sometimes you don't want the user to have to keep their active hand
-			return 0
-
-	return 1
-
-/proc/do_after(var/mob/user as mob, delay as num, var/numticks = 5, var/needhand = 1)
-	if(!user || isnull(user))
-		return 0
-	if(numticks == 0)
-		return 0
-
-	var/delayfraction = round(delay/numticks)
-	var/original_loc = user.loc
-	var/holding = user.get_active_hand()
-
-	for(var/i = 0, i<numticks, i++)
-		sleep(delayfraction)
-
-		if(!user || user.stat || user.weakened || user.stunned || user.loc != original_loc)
-			return 0
-		if(needhand && !(user.get_active_hand() == holding))	//Sometimes you don't want the user to have to keep their active hand
-			return 0
-
-	return 1
-
 //Takes: Anything that could possibly have variables and a varname to check.
 //Returns: 1 if found, 0 if not.
 /proc/hasvar(var/datum/A, var/varname)
@@ -748,8 +707,8 @@ proc/GaussRandRound(var/sigma,var/roundto)
 
 	if(!A || !src) return 0
 
-	var/list/turfs_src = get_area_turfs(src.type)
-	var/list/turfs_trg = get_area_turfs(A.type)
+	var/list/turfs_src = get_area_turfs(src)
+	var/list/turfs_trg = get_area_turfs(A)
 
 	var/src_min_x = 0
 	var/src_min_y = 0
@@ -771,8 +730,14 @@ proc/GaussRandRound(var/sigma,var/roundto)
 		C.x_pos = (T.x - src_min_x)
 		C.y_pos = (T.y - src_min_y)
 
+	var/list/zones_trg = new/list() // Let's add zones from a target destination for rebuilding after.
 	var/list/refined_trg = new/list()
 	for(var/turf/T in turfs_trg)
+		if(istype(T, /turf/simulated))
+			var/turf/simulated/TZ = T
+			if(TZ.zone)
+				zones_trg |= TZ.zone
+			qdel(TZ) // Prevents lighting bugs. Don't ask.
 		refined_trg += T
 		refined_trg[T] = new/datum/coords
 		var/datum/coords/C = refined_trg[T]
@@ -794,6 +759,8 @@ proc/GaussRandRound(var/sigma,var/roundto)
 					var/old_icon1 = T.icon
 					var/old_overlays = T.overlays.Copy()
 					var/old_underlays = T.underlays.Copy()
+					var/old_decals = T.decals
+					var/old_opacity = T.opacity // For shuttle windows
 
 					var/turf/X = B.ChangeTurf(T.type)
 					X.set_dir(old_dir1)
@@ -801,6 +768,11 @@ proc/GaussRandRound(var/sigma,var/roundto)
 					X.icon = old_icon1 //Shuttle floors are in shuttle.dmi while the defaults are floors.dmi
 					X.overlays = old_overlays
 					X.underlays = old_underlays
+					X.decals = old_decals
+					X.opacity = old_opacity
+
+					if(istype(T, /turf/simulated/open) || istype(T, /turf/space) || istype(T, /turf/simulated/floor/asteroid))
+						X.ChangeTurf(get_base_turf_by_area(B))
 
 					var/turf/simulated/ST = T
 					if(istype(ST) && ST.zone)
@@ -846,7 +818,7 @@ proc/GaussRandRound(var/sigma,var/roundto)
 						if(!istype(O,/obj)) continue
 						O.loc = X
 					for(var/mob/M in T)
-						if(!istype(M,/mob) || istype(M, /mob/eye)) continue // If we need to check for more mobs, I'll add a variable
+						if(!istype(M,/mob) || isEye(M)) continue // If we need to check for more mobs, I'll add a variable
 						M.loc = X
 
 //					var/area/AR = X.loc
@@ -866,6 +838,8 @@ proc/GaussRandRound(var/sigma,var/roundto)
 					refined_trg -= B
 					continue moving
 
+	for(var/zone/Z in zones_trg) // rebuilding zones
+		Z.rebuild()
 
 proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 	if(!original)
@@ -980,7 +954,7 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 
 					for(var/mob/M in T)
 
-						if(!istype(M,/mob) || istype(M, /mob/eye)) continue // If we need to check for more mobs, I'll add a variable
+						if(!istype(M,/mob) || isEye(M)) continue // If we need to check for more mobs, I'll add a variable
 						mobs += M
 
 					for(var/mob/M in mobs)
@@ -1242,7 +1216,8 @@ var/list/WALLITEMS = list(
 	"/obj/machinery/newscaster", "/obj/machinery/firealarm", "/obj/structure/noticeboard", "/obj/machinery/door_control",
 	"/obj/machinery/computer/security/telescreen", "/obj/machinery/embedded_controller/radio/simple_vent_controller",
 	"/obj/item/weapon/storage/secure/safe", "/obj/machinery/door_timer", "/obj/machinery/flasher", "/obj/machinery/keycard_auth",
-	"/obj/structure/mirror", "/obj/structure/closet/fireaxecabinet", "/obj/machinery/computer/security/telescreen/entertainment"
+	"/obj/structure/mirror", "/obj/structure/closet/fireaxecabinet", "/obj/machinery/computer/security/telescreen/entertainment",
+	"/obj/machinery/light_construct", "/obj/machinery/light"
 	)
 /proc/gotwallitem(loc, dir)
 	for(var/obj/O in loc)
@@ -1276,6 +1251,45 @@ var/list/WALLITEMS = list(
 					return 1
 	return 0
 
+var/list/FLOORITEMS = list(
+	"/obj/machinery/atmospherics/unary/vent_pump", "/obj/machinery/atmospherics/unary/vent_scrubber",
+	"/obj/machinery/light_construct/floor", "/obj/machinery/light/floor"
+	)
+
+/proc/gotflooritem(loc, dir)
+	for(var/obj/O in loc)
+		for(var/item in FLOORITEMS)
+			if(istype(O, text2path(item)))
+				return 1
+				//Direction works sometimes
+				//if(O.dir == dir)
+				//	return 1
+
+				/*//Some stuff doesn't use dir properly, so we need to check pixel instead
+				switch(dir)
+					if(SOUTH)
+						if(O.pixel_y > 10)
+							return 1
+					if(NORTH)
+						if(O.pixel_y < -10)
+							return 1
+					if(WEST)
+						if(O.pixel_x > 10)
+							return 1
+					if(EAST)
+						if(O.pixel_x < -10)
+							return 1
+
+
+	//Some stuff is placed directly on the wallturf (signs)
+	for(var/obj/O in get_step(loc, dir))
+		for(var/item in FLOORITEMS)
+			if(istype(O, text2path(item)))
+				if(O.pixel_x == 0 && O.pixel_y == 0)
+					return 1*/
+	//world << "no item on floor!"
+	return 0
+
 /proc/format_text(text)
 	return replacetext(replacetext(text,"\proper ",""),"\improper ","")
 
@@ -1294,7 +1308,7 @@ var/list/WALLITEMS = list(
 			if(length(temp_col )<2)
 				temp_col  = "0[temp_col]"
 			colour += temp_col
-	return colour
+	return "#[colour]"
 
 var/mob/dview/dview_mob = new
 
@@ -1336,3 +1350,13 @@ var/mob/dview/dview_mob = new
 // call to generate a stack trace and print to runtime logs
 /proc/crash_with(msg)
 	CRASH(msg)
+
+/proc/CheckFace(var/atom/Obj1, var/atom/Obj2)
+	var/CurrentDir = get_dir(Obj1, Obj2)
+	//if ((Obj1.loc == Obj2.loc) || (CurrentDir == Obj1.dir) || (CurrentDir == turn(Obj1.dir, 45)) || (CurrentDir == turn(Obj1.dir, -45)))
+	if((CurrentDir & Obj1.dir) || (CurrentDir == 0))
+		return 1
+	else
+		return 0
+
+

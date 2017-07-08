@@ -1,7 +1,7 @@
 /mob/living/simple_animal/borer/say(var/message)
 
 	message = sanitize(message)
-	message = capitalize(message)
+	message = capitalize_cp1251(message)
 
 	if(!message)
 		return
@@ -38,5 +38,5 @@
 	for (var/mob/M in player_list)
 		if (istype(M, /mob/new_player))
 			continue
-		else if(M.stat == 2 &&  M.client.prefs.toggles & CHAT_GHOSTEARS)
+		else if(M.stat == DEAD && M.is_preference_enabled(/datum/client_preference/ghost_ears))
 			M << "[src.truename] whispers to [host], \"[message]\""

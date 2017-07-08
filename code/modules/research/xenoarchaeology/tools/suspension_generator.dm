@@ -5,7 +5,7 @@
 	icon_state = "suspension2"
 	density = 1
 	req_access = list(access_research)
-	var/obj/item/weapon/cell/cell
+	var/obj/item/weapon/cell/big/cell
 	var/obj/item/weapon/card/id/auth_card
 	var/locked = 1
 	var/open = 0
@@ -16,7 +16,7 @@
 	var/list/secured_mobs = list()
 
 /obj/machinery/suspension_gen/New()
-	src.cell = new/obj/item/weapon/cell/high(src)
+	src.cell = new/obj/item/weapon/cell/big/high(src)
 	..()
 
 /obj/machinery/suspension_gen/process()
@@ -88,8 +88,8 @@
 		dat += "[field_type=="mercury"?"<b>":""	]<A href='?src=\ref[src];select_field=mercury'>Mercury dispersion wave</A></b><br>"
 		dat += "[field_type=="iron"?"<b>":""		]<A href='?src=\ref[src];select_field=iron'>Iron wafer conduction field</A></b><br>"
 		dat += "[field_type=="calcium"?"<b>":""	]<A href='?src=\ref[src];select_field=calcium'>Calcium binary deoxidiser</A></b><br>"
-		dat += "[field_type=="phoron"?"<b>":""	]<A href='?src=\ref[src];select_field=chlorine'>Chlorine diffusion emissions</A></b><br>"
-		dat += "[field_type=="phoron"?"<b>":""	]<A href='?src=\ref[src];select_field=phoron'>Phoron saturated field</A></b><br>"
+		dat += "[field_type=="plasma"?"<b>":""	]<A href='?src=\ref[src];select_field=chlorine'>Chlorine diffusion emissions</A></b><br>"
+		dat += "[field_type=="plasma"?"<b>":""	]<A href='?src=\ref[src];select_field=plasma'>Plasma saturated field</A></b><br>"
 	else
 		dat += "<br>"
 		dat += "<br>"
@@ -202,7 +202,7 @@
 				desc = "It has stubby legs bolted up against it's body for stabilising."
 		else
 			user << "<span class='warning'>You are unable to secure [src] while it is active!</span>"
-	else if (istype(W, /obj/item/weapon/cell))
+	else if (istype(W, /obj/item/weapon/cell/big))
 		if(open)
 			if(cell)
 				user << "<span class='warning'>There is a power cell already installed.</span>"
@@ -260,7 +260,7 @@
 		if("potassium")
 			success = 1
 			//
-		if("phoron")
+		if("plasma")
 			success = 1
 			//
 		if("calcium")

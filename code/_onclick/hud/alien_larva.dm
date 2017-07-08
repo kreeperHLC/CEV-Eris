@@ -1,7 +1,7 @@
-/mob/living/carbon/alien/instantiate_hud(var/datum/hud/HUD)
-	HUD.larva_hud()
+//mob/living/carbon/alien/instantiate_hud(var/datum/hud/HUD)
+//	HUD.larva_hud()
 
-/datum/hud/proc/larva_hud()
+/*/datum/hud/proc/larva_hud()
 
 	src.adding = list()
 	src.other = list()
@@ -29,7 +29,9 @@
 	mymob.blind.icon_state = "blackimageoverlay"
 	mymob.blind.name = " "
 	mymob.blind.screen_loc = "1,1"
-	mymob.blind.layer = 0
+	mymob.blind.mouse_opacity = 0
+	mymob.blind.layer = 18
+	mymob.blind.alpha = 0
 
 	mymob.flash = new /obj/screen()
 	mymob.flash.icon = 'icons/mob/screen1_alien.dmi'
@@ -46,4 +48,4 @@
 
 	mymob.client.screen = null
 	mymob.client.screen += list( mymob.healths, mymob.blind, mymob.flash, mymob.fire) //, mymob.rest, mymob.sleep, mymob.mach )
-	mymob.client.screen += src.adding + src.other
+	mymob.client.screen += src.adding + src.other*/

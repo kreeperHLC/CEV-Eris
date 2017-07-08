@@ -1,157 +1,200 @@
-/datum/job/hos
-	title = "Head of Security"
-	flag = HOS
+/datum/job/ihc
+	title = "Ironhammer Commander"
+	flag = IHC
 	head_position = 1
 	department = "Security"
 	department_flag = ENGSEC
-	faction = "Station"
+	faction = "CEV Eris"
 	total_positions = 1
 	spawn_positions = 1
-	supervisors = "the captain"
+	supervisors = "the Captain"
 	selection_color = "#ffdddd"
-	idtype = /obj/item/weapon/card/id/silver
+	idtype = /obj/item/weapon/card/id/hos
 	req_admin_notify = 1
 	economic_modifier = 10
-	access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory,
+	access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory, access_medspec,
 			            access_forensics_lockers, access_morgue, access_maint_tunnels, access_all_personal_lockers,
 			            access_research, access_engine, access_mining, access_medical, access_construction, access_mailsorting,
 			            access_heads, access_hos, access_RC_announce, access_keycard_auth, access_gateway, access_external_airlocks)
-	minimal_access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory,
+	minimal_access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory, access_medspec,
 			            access_forensics_lockers, access_morgue, access_maint_tunnels, access_all_personal_lockers,
 			            access_research, access_engine, access_mining, access_medical, access_construction, access_mailsorting,
 			            access_heads, access_hos, access_RC_announce, access_keycard_auth, access_gateway, access_external_airlocks)
 	minimal_player_age = 14
 
-	equip(var/mob/living/carbon/human/H)
-		if(!H)	return 0
-		switch(H.backbag)
-			if(2) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/security(H), slot_back)
-			if(3) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel_sec(H), slot_back)
-			if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
-		H.equip_to_slot_or_del(new /obj/item/device/radio/headset/heads/hos(H), slot_l_ear)
-		H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/head_of_security(H), slot_w_uniform)
-		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/jackboots(H), slot_shoes)
-		H.equip_to_slot_or_del(new /obj/item/device/pda/heads/hos(H), slot_belt)
-		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black(H), slot_gloves)
-//		H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas(H), slot_wear_mask) //Grab one from the armory you donk
-		H.equip_to_slot_or_del(new /obj/item/clothing/glasses/sunglasses/sechud(H), slot_glasses)
-		H.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/gun(H), slot_s_store)
-		if(H.backbag == 1)
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_l_store)
-		else
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_in_backpack)
-		H.implant_loyalty(H)
-		return 1
+	uniform = /obj/item/clothing/under/rank/ih_commander
+	suit = /obj/item/clothing/suit/armor/hos
+	hat = /obj/item/clothing/head/beret/sec/navy/hos
+	pda = /obj/item/device/pda/heads/hos
+	ear = /obj/item/device/radio/headset/heads/hos
+	shoes = /obj/item/clothing/shoes/jackboots
+	gloves = /obj/item/clothing/gloves/thick
+	glasses = /obj/item/clothing/glasses/sunglasses/sechud
+	belt = /obj/item/weapon/gun/projectile/lamia
+	put_in_backpack = list(\
+		/obj/item/ammo_magazine/mg/cl44/rubber,\
+		/obj/item/ammo_magazine/mg/cl44/rubber,\
+		/obj/item/weapon/handcuffs,\
+		/obj/item/device/flashlight/seclite,\
+		/obj/item/weapon/gun/energy/gun/martin,\
+		/obj/item/weapon/melee/baton/loaded
+	)
+
+	backpacks = list(
+		/obj/item/weapon/storage/backpack/security,\
+		/obj/item/weapon/storage/backpack/satchel_sec,\
+		/obj/item/weapon/storage/backpack/satchel
+	)
 
 
-
-/datum/job/warden
-	title = "Warden"
-	flag = WARDEN
+/datum/job/gunserg
+	title = "Ironhammer Gunnery Sergeant"
+	flag = GUNSERG
 	department = "Security"
 	department_flag = ENGSEC
-	faction = "Station"
+	faction = "CEV Eris"
 	total_positions = 1
 	spawn_positions = 1
-	supervisors = "the head of security"
+	supervisors = "the Ironhammer Commander"
 	selection_color = "#ffeeee"
 	economic_modifier = 5
-	access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory, access_maint_tunnels, access_morgue, access_external_airlocks)
+	access = list(access_security, access_medical, access_research, access_engine, access_mailsorting,
+			            access_eva, access_sec_doors, access_brig, access_armory, access_maint_tunnels, access_morgue, access_external_airlocks)
 	minimal_access = list(access_security, access_eva, access_sec_doors, access_brig, access_armory, access_maint_tunnels, access_external_airlocks)
 	minimal_player_age = 5
+	idtype = /obj/item/weapon/card/id/sec
 
-	equip(var/mob/living/carbon/human/H)
-		if(!H)	return 0
-		H.equip_to_slot_or_del(new /obj/item/device/radio/headset/headset_sec(H), slot_l_ear)
-		switch(H.backbag)
-			if(2) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/security(H), slot_back)
-			if(3) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel_sec(H), slot_back)
-			if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
-		H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/warden(H), slot_w_uniform)
-		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/jackboots(H), slot_shoes)
-		H.equip_to_slot_or_del(new /obj/item/device/pda/warden(H), slot_belt)
-		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black(H), slot_gloves)
-		H.equip_to_slot_or_del(new /obj/item/clothing/glasses/sunglasses/sechud(H), slot_glasses)
-//		H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas(H), slot_wear_mask) //Grab one from the armory you donk
-		H.equip_to_slot_or_del(new /obj/item/device/flash(H), slot_l_store)
-		if(H.backbag == 1)
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_l_hand)
-		else
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_in_backpack)
-		return 1
+	uniform = /obj/item/clothing/under/rank/warden
+	suit = /obj/item/clothing/suit/armor/vest/serg
+	hat = /obj/item/clothing/head/beret/sec/navy/warden
+	pda = /obj/item/device/pda/warden
+	ear = /obj/item/device/radio/headset/headset_sec
+	shoes = /obj/item/clothing/shoes/jackboots
+	gloves = /obj/item/clothing/gloves/thick
+	glasses = /obj/item/clothing/glasses/sunglasses/sechud
+	belt = /obj/item/weapon/gun/projectile/automatic/SMG_sol
+	put_in_backpack = list(\
+		/obj/item/ammo_magazine/SMG_sol/rubber,\
+		/obj/item/ammo_magazine/SMG_sol/rubber,\
+		/obj/item/device/flash,\
+		/obj/item/weapon/handcuffs,\
+		/obj/item/device/flashlight/seclite,\
+		/obj/item/weapon/gun/energy/gun/martin,\
+		/obj/item/weapon/melee/baton/loaded
+	)
+
+	backpacks = list(
+		/obj/item/weapon/storage/backpack/security,\
+		/obj/item/weapon/storage/backpack/satchel_sec,\
+		/obj/item/weapon/storage/backpack/satchel
+	)
 
 
-
-/datum/job/detective
-	title = "Detective"
-	flag = DETECTIVE
+/datum/job/inspector
+	title = "Ironhammer Inspector"
+	flag = INSPECTOR
 	department = "Security"
 	department_flag = ENGSEC
-	faction = "Station"
+	faction = "CEV Eris"
 	total_positions = 2
 	spawn_positions = 2
-	supervisors = "the head of security"
+	supervisors = "the Ironhammer Commander"
 	selection_color = "#ffeeee"
-	alt_titles = list("Forensic Technician")
 	economic_modifier = 5
-	access = list(access_security, access_sec_doors, access_forensics_lockers, access_morgue, access_maint_tunnels)
+	access = list(access_security, access_medical, access_research, access_engine, access_mailsorting,
+			            access_sec_doors, access_forensics_lockers, access_morgue, access_maint_tunnels, access_external_airlocks)
 	minimal_access = list(access_security, access_sec_doors, access_forensics_lockers, access_morgue, access_maint_tunnels)
 	minimal_player_age = 3
-	equip(var/mob/living/carbon/human/H)
-		if(!H)	return 0
-		H.equip_to_slot_or_del(new /obj/item/device/radio/headset/headset_sec(H), slot_l_ear)
-		switch(H.backbag)
-			if(2) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack(H), slot_back)
-			if(3) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel_norm(H), slot_back)
-			if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
-		H.equip_to_slot_or_del(new /obj/item/clothing/under/det(H), slot_w_uniform)
-		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/laceup(H), slot_shoes)
-		H.equip_to_slot_or_del(new /obj/item/device/pda/detective(H), slot_belt)
-		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black(H), slot_gloves)
-		H.equip_to_slot_or_del(new /obj/item/weapon/flame/lighter/zippo(H), slot_l_store)
-		if(H.backbag == 1)//Why cant some of these things spawn in his office?
-			H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/evidence(H), slot_l_hand)
-		else
-			H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/evidence(H), slot_in_backpack)
-		if(H.mind.role_alt_title && H.mind.role_alt_title == "Forensic Technician")
-			H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/forensics/blue(H), slot_wear_suit)
-			H.equip_to_slot_or_del(new /obj/item/weapon/storage/briefcase/crimekit, slot_r_hand)
-		else
-			H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/det_trench(H), slot_wear_suit)
-			H.equip_to_slot_or_del(new /obj/item/clothing/head/det(H), slot_head)
-		return 1
+	idtype = /obj/item/weapon/card/id/det
+
+	uniform = /obj/item/clothing/under/inspector
+	pda = /obj/item/device/pda/detective
+	ear = /obj/item/device/radio/headset/headset_sec
+	shoes = /obj/item/clothing/shoes/inspector
+	gloves = /obj/item/clothing/gloves/thick
+	hat = /obj/item/clothing/head/det
+	suit = /obj/item/clothing/suit/storage/insp_trench
+	hand = /obj/item/weapon/storage/briefcase/crimekit
+	belt = /obj/item/weapon/gun/projectile/revolver/consul
+
+	put_in_backpack = list(\
+		/obj/item/ammo_magazine/sl/cl44/rubber,\
+		/obj/item/ammo_magazine/sl/cl44/rubber,\
+		/obj/item/weapon/flame/lighter/zippo,\
+		/obj/item/weapon/storage/box/evidence,\
+		/obj/item/weapon/gun/energy/gun/martin
+	)
 
 
-
-/datum/job/officer
-	title = "Security Officer"
-	flag = OFFICER
+/datum/job/medspec
+	title = "Ironhammer Medical Specialist"
+	flag = MEDSPEC
 	department = "Security"
 	department_flag = ENGSEC
-	faction = "Station"
-	total_positions = 4
-	spawn_positions = 4
-	supervisors = "the head of security"
+	faction = "CEV Eris"
+	total_positions = 1
+	spawn_positions = 1
+	supervisors = "the Ironhammer Commander"
 	selection_color = "#ffeeee"
-	alt_titles = list("Junior Officer")
+	economic_modifier = 5
+	access = list(access_security, access_medical, access_sec_doors, access_medspec, access_morgue, access_maint_tunnels)
+	minimal_access = list(access_security, access_sec_doors, access_medspec, access_morgue, access_maint_tunnels)
+	minimal_player_age = 3
+	idtype = /obj/item/weapon/card/id/medcpec
+
+	uniform = /obj/item/clothing/under/rank/medspec
+	pda = /obj/item/device/pda/detective
+	ear = /obj/item/device/radio/headset/headset_sec
+	shoes = /obj/item/clothing/shoes/jackboots
+	gloves = /obj/item/clothing/gloves/thick
+	suit = /obj/item/clothing/suit/storage/toggle/labcoat/medspec
+	hand = /obj/item/weapon/storage/briefcase/crimekit
+	belt = /obj/item/weapon/gun/energy/gun/martin
+
+	put_in_backpack = list(\
+		/obj/item/weapon/storage/box/evidence,\
+	)
+
+
+/datum/job/ihoper
+	title = "Ironhammer Operative"
+	flag = IHOPER
+	department = "Security"
+	department_flag = ENGSEC
+	faction = "CEV Eris"
+	total_positions = 6
+	spawn_positions = 6
+	supervisors = "the Ironhammer Commander"
+	selection_color = "#ffeeee"
 	economic_modifier = 4
-	access = list(access_security, access_eva, access_sec_doors, access_brig, access_maint_tunnels, access_morgue, access_external_airlocks)
+	access = list(access_security, access_medical, access_research, access_engine, access_mailsorting,
+			            access_eva, access_sec_doors, access_brig, access_maint_tunnels, access_morgue, access_external_airlocks)
 	minimal_access = list(access_security, access_eva, access_sec_doors, access_brig, access_maint_tunnels, access_external_airlocks)
 	minimal_player_age = 3
-	equip(var/mob/living/carbon/human/H)
-		if(!H)	return 0
-		H.equip_to_slot_or_del(new /obj/item/device/radio/headset/headset_sec(H), slot_l_ear)
-		switch(H.backbag)
-			if(2) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/security(H), slot_back)
-			if(3) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel_sec(H), slot_back)
-			if(4) H.equip_to_slot_or_del(new /obj/item/weapon/storage/backpack/satchel(H), slot_back)
-		H.equip_to_slot_or_del(new /obj/item/clothing/under/rank/security(H), slot_w_uniform)
-		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/jackboots(H), slot_shoes)
-		H.equip_to_slot_or_del(new /obj/item/device/pda/security(H), slot_belt)
-		H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_s_store)
-		H.equip_to_slot_or_del(new /obj/item/device/flash(H), slot_l_store)
-		if(H.backbag == 1)
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_l_hand)
-		else
-			H.equip_to_slot_or_del(new /obj/item/weapon/handcuffs(H), slot_in_backpack)
-		return 1
+	idtype = /obj/item/weapon/card/id/sec
+
+	uniform = /obj/item/clothing/under/rank/security
+	suit = /obj/item/clothing/suit/armor/light_riot
+	hat = /obj/item/clothing/head/helmet/light_riot
+	pda = /obj/item/device/pda/security
+	ear = /obj/item/device/radio/headset/headset_sec
+	shoes = /obj/item/clothing/shoes/jackboots
+	gloves = /obj/item/clothing/gloves/thick
+	belt = /obj/item/weapon/gun/projectile/automatic/SMG_sol
+
+	put_in_backpack = list(\
+		/obj/item/weapon/handcuffs,\
+		/obj/item/weapon/handcuffs,\
+		/obj/item/ammo_magazine/SMG_sol/rubber,\
+		/obj/item/ammo_magazine/SMG_sol/rubber,\
+		/obj/item/device/flash,\
+		/obj/item/device/flashlight/seclite,\
+		/obj/item/weapon/gun/energy/gun/martin,\
+		/obj/item/weapon/melee/baton/loaded
+	)
+
+	backpacks = list(
+		/obj/item/weapon/storage/backpack/security,\
+		/obj/item/weapon/storage/backpack/satchel_sec,\
+		/obj/item/weapon/storage/backpack/satchel
+	)

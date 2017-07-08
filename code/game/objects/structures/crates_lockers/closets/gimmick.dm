@@ -59,8 +59,8 @@
 	..()
 	new /obj/item/clothing/glasses/eyepatch(src)
 	new /obj/item/clothing/glasses/sunglasses(src)
-	new /obj/item/clothing/gloves/swat(src)
-	new /obj/item/clothing/gloves/swat(src)
+	new /obj/item/clothing/gloves/thick/swat(src)
+	new /obj/item/clothing/gloves/thick/swat(src)
 	new /obj/item/clothing/head/helmet/swat(src)
 	new /obj/item/clothing/head/helmet/swat(src)
 	new /obj/item/clothing/mask/gas(src)
@@ -69,8 +69,8 @@
 	new /obj/item/clothing/shoes/swat(src)
 	new /obj/item/clothing/suit/armor/swat(src)
 	new /obj/item/clothing/suit/armor/swat(src)
-	new /obj/item/clothing/under/syndicate/tacticool(src)
-	new /obj/item/clothing/under/syndicate/tacticool(src)
+	new /obj/item/clothing/under/syndicate(src)
+	new /obj/item/clothing/under/syndicate(src)
 
 
 /obj/structure/closet/thunderdome
@@ -134,3 +134,9 @@
 	new /obj/item/clothing/head/helmet/thunderdome(src)
 	new /obj/item/clothing/head/helmet/thunderdome(src)
 	new /obj/item/clothing/head/helmet/thunderdome(src)
+/obj/structure/closet/oldstyle
+	name = "\improper Old closet"
+	desc = "Old and rusty closet, maybe even Alliance production."
+	icon_state = "closedoldstyle"
+	icon_closed = "closedoldstyle"
+	icon_opened = "openoldstyle"

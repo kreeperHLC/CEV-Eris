@@ -25,7 +25,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	icon = 'icons/turf/areas.dmi'
 	icon_state = "unknown"
 	layer = 10
-	luminosity = 0
 	mouse_opacity = 0
 	var/lightswitch = 1
 
@@ -45,7 +44,6 @@ NOTE: there are two lists of areas in the end of this file: centcom and station 
 	var/has_gravity = 1
 	var/obj/machinery/power/apc/apc = null
 	var/no_air = null
-//	var/list/lights				// list of all lights on this area
 	var/list/all_doors = list()		//Added by Strumpetplaya - Alarm Change - Contains a list of doors adjacent to this area
 	var/air_doors_activated = 0
 	var/list/ambience = list('sound/ambience/ambigen1.ogg','sound/ambience/ambigen3.ogg','sound/ambience/ambigen4.ogg','sound/ambience/ambigen5.ogg','sound/ambience/ambigen6.ogg','sound/ambience/ambigen7.ogg','sound/ambience/ambigen8.ogg','sound/ambience/ambigen9.ogg','sound/ambience/ambigen10.ogg','sound/ambience/ambigen11.ogg','sound/ambience/ambigen12.ogg','sound/ambience/ambigen14.ogg')
@@ -98,11 +96,11 @@ var/list/ghostteleportlocs = list()
 	icon_state = "space"
 	requires_power = 1
 	always_unpowered = 1
-	lighting_use_dynamic = 1
+	dynamic_lighting = 1
 	power_light = 0
 	power_equip = 0
 	power_environ = 0
-	ambience = list('sound/ambience/ambispace.ogg','sound/music/title2.ogg','sound/music/space.ogg','sound/music/main.ogg','sound/music/traitor.ogg')
+	ambience = list('sound/ambience/ambispace.ogg')
 
 area/space/atmosalert()
 	return
@@ -228,9 +226,11 @@ area/space/atmosalert()
 
 /area/shuttle/mining/station
 	icon_state = "shuttle2"
+	requires_power = 1
 
 /area/shuttle/mining/outpost
 	icon_state = "shuttle"
+	requires_power = 1
 	base_turf = /turf/simulated/floor/asteroid
 
 /area/shuttle/transport1/centcom
@@ -324,9 +324,12 @@ area/space/atmosalert()
 
 /area/shuttle/research/station
 	icon_state = "shuttle2"
+	requires_power = 1
 
 /area/shuttle/research/outpost
 	icon_state = "shuttle"
+	requires_power = 1
+	base_turf = /turf/simulated/floor/asteroid
 
 /area/airtunnel1/      // referenced in airtunnel.dm:759
 
@@ -345,7 +348,7 @@ area/space/atmosalert()
 	name = "\improper Centcom"
 	icon_state = "centcom"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/centcom/control
 	name = "\improper Centcom Control"
@@ -377,13 +380,23 @@ area/space/atmosalert()
 /area/centcom/holding
 	name = "\improper Holding Facility"
 
+
+/area/testing/first
+	name = "testing one"
+
+/area/testing/second
+	name = "testing two"
+
+/area/testing/third
+	name = "testing three"
+
 //SYNDICATES
 
 /area/syndicate_mothership
 	name = "\improper Mercenary Base"
 	icon_state = "syndie-ship"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/syndicate_mothership/control
 	name = "\improper Mercenary Control Room"
@@ -435,7 +448,7 @@ area/space/atmosalert()
 	name = "\improper Thunderdome"
 	icon_state = "thunder"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	sound_env = ARENA
 
 /area/tdome/tdome1
@@ -458,7 +471,7 @@ area/space/atmosalert()
 /area/acting
 	name = "\improper Centcom Acting Guild"
 	icon_state = "red"
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	requires_power = 0
 
 /area/acting/backstage
@@ -466,7 +479,7 @@ area/space/atmosalert()
 
 /area/acting/stage
 	name = "\improper Stage"
-	lighting_use_dynamic = 1
+	dynamic_lighting = 1
 	icon_state = "yellow"
 
 
@@ -514,6 +527,7 @@ area/space/atmosalert()
 /area/syndicate_station/mining
 	name = "\improper northeast of the mining station"
 	icon_state = "north"
+	base_turf = /turf/simulated/floor/asteroid
 
 /area/syndicate_station/arrivals_dock
 	name = "\improper docked with station"
@@ -531,7 +545,7 @@ area/space/atmosalert()
 	name = "\improper Wizard's Den"
 	icon_state = "yellow"
 	requires_power = 0
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/skipjack_station
 	name = "\improper Skipjack"
@@ -565,6 +579,7 @@ area/space/atmosalert()
 /area/skipjack_station/mining
 	name = "\improper south of mining station"
 	icon_state = "north"
+	base_turf = /turf/simulated/floor/asteroid
 
 //PRISON
 /area/prison
@@ -659,6 +674,7 @@ area/space/atmosalert()
 	flags = RAD_SHIELDED
 	sound_env = TUNNEL_ENCLOSED
 	turf_initializer = new /datum/turf_initializer/maintenance()
+	forced_ambience = list('sound/ambience/maintambience.ogg')
 
 /area/maintenance/aft
 	name = "Aft Maintenance"
@@ -864,6 +880,10 @@ area/space/atmosalert()
 	name = "\improper Construction Area"
 	icon_state = "construction"
 
+/area/hallway/secondary/entry
+	name = "\improper Arrival Shuttle Hallway"
+	icon_state = "entry_1"
+
 /area/hallway/secondary/entry/fore
 	name = "\improper Arrival Shuttle Hallway - Fore"
 	icon_state = "entry_1"
@@ -898,15 +918,27 @@ area/space/atmosalert()
 	sound_env = MEDIUM_SOFTFLOOR
 
 /area/crew_quarters/heads/hop
-	name = "\improper Command - HoP's Office"
+	name = "\improper Command - First Officer's Office"
+	icon_state = "head_quarters"
+
+/area/crew_quarters/heads/hop/quarters
+	name = "\improper Command - First Officer's Quarters"
 	icon_state = "head_quarters"
 
 /area/crew_quarters/heads/hor
-	name = "\improper Research - RD's Office"
+	name = "\improper Research - MEO's Office"
+	icon_state = "head_quarters"
+
+/area/crew_quarters/heads/hor/quarters
+	name = "\improper Research - MEO's Quarters"
 	icon_state = "head_quarters"
 
 /area/crew_quarters/heads/chief
-	name = "\improper Engineering - CE's Office"
+	name = "\improper Engineering - Exultant Office"
+	icon_state = "head_quarters"
+
+/area/crew_quarters/heads/chief/quarters
+	name = "\improper Engineering - Exultant Quarters"
 	icon_state = "head_quarters"
 
 /area/crew_quarters/heads/hos
@@ -914,7 +946,11 @@ area/space/atmosalert()
 	icon_state = "head_quarters"
 
 /area/crew_quarters/heads/cmo
-	name = "\improper Medbay - CMO's Office"
+	name = "\improper Medbay - MBO's Office"
+	icon_state = "head_quarters"
+
+/area/crew_quarters/heads/cmo/quarters
+	name = "\improper Medbay - MBO's Quarters"
 	icon_state = "head_quarters"
 
 /area/crew_quarters/courtroom
@@ -924,6 +960,16 @@ area/space/atmosalert()
 /area/mint
 	name = "\improper Mint"
 	icon_state = "green"
+
+/area/propulsion
+	name = "Propulsion Hangar"
+	icon_state = "propulsion"
+
+/area/propulsion/left
+	name = "Left Propulsion Hangar"
+
+/area/propulsion/right
+	name = "Right Propulsion Hangar"
 
 /area/comms
 	name = "\improper Communications Relay"
@@ -1020,7 +1066,7 @@ area/space/atmosalert()
 /area/chapel/main
 	name = "\improper Chapel"
 	icon_state = "chapel"
-	ambience = list('sound/ambience/ambicha1.ogg','sound/ambience/ambicha2.ogg','sound/ambience/ambicha3.ogg','sound/ambience/ambicha4.ogg','sound/music/traitor.ogg')
+	ambience = list('sound/ambience/ambicha1.ogg','sound/ambience/ambicha2.ogg','sound/ambience/ambicha3.ogg','sound/ambience/ambicha4.ogg')
 	sound_env = LARGE_ENCLOSED
 
 /area/chapel/office
@@ -1037,7 +1083,7 @@ area/space/atmosalert()
 /area/holodeck
 	name = "\improper Holodeck"
 	icon_state = "Holodeck"
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	sound_env = LARGE_ENCLOSED
 
 /area/holodeck/alphadeck
@@ -1106,7 +1152,10 @@ area/space/atmosalert()
 /area/engineering/
 	name = "\improper Engineering"
 	icon_state = "engineering"
-	ambience = list('sound/ambience/ambisin1.ogg','sound/ambience/ambisin2.ogg','sound/ambience/ambisin3.ogg','sound/ambience/ambisin4.ogg')
+
+/area/engineering/gravity_generator
+	name = "Gravity Generator Room"
+	icon_state = "blue"
 
 /area/engineering/atmos
  	name = "\improper Atmospherics"
@@ -1186,7 +1235,7 @@ area/space/atmosalert()
 /area/solar
 	requires_power = 1
 	always_unpowered = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	base_turf = /turf/space
 
 	auxport
@@ -1358,7 +1407,7 @@ area/space/atmosalert()
 /area/medical/morgue
 	name = "\improper Morgue"
 	icon_state = "morgue"
-	ambience = list('sound/ambience/ambimo1.ogg','sound/ambience/ambimo2.ogg','sound/music/main.ogg')
+	ambience = list('sound/ambience/ambimo1.ogg','sound/ambience/ambimo2.ogg')
 
 /area/medical/chemistry
 	name = "\improper Chemistry"
@@ -1435,7 +1484,7 @@ area/space/atmosalert()
 	..()
 
 /area/security/warden
-	name = "\improper Security - Warden's Office"
+	name = "\improper Security - Gunnery Sergeant's Office"
 	icon_state = "Warden"
 
 /area/security/armoury
@@ -1510,7 +1559,7 @@ area/space/atmosalert()
 	icon_state = "security"
 
 /area/quartermaster
-	name = "\improper Quartermasters"
+	name = "\improper Merchants"
 	icon_state = "quart"
 
 /area/quartermaster/office
@@ -1523,7 +1572,7 @@ area/space/atmosalert()
 	sound_env = LARGE_ENCLOSED
 
 /area/quartermaster/qm
-	name = "\improper Cargo - Quartermaster's Office"
+	name = "\improper Cargo - Merchant Office"
 	icon_state = "quart"
 
 /area/quartermaster/miningdock
@@ -1556,7 +1605,7 @@ area/space/atmosalert()
 	icon_state = "toxlab"
 
 /area/rnd/rdoffice
-	name = "\improper Research Director's Office"
+	name = "\improper Moebius Expedition Overseer's Office"
 	icon_state = "head_quarters"
 
 /area/rnd/supermatter
@@ -1645,6 +1694,406 @@ area/space/atmosalert()
 	requires_power = 0
 	name = "\improper Test Room"
 	icon_state = "storage"
+
+//Eris
+
+/area/eris/bridgebar
+	name = "V.I.P. Bar"
+	icon_state = "erisblue"
+
+/area/eris/barbackroom
+	name = "Bar Backroom"
+	icon_state = "erisgreen"
+
+/area/eris/librarybackroom
+	name = "Library Backroom"
+	icon_state = "erisgreen"
+
+/area/eris/chapelritualroom
+	name = "Chapel Rituals Room"
+	icon_state = "erisgreen"
+
+/area/eris/clothingstorage
+	name = "Clothing Storage"
+	icon_state = "erisyellow"
+
+/area/eris/medeva
+	name = "Medical E.V.A. Storage"
+	icon_state = "erisblue"
+
+/area/eris/pubeva
+	name = "Public E.V.A. Storage"
+	icon_state = "erisblue"
+
+/area/eris/engeva
+	name = "Engineering E.V.A. Storage"
+	icon_state = "erisblue"
+
+/area/eris/publichydro
+	name = "Public Hydroponics"
+	icon_state = "erisblue"
+
+/area/eris/clownoffice
+	name = "Clown Office"
+	icon_state = "erisblue"
+
+/area/eris/scient
+	name = "Science Department Entrance"
+	icon_state = "erisblue"
+
+/area/eris/disposaldrop
+	name = "Disposal and Delivery"
+	icon_state = "erisred"
+
+/area/eris/toilet/public
+	name = "Public Toilet"
+	icon_state = "erisyellow"
+
+/area/eris/toilet/medbay
+	name = "Medbay Toilet"
+	icon_state = "erisyellow"
+
+/area/eris/hangarsupply
+	name = "Supply Shuttle Hangar"
+	icon_state = "erisblue"
+
+/area/eris/podbay
+	name = "Pod Bay"
+	icon_state = "erisblue"
+
+/area/eris/anomal
+	name = "Anomalous Research Laboratory"
+	icon_state = "erisblue"
+
+/area/eris/anomalisolone
+	name = "Anomalous Research Isolation One"
+	icon_state = "erisgreen"
+
+/area/eris/anomalisoltwo
+	name = "Anomalous Research Isolation Two"
+	icon_state = "erisgreen"
+
+/area/eris/anomalisolthree
+	name = "Anomalous Research Isolation Three"
+	icon_state = "erisgreen"
+
+/area/eris/chemstor
+	name = "Chemical Storage"
+	icon_state = "erisblue"
+
+/area/eris/eschangara
+	name = "Escape Hangar A"
+	icon_state = "erisred"
+
+/area/eris/eschangarb
+	name = "Escape Hangar B"
+	icon_state = "erisred"
+
+//Eris Medbay
+
+/area/eris/medbay/iso
+	name = "Isolation Wing"
+	icon_state = "erisgreen"
+
+/area/eris/medbay/seconddeck
+	name = "Medbay Deck 2"
+	icon_state = "erisgreen"
+
+//Eris Hallways
+
+/area/eris/hallway
+	sound_env = LARGE_ENCLOSED
+	icon_state = "erisgreen"
+
+/area/eris/hallway/main/section1
+	name = "First Section Hallway"
+
+/area/eris/hallway/main/section2
+	name = "Second Section Hallway"
+
+/area/eris/hallway/main/section3
+	name = "Third Section Hallway"
+
+/area/eris/hallway/main/section4
+	name = "Fourth Section Hallway"
+
+/area/eris/hallway/side/section3port
+	name = "Third Section Port Hallway"
+
+/area/eris/hallway/side/section3starboard
+	name = "Third Section Starboard Hallway"
+	icon_state = "erisgreen"
+
+/area/eris/hallway/side/hydroponicshallway
+	name = "Hydroponics Hallway"
+	icon_state = "erisyellow"
+
+/area/eris/hallway/side/morguehallway
+	name = "Morgue Hallway"
+
+/area/eris/hallway/side/atmosphericshallway
+	name = "Atmospherics Hallway"
+
+/area/eris/hallway/side/bridgehallway
+	name = "Bridge Hallway"
+	icon_state = "erisblue"
+
+//Eris Security
+
+/area/eris/security/inspectors_office
+	name = "Inspectors Office"
+	icon_state = "hammerblue"
+
+/area/eris/security/disposal
+	name = "Security Disposal"
+	icon_state = "hammerblue"
+
+/area/eris/security/barracks
+	name = "Ironhammer Barracks"
+	icon_state = "hammerblue"
+
+/area/eris/security/prisoncells
+	name = "Prison Cells"
+	icon_state = "hammerblue"
+
+/area/eris/security/evidencestorage
+	name = "Evidence Storage"
+	icon_state = "hammerred"
+
+/area/eris/security/commander
+	name = "Ironhammer Commander's Office"
+	icon_state = "hammerred"
+
+/area/eris/security/armory
+	name = "Armory"
+	icon_state = "hammerred"
+
+/area/eris/security/exerooms
+	name = "Executive Rooms"
+	icon_state = "hammerred"
+
+/area/eris/security/maintpost
+	name = "Maintenance Post"
+	icon_state = "hammerred"
+
+//Eris Engineering
+
+/area/eris/engineering/starboardhallway
+	name = "Engineering Starboard Hallway"
+	icon_state = "erisgreen"
+
+/area/eris/engineering/wastingroom
+	name = "Wasting Room"
+	icon_state = "erisred"
+
+/area/eris/engineering/post
+	name = "Engineering Post"
+	icon_state = "erisred"
+
+/area/eris/engineering/wastingroom
+	name = "Wasting Room"
+	icon_state = "erisred"
+
+/area/eris/engineering/techstorage
+	name = "Tools Storage"
+	icon_state = "erisred"
+
+/area/eris/engineering/telecommonitor
+	name = "Telecommunications Monitor Room"
+	icon_state = "erisred"
+
+/area/eris/engineering/breakroom
+	name = "Engineering Break Room"
+	icon_state = "erisred"
+
+/area/eris/engineering/freezercontrol
+	name = "Freezer Control"
+	icon_state = "erisred"
+
+/area/eris/engineering/atmoscontrol
+	name = "Atmospherics Control"
+	icon_state = "erisred"
+
+//Eris substations
+
+/area/eris/engineering/substation
+	name = "Substation"
+	icon_state = "substation"
+	forced_ambience = list('sound/ambience/maintambience.ogg')
+	sound_env = SMALL_ENCLOSED
+
+/area/eris/engineering/substation/engineering
+	name = "Engineering Substation"
+
+/area/eris/engineering/substation/section1
+	name = "First Section Substation"
+
+/area/eris/engineering/substation/section2
+	name = "Second Section Substation"
+
+/area/eris/engineering/substation/section3
+	name = "Third Section Substation"
+
+/area/eris/engineering/substation/section4
+	name = "Fourth Section Substation"
+
+/area/eris/engineering/substation/bridge
+	name = "Bridge Substation"
+
+//Eris Maint
+
+/area/eris/maintenance
+	name = "Maintenance"
+	icon_state = "erisyellow"
+	forced_ambience = list('sound/ambience/maintambience.ogg')
+
+/area/eris/maintenance/oldtele
+	name = "Reserve Teleporter"
+	icon_state = "erisblue"
+
+/area/eris/maintenance/oldbridge
+	name = "Old Bridge"
+	icon_state = "erisblue"
+
+/area/eris/maintenance/fueltankstorage
+	name = "Fueltank Storage"
+	icon_state = "erisblue"
+
+/area/eris/maintenance/fore1
+	name = "Bridge Deck 5 Fore Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/fore2
+	name = "Bridge Deck 4 Fore Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/fore3
+	name = "Bridge Deck 3 Fore Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/fore4
+	name = "Security Deck 2 Fore Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/fore5
+	name = "Security Deck 1 Fore Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec1port
+	name = "Second Section Deck 5 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec1starboard
+	name = "Second Section Deck 5 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec2port
+	name = "Second Section Deck 4 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec2starboard
+	name = "Second Section Deck 4 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec3port
+	name = "Second Section Deck 3 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec3starboard
+	name = "Second Section Deck 3 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec4port
+	name = "Second Section Deck 2 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec4starboard
+	name = "Second Section Deck 2 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec4central
+	name = "Second Section Deck 2 Central Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec5port
+	name = "Second Section Deck 1 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/secsec5starboard
+	name = "Second Section Deck 1 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec1
+	name = "Third Section Deck 5 Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec2port
+	name = "Third Section Deck 4 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec2starboard
+	name = "Third Section Deck 4 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec3port
+	name = "Third Section Deck 3 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec3starboard
+	name = "Third Section Deck 3 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec4port
+	name = "Third Section Deck 2 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec4starboard
+	name = "Third Section Deck 2 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec4central
+	name = "Third Section Deck 2 Central Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec5port
+	name = "Third Section Deck 1 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/thirdsec5starboard
+	name = "Third Section Deck 1 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft1
+	name = "Aft Section Deck 5 Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft2port
+	name = "Aft Deck 4 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft2starboard
+	name = "Aft 4 Starboard Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft3port
+	name = "Aft Deck 3 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft4port
+	name = "Aft Section Deck 2 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aft4central
+	name = "Aft Section Deck 2 Central Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aftsec5port
+	name = "Aft Section Deck 1 Port Maintenance"
+	icon_state = "erisyellow"
+
+/area/eris/maintenance/aftsec5starboard
+	name = "Aft Section Deck 1 Starboard Maintenance"
+	icon_state = "erisyellow"
 
 //DJSTATION
 
@@ -1755,6 +2204,7 @@ area/space/atmosalert()
 
 /area/shuttle/constructionsite/site
 	name = "\improper Construction Site Shuttle"
+	base_turf = /turf/simulated/floor/asteroid
 
 /area/constructionsite
 	name = "\improper Construction Site"
@@ -1900,25 +2350,25 @@ area/space/atmosalert()
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextFS
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextAS
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/AIsatextAP
 	name = "\improper AI Sat Ext"
 	icon_state = "storage"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 
 /area/turret_protected/NewAIMain
 	name = "\improper AI Main New"
@@ -2027,13 +2477,11 @@ area/space/atmosalert()
 /area/awaymission/wwvault
 	name = "\improper Wild West Vault"
 	icon_state = "away3"
-	luminosity = 0
 
 /area/awaymission/wwvaultdoors
 	name = "\improper Wild West Vault Doors"  // this is to keep the vault area being entirely lit because of requires_power
 	icon_state = "away2"
 	requires_power = 0
-	luminosity = 0
 
 /area/awaymission/desert
 	name = "Mars"
@@ -2092,7 +2540,7 @@ area/space/atmosalert()
 	name = "Beach"
 	icon_state = "null"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	requires_power = 0
 	ambience = list()
 	var/sound/mysound = null
@@ -2214,7 +2662,7 @@ var/list/the_station_areas = list (
 	name = "Keelin's private beach"
 	icon_state = "null"
 	luminosity = 1
-	lighting_use_dynamic = 0
+	dynamic_lighting = 0
 	requires_power = 0
 	var/sound/mysound = null
 

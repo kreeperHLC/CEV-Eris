@@ -96,6 +96,8 @@
 	id = "armour"
 	build_path = /obj/item/robot_parts/robot_component/armour
 
+//Ripley ====================================
+
 /datum/design/item/mechfab/ripley
 	category = "Ripley"
 
@@ -145,6 +147,9 @@
 	build_path = /obj/item/mecha_parts/part/ripley_right_leg
 	time = 15
 	materials = list(DEFAULT_WALL_MATERIAL = 30000)
+
+
+//Odysseus =====================================================
 
 /datum/design/item/mechfab/odysseus
 	category = "Odysseus"
@@ -197,6 +202,8 @@
 	build_path = /obj/item/mecha_parts/part/odysseus_right_leg
 	time = 13
 	materials = list(DEFAULT_WALL_MATERIAL = 15000)
+
+//Gygax =========================================
 
 /datum/design/item/mechfab/gygax
 	category = "Gygax"
@@ -256,6 +263,69 @@
 	build_path = /obj/item/mecha_parts/part/gygax_armour
 	time = 60
 	materials = list(DEFAULT_WALL_MATERIAL = 50000, "diamond" = 10000)
+
+//Phazon ======================================================================
+
+/datum/design/item/mechfab/phazon
+	category = "Phazon"
+
+/datum/design/item/mechfab/phazon/chassis
+	name = "Phazon chassis"
+	id = "phazon_chassis"
+	build_path = /obj/item/mecha_parts/chassis/phazon
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL = 25000)
+
+/datum/design/item/mechfab/phazon/torso
+	name = "Phazon torso"
+	id = "phazon_torso"
+	build_path = /obj/item/mecha_parts/part/phazon_torso
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=35000,"glass"=10000,"plasma"=20000)
+
+/datum/design/item/mechfab/phazon/head
+	name = "Phazon head"
+	id = "phazon_head"
+	build_path = /obj/item/mecha_parts/part/phazon_head
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=15000,"glass"=5000,"plasma"=10000,"silver"=3000)
+
+/datum/design/item/mechfab/phazon/left_arm
+	name = "Phazon left arm"
+	id = "phazon_left_arm"
+	build_path = /obj/item/mecha_parts/part/phazon_left_arm
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=20000,"plasma"=10000,"silver"=3000)
+
+/datum/design/item/mechfab/phazon/right_arm
+	name = "Phazon right arm"
+	id = "phazon_right_arm"
+	build_path = /obj/item/mecha_parts/part/phazon_right_arm
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=20000,"plasma"=10000,"silver"=3000)
+
+/datum/design/item/mechfab/phazon/left_leg
+	name = "Phazon left leg"
+	id = "phazon_left_leg"
+	build_path = /obj/item/mecha_parts/part/phazon_left_leg
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=20000,"plasma"=10000,"silver"=3000)
+
+/datum/design/item/mechfab/phazon/right_leg
+	name = "Phazon right leg"
+	id = "phazon_right_leg"
+	build_path = /obj/item/mecha_parts/part/phazon_right_leg
+	time = 10
+	materials = list(DEFAULT_WALL_MATERIAL=20000,"plasma"=10000,"silver"=3000)
+
+/datum/design/item/mechfab/phazon/armour
+	name = "Phazon armour plates"
+	id = "phazon_armour"
+	build_path = /obj/item/mecha_parts/part/phazon_armor
+	time = 20
+	materials = list(DEFAULT_WALL_MATERIAL=20000,"plasma"=10000,"uranium"=10000,"silver"=3000,"diamond"=1000)
+
+//Durand ======================================================================
 
 /datum/design/item/mechfab/durand
 	category = "Durand"
@@ -365,14 +435,14 @@
 	name = "Jetpack module"
 	desc = "A carbon dioxide jetpack suitable for low-gravity mining operations."
 	id = "borg_jetpack_module"
-	materials = list(DEFAULT_WALL_MATERIAL = 10000, "phoron" = 15000, "uranium" = 20000)
+	materials = list(DEFAULT_WALL_MATERIAL = 10000, "plasma" = 15000, "uranium" = 20000)
 	build_path = /obj/item/borg/upgrade/jetpack
 
 /datum/design/item/robot_upgrade/rcd
 	name = "RCD module"
 	desc = "A rapid construction device module for use during construction operations."
 	id = "borg_rcd_module"
-	materials = list(DEFAULT_WALL_MATERIAL = 25000, "phoron" = 10000, "gold" = 1000, "silver" = 1000)
+	materials = list(DEFAULT_WALL_MATERIAL = 25000, "plasma" = 10000, "gold" = 1000, "silver" = 1000)
 	build_path = /obj/item/borg/upgrade/rcd
 
 /datum/design/item/robot_upgrade/syndicate
@@ -408,7 +478,7 @@
 
 /datum/design/item/mecha/drill
 	name = "Drill"
-	id = "drill"
+	id = "mech_drill"
 	build_path = /obj/item/mecha_parts/mecha_equipment/tool/drill
 
 /datum/design/item/mecha/extinguisher
@@ -420,6 +490,12 @@
 	name = "Cable layer"
 	id = "mech_cable_layer"
 	build_path = /obj/item/mecha_parts/mecha_equipment/tool/cable_layer
+
+/datum/design/item/mecha/flaregun
+	name = "Flare launcher"
+	id = "mecha_flare_gun"
+	build_path = /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flare
+	materials = list(DEFAULT_WALL_MATERIAL = 12500)
 
 /datum/design/item/mecha/sleeper
 	name = "Sleeper"
@@ -448,13 +524,13 @@
 	build_path = /obj/item/mecha_parts/mecha_equipment/tool/passenger
 	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 5000)
 
-//obj/item/mecha_parts/mecha_equipment/repair_droid,
-//obj/item/mecha_parts/mecha_equipment/jetpack, //TODO MECHA JETPACK SPRITE MISSING
+/datum/design/item/mecha/jetpack
+	name = "jetpack module"
+	id = "mech_jetpack"
+	build_path = /obj/item/mecha_parts/mecha_equipment/jetpack
+	materials = list(DEFAULT_WALL_MATERIAL = 5000, "glass" = 5000)
 
-/datum/design/item/mecha/generator
-	name = "Phoron generator"
-	id = "mech_generator"
-	build_path = /obj/item/mecha_parts/mecha_equipment/generator
+//obj/item/mecha_parts/mecha_equipment/repair_droid,
 
 /datum/design/item/mecha/taser
 	name = "PBT \"Pacifier\" mounted taser"
@@ -535,7 +611,7 @@
 	desc = "An exosuit-mounted rapid construction device."
 	id = "mech_rcd"
 	time = 120
-	materials = list(DEFAULT_WALL_MATERIAL = 30000, "phoron" = 25000, "silver" = 20000, "gold" = 20000)
+	materials = list(DEFAULT_WALL_MATERIAL = 30000, "plasma" = 25000, "silver" = 20000, "gold" = 20000)
 	req_tech = list(TECH_MATERIAL = 4, TECH_BLUESPACE = 3, TECH_MAGNET = 4, TECH_POWER = 4, TECH_ENGINEERING = 4)
 	build_path = /obj/item/mecha_parts/mecha_equipment/tool/rcd
 
@@ -554,10 +630,10 @@
 	materials = list(DEFAULT_WALL_MATERIAL = 10000, "gold" = 1000, "silver" = 2000, "glass" = 5000)
 	build_path = /obj/item/mecha_parts/mecha_equipment/repair_droid
 
-/datum/design/item/mecha/phoron_generator
-	desc = "Phoron reactor."
-	id = "mech_phoron_generator"
-	req_tech = list(TECH_PHORON = 2, TECH_POWER= 2, TECH_ENGINEERING = 2)
+/datum/design/item/mecha/plasma_generator
+	desc = "Plasma reactor."
+	id = "mech_plasma_generator"
+	req_tech = list(TECH_PLASMA = 2, TECH_POWER= 2, TECH_ENGINEERING = 2)
 	build_path = /obj/item/mecha_parts/mecha_equipment/generator
 	materials = list(DEFAULT_WALL_MATERIAL = 10000, "silver" = 500, "glass" = 1000)
 

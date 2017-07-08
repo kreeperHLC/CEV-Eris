@@ -135,8 +135,11 @@ This saves us from having to call add_fingerprint() any time something is put in
 				update_hair(0)	//rebuild hair
 				update_inv_ears(0)
 		if(internal)
-			if(internals)
-				internals.icon_state = "internal0"
+			if(HUDneed.Find("internal"))
+				var/obj/screen/HUDelm = HUDneed["internal"]
+				HUDelm.icon_state = "internal0"
+/*			if(internals)
+				internals.icon_state = "internal0"*/
 			internal = null
 		update_inv_wear_mask()
 	else if (W == wear_id)
@@ -164,9 +167,15 @@ This saves us from having to call add_fingerprint() any time something is put in
 		update_inv_legcuffed()
 	else if (W == r_hand)
 		r_hand = null
+		if(l_hand)
+			l_hand.update_held_icon()
+			update_inv_l_hand()
 		update_inv_r_hand()
 	else if (W == l_hand)
 		l_hand = null
+		if(r_hand)
+			r_hand.update_held_icon()
+			update_inv_l_hand()
 		update_inv_l_hand()
 	else
 		return 0

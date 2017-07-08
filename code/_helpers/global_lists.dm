@@ -20,6 +20,12 @@ var/global/list/surgery_steps = list()				//list of all surgery steps  |BS12
 var/global/list/side_effects = list()				//list of all medical sideeffects types by thier names |BS12
 var/global/list/mechas_list = list()				//list of all mechs. Used by hostile mobs target tracking.
 var/global/list/joblist = list()					//list of all jobstypes, minus borg and AI
+var/global/list/hearing_objects = list()			//list of all objects, that can hear mob say
+
+var/global/list/global_corporations = list()
+var/global/list/HUDdatums = list()
+
+#define all_genders_define_list list(MALE,FEMALE,PLURAL,NEUTER)
 
 var/global/list/turfs = list()						//list of all turfs
 
@@ -37,6 +43,9 @@ var/global/list/poster_designs = list()
 var/list/obj/item/device/uplink/world_uplinks = list()
 
 //Preferences stuff
+	//Bodybuilds
+var/global/list/male_body_builds = list()
+var/global/list/female_body_builds = list()
 	//Hairstyles
 var/global/list/hair_styles_list = list()			//stores /datum/sprite_accessory/hair indexed by name
 var/global/list/hair_styles_male_list = list()
@@ -45,14 +54,35 @@ var/global/list/facial_hair_styles_list = list()	//stores /datum/sprite_accessor
 var/global/list/facial_hair_styles_male_list = list()
 var/global/list/facial_hair_styles_female_list = list()
 var/global/list/skin_styles_female_list = list()		//unused
-	//Underwear
-var/global/list/underwear_m = list("White" = "m1", "Grey" = "m2", "Green" = "m3", "Blue" = "m4", "Black" = "m5", "Mankini" = "m6", "None") //Curse whoever made male/female underwear diffrent colours
-var/global/list/underwear_f = list("Red" = "f1", "White" = "f2", "Yellow" = "f3", "Blue" = "f4", "Black" = "f5", "Thong" = "f6", "Black Sports" = "f7","White Sports" = "f8","None")
-	//undershirt
-var/global/list/undershirt_t = list("White Tank top" = "u1", "Black Tank top" = "u2", "Black shirt" = "u3", "White shirt" = "u4", "None")
-	//Backpacks
+
+var/datum/category_collection/underwear/global_underwear = new()
+
 var/global/list/backbaglist = list("Nothing", "Backpack", "Satchel", "Satchel Alt")
 var/global/list/exclude_jobs = list(/datum/job/ai,/datum/job/cyborg)
+
+var/global/list/organ_structure = list(
+	chest = list(name= "Chest", children=list()),
+	groin = list(name= "Groin",     parent=BP_CHEST, children=list()),
+	head  = list(name= "Head",      parent=BP_CHEST, children=list()),
+	r_arm = list(name= "Right arm", parent=BP_CHEST, children=list()),
+	l_arm = list(name= "Left arm",  parent=BP_CHEST, children=list()),
+	r_leg = list(name= "Right leg", parent=BP_GROIN, children=list()),
+	l_leg = list(name= "Left leg",  parent=BP_GROIN, children=list()),
+	r_hand= list(name= "Right hand",parent=BP_R_ARM, children=list()),
+	l_hand= list(name= "Left hand", parent=BP_L_ARM, children=list()),
+	r_foot= list(name= "Right foot",parent=BP_R_LEG, children=list()),
+	l_foot= list(name= "Left foot", parent=BP_L_LEG, children=list()),
+	)
+
+var/global/list/organ_tag_to_name = list(
+	head  = "Head", r_arm = "Right arm",r_hand = "Right hand",
+	chest = "Body", r_leg = "Right Leg",r_foot = "Right foot",
+	eyes  = "Eyes", l_arm = "Left arm", l_hand = "Left hand",
+	groin = "Groin",l_leg = "Left Leg", l_foot = "Left foot",
+	chest2= "Back", heart = "Heart",    lungs  = "Lungs",
+	liver = "Liver"
+	)
+
 
 // Visual nets
 var/list/datum/visualnet/visual_nets = list()
@@ -66,12 +96,52 @@ var/global/list/endgame_exits = list()
 var/global/list/endgame_safespawns = list()
 
 var/global/list/syndicate_access = list(access_maint_tunnels, access_syndicate, access_external_airlocks)
+
+// Strings which corraspond to bodypart covering flags, useful for outputting what something covers.
+var/global/list/string_part_flags = list(
+	"head" = HEAD,
+	"face" = FACE,
+	"eyes" = EYES,
+	"upper body" = UPPER_TORSO,
+	"lower body" = LOWER_TORSO,
+	"legs" = LEGS,
+	"feet" = FEET,
+	"arms" = ARMS,
+	"hands" = HANDS
+)
+
+// Strings which corraspond to slot flags, useful for outputting what slot something is.
+var/global/list/string_slot_flags = list(
+	"back" = SLOT_BACK,
+	"face" = SLOT_MASK,
+	"waist" = SLOT_BELT,
+	"ID slot" = SLOT_ID,
+	"ears" = SLOT_EARS,
+	"eyes" = SLOT_EYES,
+	"hands" = SLOT_GLOVES,
+	"head" = SLOT_HEAD,
+	"feet" = SLOT_FEET,
+	"exo slot" = SLOT_OCLOTHING,
+	"body" = SLOT_ICLOTHING,
+	"uniform" = SLOT_TIE,
+	"holster" = SLOT_HOLSTER
+)
+
 //////////////////////////
 /////Initial Building/////
 //////////////////////////
 
 /proc/makeDatumRefLists()
 	var/list/paths
+
+	//Bodybuilds
+	paths = typesof(/datum/body_build)
+	for(var/path in paths)
+		var/datum/body_build/B = new path()
+		if (B.gender == FEMALE)
+			female_body_builds[B.name] = B
+		else
+			male_body_builds[B.name] = B
 
 	//Hair - Initialise all /datum/sprite_accessory/hair into an list indexed by hair-style name
 	paths = typesof(/datum/sprite_accessory/hair) - /datum/sprite_accessory/hair
@@ -136,10 +206,21 @@ var/global/list/syndicate_access = list(access_maint_tunnels, access_syndicate, 
 			whitelisted_species += S.name
 
 	//Posters
-	paths = typesof(/datum/poster) - /datum/poster
+	paths = typesof(/datum/poster) - /datum/poster - /datum/poster/wanted
 	for(var/T in paths)
 		var/datum/poster/P = new T
 		poster_designs += P
+
+	//Corporations
+	paths = typesof(/datum/corporation) - /datum/corporation
+	for(var/T in paths)
+		var/datum/corporation/C = new T
+		global.global_corporations[C.name] = C
+
+	paths = typesof(/datum/hud) - /datum/hud
+	for(var/T in paths)
+		var/datum/hud/C = new T
+		global.HUDdatums[C.name] = C
 
 	return 1
 

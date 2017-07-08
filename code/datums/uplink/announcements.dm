@@ -26,7 +26,7 @@
 
 /datum/uplink_item/abstract/announcements/fake_crew_arrival/New()
 	..()
-	antag_roles = list(MODE_MERCENARY)
+	antag_roles = list(ROLE_MERCENARY)
 
 /datum/uplink_item/abstract/announcements/fake_crew_arrival/get_goods(var/obj/item/device/uplink/U, var/loc, var/mob/user, var/list/args)
 	if(!user)
@@ -64,11 +64,7 @@
 	data_core.CreateSecurityRecord(general.fields["name"], general.fields["id"])
 
 	if(!random_general_record)
-		general.fields["citizenship"]	= random_general_record.fields["citizenship"]
-		general.fields["faction"] 		= random_general_record.fields["faction"]
 		general.fields["fingerprint"] 	= random_general_record.fields["fingerprint"]
-		general.fields["home_system"] 	= random_general_record.fields["home_system"]
-		general.fields["religion"] 		= random_general_record.fields["religion"]
 	if(random_medical_record)
 		medical.fields["b_type"]		= random_medical_record.fields["b_type"]
 		medical.fields["b_dna"]			= random_medical_record.fields["b_type"]

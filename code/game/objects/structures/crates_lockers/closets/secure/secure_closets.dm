@@ -1,6 +1,6 @@
 /obj/structure/closet/secure_closet
 	name = "secure locker"
-	desc = "It's an immobile card-locked storage unit."
+	desc = "It's a card-locked storage unit."
 	icon = 'icons/obj/closet.dmi'
 	icon_state = "secure1"
 	density = 1
@@ -59,6 +59,7 @@
 		for(var/mob/O in viewers(user, 3))
 			if((O.client && !( O.blinded )))
 				O << "<span class='notice'>The locker has been [locked ? null : "un"]locked by [user].</span>"
+				playsound(loc, 'sound/machines/id_swipe.ogg', 100, 1)
 		update_icon()
 	else
 		user << "<span class='notice'>Access Denied</span>"
@@ -89,6 +90,21 @@
 			playsound(src.loc, "sparks", 50, 1)
 	else if(istype(W,/obj/item/weapon/packageWrap) || istype(W,/obj/item/weapon/weldingtool))
 		return ..(W,user)
+	else if(istype(W,/obj/item/device/multitool))
+		//if (!src.locked)
+			//return ..(W,user)
+		if (can_open())
+			return ..(W,user)
+		user << "You start hack a locker"
+		for (var/i=1, i <= 3 , i++)
+			user << "Pick [i] of 3"
+			playsound(src.loc, 'sound/machines/lockreset.ogg', 50, 1)
+			if(!do_after(user,300))
+				return
+		playsound(src.loc, "sparks", 50, 1)
+		user << "Done!"
+		src.locked = 0
+		update_icon()
 	else
 		togglelock(user)
 
@@ -131,8 +147,11 @@
 
 /obj/structure/closet/secure_closet/update_icon()//Putting the welded stuff in updateicon() so it's easy to overwrite for special cases (Fridges, cabinets, and whatnot)
 	overlays.Cut()
+
 	if(!opened)
-		if(locked)
+		if(broken)
+			icon_state = icon_off
+		else if(locked)
 			icon_state = icon_locked
 		else
 			icon_state = icon_closed
@@ -141,24 +160,12 @@
 	else
 		icon_state = icon_opened
 
-
 /obj/structure/closet/secure_closet/req_breakout()
 	if(!opened && locked) return 1
 	return ..() //It's a secure closet, but isn't locked.
 
 /obj/structure/closet/secure_closet/break_open()
 	desc += " It appears to be broken."
-	icon_state = icon_off
-	spawn()
-		flick(icon_broken, src)
-		sleep(10)
-		flick(icon_broken, src)
-		sleep(10)
 	broken = 1
 	locked = 0
-	update_icon()
-	//Do this to prevent contents from being opened into nullspace (read: bluespace)
-	if(istype(loc, /obj/structure/bigDelivery))
-		var/obj/structure/bigDelivery/BD = loc
-		BD.unwrap()
-	open()
+	..()

@@ -1,7 +1,7 @@
 var/datum/antagonist/deathsquad/deathsquad
 
 /datum/antagonist/deathsquad
-	id = MODE_DEATHSQUAD
+	id = ROLE_DEATHSQUAD
 	role_text = "Death Commando"
 	role_text_plural = "Death Commandos"
 	welcome_text = "You work in the service of corporate Asset Protection, answering directly to the Board of Directors."
@@ -14,6 +14,8 @@ var/datum/antagonist/deathsquad/deathsquad
 	hard_cap_round = 8
 	initial_spawn_req = 4
 	initial_spawn_target = 6
+
+	faction = "deathsquad"
 
 	var/deployed = 0
 
@@ -31,12 +33,12 @@ var/datum/antagonist/deathsquad/deathsquad
 		return
 
 	if (player.mind == leader)
-		player.equip_to_slot_or_del(new /obj/item/clothing/under/rank/centcom_officer(player), slot_w_uniform)
+		//player.equip_to_slot_or_del(new /obj/item/clothing/under/rank/centcom_officer(player), slot_w_uniform)
 	else
 		player.equip_to_slot_or_del(new /obj/item/clothing/under/color/green(player), slot_w_uniform)
 
 	player.equip_to_slot_or_del(new /obj/item/clothing/shoes/swat(player), slot_shoes)
-	player.equip_to_slot_or_del(new /obj/item/clothing/gloves/swat(player), slot_gloves)
+	player.equip_to_slot_or_del(new /obj/item/clothing/gloves/thick/swat(player), slot_gloves)
 	player.equip_to_slot_or_del(new /obj/item/clothing/glasses/thermal(player), slot_glasses)
 	player.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/swat(player), slot_wear_mask)
 	if (player.mind == leader)
@@ -46,9 +48,7 @@ var/datum/antagonist/deathsquad/deathsquad
 		player.equip_to_slot_or_del(new /obj/item/weapon/plastique(player), slot_l_store)
 	player.equip_to_slot_or_del(new /obj/item/weapon/gun/projectile/revolver/mateba(player), slot_belt)
 	player.equip_to_slot_or_del(new /obj/item/weapon/gun/energy/pulse_rifle(player), slot_r_hand)
-	player.equip_to_slot_or_del(new /obj/item/weapon/rig/ert/assetprotection(player), slot_back)
 	player.equip_to_slot_or_del(new /obj/item/weapon/melee/energy/sword(player), slot_s_store)
-	player.implant_loyalty(player)
 
 	var/obj/item/weapon/card/id/id = create_id("Asset Protection", player)
 	if(id)

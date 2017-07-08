@@ -10,7 +10,7 @@
 	var/list/datum/disease2/effectholder/effects = list()
 	var/antigen = list() // 16 bits describing the antigens, when one bit is set, a cure with that bit can dock here
 	var/max_stage = 4
-	var/list/affected_species = list("Human","Unathi","Skrell","Tajara")
+	var/list/affected_species = list("Human")
 
 /datum/disease2/disease/New()
 	uniqueID = rand(0,10000)
@@ -210,7 +210,7 @@ var/global/list/virusDB = list()
 	<u>Antigen:</u> [antigens2string(antigen)]<br>
 	<u>Transmitted By:</u> [spreadtype]<br>
 	<u>Rate of Progression:</u> [stageprob * 10]<br>
-	<u>Species Affected:</u> [list2text(affected_species, ", ")]<br>
+	<u>Species Affected:</u> [jointext(affected_species, ", ")]<br>
 "}
 
 	r += "<u>Symptoms:</u><br>"

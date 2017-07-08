@@ -296,8 +296,8 @@
 	item_state = "katana"
 	flags = CONDUCT
 	slot_flags = SLOT_BELT | SLOT_BACK
-	force = 5
-	throwforce = 5
+	force = WEAPON_FORCE_WEAK
+	throwforce = WEAPON_FORCE_WEAK
 	w_class = 3
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced")
 
@@ -556,8 +556,8 @@
 	icon_state = "ce"
 
 /obj/item/toy/figure/chaplain
-	name = "Chaplain action figure"
-	desc = "A \"Space Life\" brand Chaplain action figure."
+	name = "Monochurch Preacher action figure"
+	desc = "A \"Space Life\" brand Monochurch Preacher action figure."
 	icon_state = "chaplain"
 
 /obj/item/toy/figure/chef
@@ -694,24 +694,6 @@
 	name = "Paramedic action figure"
 	desc = "A \"Space Life\" brand Paramedic action figure."
 	icon_state = "paramedic"
-
-/obj/item/toy/figure/ert
-	name = "Emergency Response Team Commander action figure"
-	desc = "A \"Space Life\" brand Emergency Response Team Commander action figure."
-	icon_state = "ert"
-
-/obj/item/toy/katana
-	name = "replica katana"
-	desc = "Woefully underpowered in D20."
-	icon = 'icons/obj/weapons.dmi'
-	icon_state = "katana"
-	item_state = "katana"
-	flags = CONDUCT
-	slot_flags = SLOT_BELT | SLOT_BACK
-	force = 5
-	throwforce = 5
-	w_class = 3
-	attack_verb = list("attacked", "slashed", "stabbed", "sliced")
 
 /obj/item/toy/therapy_red
 	name = "red therapy doll"

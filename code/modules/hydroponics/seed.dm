@@ -105,10 +105,10 @@
 
 	if(!istype(target))
 		if(istype(target, /mob/living/simple_animal/mouse))
-			new /obj/effect/decal/remains/mouse(get_turf(target))
+			new /obj/item/remains/mouse(get_turf(target))
 			qdel(target)
 		else if(istype(target, /mob/living/simple_animal/lizard))
-			new /obj/effect/decal/remains/lizard(get_turf(target))
+			new /obj/item/remains/lizard(get_turf(target))
 			qdel(target)
 		return
 
@@ -156,7 +156,6 @@
 
 		if(!body_coverage)
 			return
-
 		target << "<span class='danger'>You are stung by \the [fruit]!</span>"
 		for(var/rid in chems)
 			var/injecting = min(5,max(1,get_trait(TRAIT_POTENCY)/5))
@@ -181,9 +180,20 @@
 		for(var/mob/living/M in T.contents)
 			if(!M.reagents)
 				continue
-			for(var/chem in chems)
-				var/injecting = min(5,max(1,get_trait(TRAIT_POTENCY)/3))
-				M.reagents.add_reagent(chem,injecting)
+			var/body_coverage = HEAD|FACE|EYES|UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
+			for(var/obj/item/clothing/clothes in M)
+				if(M.l_hand == clothes || M.r_hand == clothes)
+					continue
+				body_coverage &= ~(clothes.body_parts_covered)
+			if(!body_coverage)
+				continue
+			var/datum/reagents/R = M.reagents
+			var/mob/living/carbon/human/H = M
+			if(istype(H))
+				R = H.touching
+			if(istype(R))
+				for(var/chem in chems)
+					R.add_reagent(chem,min(5,max(1,get_trait(TRAIT_POTENCY)/3)))
 
 //Applies an effect to a target atom.
 /datum/seed/proc/thrown_at(var/obj/item/thrown,var/atom/target, var/force_explode)
@@ -282,12 +292,21 @@
 		for(var/gas in exude_gasses)
 			environment.adjust_gas(gas, max(1,round((exude_gasses[gas]*(get_trait(TRAIT_POTENCY)/5))/exude_gasses.len)))
 
+	//Handle temperature change.
+	if(get_trait(TRAIT_ALTER_TEMP) != 0 && !check_only)
+		var/target_temp = get_trait(TRAIT_ALTER_TEMP) > 0 ? 500 : 80
+		if(environment && abs(environment.temperature-target_temp) > 0.1)
+			var/datum/gas_mixture/removed = environment.remove(0.25 * environment.total_moles)
+			if(removed)
+				var/heat_transfer = abs(removed.get_thermal_energy_change(target_temp))
+				heat_transfer = min(heat_transfer,abs(get_trait(TRAIT_ALTER_TEMP) * 10000))
+				removed.add_thermal_energy((get_trait(TRAIT_ALTER_TEMP) > 0 ? 1 : -1) * heat_transfer)
+			environment.merge(removed)
+
 	// Handle light requirements.
 	if(!light_supplied)
 		var/atom/movable/lighting_overlay/L = locate(/atom/movable/lighting_overlay) in current_turf
 		if(L)
-			light_supplied = max(0,min(10,L.lum_r + L.lum_g + L.lum_b)-5)
-		else
 			light_supplied =  5
 	if(light_supplied)
 		if(abs(light_supplied - get_trait(TRAIT_IDEAL_LIGHT)) > get_trait(TRAIT_LIGHT_TOLERANCE))
@@ -339,8 +358,8 @@
 	set_trait(TRAIT_POTENCY,rand(5,30),200,0)
 	set_trait(TRAIT_PRODUCT_ICON,pick(plant_controller.plant_product_sprites))
 	set_trait(TRAIT_PLANT_ICON,pick(plant_controller.plant_sprites))
-	set_trait(TRAIT_PLANT_COLOUR,"#[get_random_colour(0,75,190)]")
-	set_trait(TRAIT_PRODUCT_COLOUR,"#[get_random_colour(0,75,190)]")
+	set_trait(TRAIT_PLANT_COLOUR,get_random_colour(0,75,190))
+	set_trait(TRAIT_PRODUCT_COLOUR,get_random_colour(0,75,190))
 	update_growth_stages()
 
 	if(prob(20))
@@ -365,12 +384,12 @@
 
 	if(prob(5))
 		consume_gasses = list()
-		var/gas = pick("oxygen","nitrogen","phoron","carbon_dioxide")
+		var/gas = pick("oxygen","nitrogen","plasma","carbon_dioxide")
 		consume_gasses[gas] = rand(3,9)
 
 	if(prob(5))
 		exude_gasses = list()
-		var/gas = pick("oxygen","nitrogen","phoron","carbon_dioxide")
+		var/gas = pick("oxygen","nitrogen","plasma","carbon_dioxide")
 		exude_gasses[gas] = rand(3,9)
 
 	chems = list()
@@ -404,7 +423,7 @@
 			"cryptobiolin",
 			"dermaline",
 			"dexalin",
-			"phoron",
+			"plasma",
 			"synaptizine",
 			"impedrezene",
 			"hyronalin",
@@ -472,7 +491,7 @@
 
 	if(prob(5))
 		set_trait(TRAIT_BIOLUM,1)
-		set_trait(TRAIT_BIOLUM_COLOUR,"#[get_random_colour(0,75,190)]")
+		set_trait(TRAIT_BIOLUM_COLOUR,get_random_colour(0,75,190))
 
 	set_trait(TRAIT_ENDURANCE,rand(60,100))
 	set_trait(TRAIT_YIELD,rand(3,15))
@@ -544,7 +563,7 @@
 					if(get_trait(TRAIT_BIOLUM))
 						source_turf.visible_message("<span class='notice'>\The [display_name] begins to glow!</span>")
 						if(prob(degree*2))
-							set_trait(TRAIT_BIOLUM_COLOUR,"#[get_random_colour(0,75,190)]")
+							set_trait(TRAIT_BIOLUM_COLOUR,get_random_colour(0,75,190))
 							source_turf.visible_message("<span class='notice'>\The [display_name]'s glow </span><font color='[get_trait(TRAIT_BIOLUM_COLOUR)]'>changes colour</font>!")
 					else
 						source_turf.visible_message("<span class='notice'>\The [display_name]'s glow dims...</span>")
@@ -710,10 +729,9 @@
 					clr = get_trait(TRAIT_BIOLUM_COLOUR)
 				product.set_light(get_trait(TRAIT_BIOLUM), l_color = clr)
 
-			//Handle spawning in living, mobile products (like dionaea).
+			//Handle spawning in living, mobile products.
 			if(istype(product,/mob/living))
 				product.visible_message("<span class='notice'>The pod disgorges [product]!</span>")
-				handle_living_product(product)
 				if(istype(product,/mob/living/simple_animal/mushroom)) // Gross.
 					var/mob/living/simple_animal/mushroom/mush = product
 					mush.seed = src

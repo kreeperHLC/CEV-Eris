@@ -38,6 +38,7 @@ em						{font-style: normal;font-weight: bold;}
 
 /* Radio: Misc */
 .deadsay				{color: #530FAD;}
+.angelsay				{color: #ffaa00;}
 .radio					{color: #008000;}
 .deptradio				{color: #ff00ff;}	/* when all other department colors fail */
 .newscaster				{color: #750000;}
@@ -47,7 +48,6 @@ em						{font-style: normal;font-weight: bold;}
 .syndradio				{color: #6D3F40;}
 .centradio				{color: #5C5C8A;}
 .airadio				{color: #FF00FF;}
-.entradio				{color: #339966;}
 
 .secradio				{color: #A30000;}
 .engradio				{color: #A66300;}
@@ -84,13 +84,8 @@ h1.alert, h2.alert		{color: #000000;}
 /* Languages */
 
 .alien					{color: #543354;}
-.tajaran				{color: #803B56;}
-.tajaran_signlang		{color: #941C1C;}
-.skrell					{color: #00CED1;}
-.soghun					{color: #228B22;}
-.solcom					{color: #22228B;}
+.monkey					{color: #22228B;}
 .changeling				{color: #800080;}
-.vox					{color: #AA00AA;}
 .rough					{font-family: "Trebuchet MS", cursive, sans-serif;}
 .say_quote				{font-family: Georgia, Verdana, sans-serif;}
 

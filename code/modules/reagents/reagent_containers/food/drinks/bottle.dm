@@ -12,10 +12,17 @@
 
 	var/obj/item/weapon/reagent_containers/glass/rag/rag = null
 	var/rag_underlay = "rag"
+	var/icon_state_full
+	var/icon_state_empty
+
+/obj/item/weapon/reagent_containers/food/drinks/bottle/on_reagent_change()
+	update_icon()
 
 /obj/item/weapon/reagent_containers/food/drinks/bottle/New()
 	..()
 	if(isGlass) unacidable = 1
+	icon_state_full = "[icon_state]"
+	icon_state_empty = "[icon_state]_empty"
 
 /obj/item/weapon/reagent_containers/food/drinks/bottle/Destroy()
 	if(rag)
@@ -67,7 +74,7 @@
 		var/mob/living/L = against
 		L.IgniteMob()
 
-	playsound(src, "shatter", 70, 1)
+	playsound(src,'sound/effects/GLASS_Rattle_Many_Fragments_01_stereo.wav',100,1)
 	src.transfer_fingerprints_to(B)
 
 	qdel(src)
@@ -113,23 +120,27 @@
 	if(rag)
 		var/underlay_image = image(icon='icons/obj/drinks.dmi', icon_state=rag.on_fire? "[rag_underlay]_lit" : rag_underlay)
 		underlays += underlay_image
-		copy_light(rag)
+		set_light(2)
 	else
 		set_light(0)
+		if(reagents.total_volume)
+			icon_state = icon_state_full
+		else
+			icon_state = icon_state_empty
 
 /obj/item/weapon/reagent_containers/food/drinks/bottle/apply_hit_effect(mob/living/target, mob/living/user, var/hit_zone)
 	var/blocked = ..()
-	
+
 	if(user.a_intent != I_HURT)
 		return
 	if(!smash_check(1))
 		return //won't always break on the first hit
-	
+
 	// You are going to knock someone out for longer if they are not wearing a helmet.
 	var/weaken_duration = 0
 	if(blocked < 2)
 		weaken_duration = smash_duration + min(0, force - target.getarmor(hit_zone, "melee") + 10)
-	
+
 	var/mob/living/carbon/human/H = target
 	if(istype(H) && H.headcheck(hit_zone))
 		var/obj/item/organ/affecting = H.get_organ(hit_zone) //headcheck should ensure that affecting is not null
@@ -235,7 +246,7 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/bottle/holywater
 	name = "Flask of Holy Water"
-	desc = "A flask of the chaplain's holy water."
+	desc = "A flask of the preacher's holy water."
 	icon_state = "holyflask"
 	center_of_mass = list("x"=17, "y"=10)
 	New()
@@ -430,3 +441,4 @@
 	New()
 		..()
 		reagents.add_reagent("ale", 30)
+

@@ -1,10 +1,10 @@
 /obj/item/weapon/gun/projectile/heavysniper
-	name = "anti-materiel rifle"
-	desc = "A portable anti-armour rifle fitted with a scope, the HI PTR-7 Rifle was originally designed to used against armoured exosuits. It is capable of punching through windows and non-reinforced walls with ease. Fires armor piercing 14.5mm shells."
+	name = "NT AMR \"Penetrator\""
+	desc = "A portable anti-armour rifle fitted with a scope, it was originally designed to used against armoured exosuits. It is capable of punching through windows and non-reinforced walls with ease. Fires armor piercing 14.5mm shells."
 	icon_state = "heavysniper"
 	item_state = "l6closednomag" //placeholder
 	w_class = 4
-	force = 10
+	force = WEAPON_FORCE_PAINFULL
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 8, TECH_MATERIAL = 2, TECH_ILLEGAL = 8)
 	caliber = "14.5mm"
@@ -17,6 +17,8 @@
 	//+2 accuracy over the LWAP because only one shot
 	accuracy = -1
 	scoped_accuracy = 2
+	fire_sound = 'sound/weapons/guns/fire/sniper_fire.ogg'
+	reload_sound 	= 'sound/weapons/guns/interact/rifle_load.ogg'
 	var/bolt_open = 0
 
 /obj/item/weapon/gun/projectile/heavysniper/update_icon()
@@ -26,7 +28,7 @@
 		icon_state = "heavysniper"
 
 /obj/item/weapon/gun/projectile/heavysniper/attack_self(mob/user as mob)
-	playsound(src.loc, 'sound/weapons/flipblade.ogg', 50, 1)
+	playsound(src.loc, 'sound/weapons/guns/interact/rifle_boltback.ogg', 75, 1)
 	bolt_open = !bolt_open
 	if(bolt_open)
 		if(chambered)
@@ -38,6 +40,7 @@
 			user << "<span class='notice'>You work the bolt open.</span>"
 	else
 		user << "<span class='notice'>You work the bolt closed.</span>"
+		playsound(src.loc, 'sound/weapons/guns/interact/rifle_boltforward.ogg', 75, 1)
 		bolt_open = 0
 	add_fingerprint(user)
 	update_icon()

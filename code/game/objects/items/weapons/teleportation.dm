@@ -128,7 +128,7 @@ Frequency:
 	icon = 'icons/obj/device.dmi'
 	icon_state = "hand_tele"
 	item_state = "electronic"
-	throwforce = 5
+	throwforce = WEAPON_FORCE_HARMLESS
 	w_class = 2.0
 	throw_speed = 3
 	throw_range = 5
@@ -163,6 +163,7 @@ Frequency:
 		if(PO.creator == src)	count++
 	if(count >= 3)
 		user.show_message("<span class='notice'>\The [src] is recharging!</span>")
+		flick("hand_tele_recharging",src)
 		return
 	var/T = L[t1]
 	for(var/mob/O in hearers(user, null))

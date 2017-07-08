@@ -7,6 +7,9 @@
 	var/parts
 	var/list/climbers = list()
 
+/obj/structure/get_fall_damage()
+	return w_class * 3
+
 /obj/structure/Destroy()
 	if(parts)
 		new parts(loc)
@@ -91,9 +94,24 @@
 		if(istype(O,/obj/structure))
 			var/obj/structure/S = O
 			if(S.climbable) continue
-		if(O && O.density && !(O.flags & ON_BORDER)) //ON_BORDER structures are handled by the Adjacent() check.
+		//ON_BORDER structures are handled by the Adjacent() check.
+		if(O && O.density && !(O.flags & ON_BORDER))
 			return O
 	return 0
+
+/obj/structure/proc/neighbor_turf_passable()
+	var/turf/T = get_step(src, src.dir)
+	if(!T || !istype(T))
+		return 0
+	if(T.density == 1)
+		return 0
+	for(var/obj/O in T.contents)
+		if(istype(O,/obj/structure))
+			if(istype(O,/obj/structure/railing))
+				return 1
+			else if(O.density == 1)
+				return 0
+	return 1
 
 /obj/structure/proc/do_climb(var/mob/living/user)
 	if (!can_climb(user))
@@ -102,7 +120,7 @@
 	usr.visible_message("<span class='warning'>[user] starts climbing onto \the [src]!</span>")
 	climbers |= user
 
-	if(!do_after(user,50))
+	if(!do_after(user,(issmall(user) ? 20 : 34)))
 		climbers -= user
 		return
 
@@ -183,6 +201,6 @@
 	if(!breakable || !damage || !wallbreaker)
 		return 0
 	visible_message("<span class='danger'>[user] [attack_verb] the [src] apart!</span>")
-	user.do_attack_animation(src)
+	attack_animation(user)
 	spawn(1) qdel(src)
 	return 1

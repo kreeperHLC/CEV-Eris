@@ -5,10 +5,10 @@
 	icon_state = "nullrod"
 	item_state = "nullrod"
 	slot_flags = SLOT_BELT
-	force = 15
+	force = WEAPON_FORCE_PAINFULL
 	throw_speed = 1
 	throw_range = 4
-	throwforce = 10
+	throwforce = WEAPON_FORCE_WEAK
 	w_class = 2
 
 /obj/item/weapon/nullrod/attack(mob/M as mob, mob/living/user as mob) //Paste from old-code to decult with a null rod.
@@ -20,9 +20,13 @@
 
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	user.do_attack_animation(M)
+	//if(user != M)
+	if(user.spell_list.len)
+		user.silence_spells(300) //30 seconds
+		user << "<span class='danger'>You've been silenced!</span>"
+		return
 
-	if (!(istype(user, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
-		user << "<span class='danger'>You don't have the dexterity to do this!</span>"
+	if(!user.IsAdvancedToolUser())
 		return
 
 	if ((CLUMSY in user.mutations) && prob(50))

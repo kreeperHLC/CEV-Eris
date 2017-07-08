@@ -32,7 +32,7 @@
 		target_permissions |= perm
 
 	// Update HUD icons.
-	if(owner.gun_move_icon)
+/*	if(owner.gun_move_icon)
 		if(!(target_permissions & TARGET_CAN_MOVE))
 			owner.gun_move_icon.icon_state = "no_walk0"
 			owner.gun_move_icon.name = "Allow Movement"
@@ -54,7 +54,7 @@
 			owner.radio_use_icon.name = "Allow Radio Use"
 		else
 			owner.radio_use_icon.icon_state = "no_radio1"
-			owner.radio_use_icon.name = "Disallow Radio Use"
+			owner.radio_use_icon.name = "Disallow Radio Use"*/
 
 	var/message = "no longer permitted to "
 	var/use_span = "warning"
@@ -111,6 +111,8 @@ obj/aiming_overlay/proc/update_aiming_deferred()
 
 	if(!(aiming_with in owner) || (istype(owner, /mob/living/carbon/human) && (owner.l_hand != aiming_with && owner.r_hand != aiming_with)))
 		owner << "<span class='warning'>You must keep hold of your weapon!</span>"
+	else if(owner.eye_blind)
+		owner << "<span class='warning'>You are blind and cannot see your target!</span>"
 	else if(!aiming_at || !istype(aiming_at.loc, /turf))
 		owner << "<span class='warning'>You have lost sight of your target!</span>"
 	else if(owner.incapacitated() || owner.lying || owner.restrained())

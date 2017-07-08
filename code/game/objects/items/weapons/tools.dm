@@ -21,8 +21,8 @@
 	icon_state = "wrench"
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
-	force = 5.0
-	throwforce = 7.0
+	force = WEAPON_FORCE_NORMAL
+	throwforce = WEAPON_FORCE_NORMAL
 	w_class = 2.0
 	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1)
 	matter = list(DEFAULT_WALL_MATERIAL = 150)
@@ -39,9 +39,9 @@
 	icon_state = "screwdriver"
 	flags = CONDUCT
 	slot_flags = SLOT_BELT | SLOT_EARS
-	force = 5.0
+	force = WEAPON_FORCE_NORMAL
 	w_class = 1.0
-	throwforce = 5.0
+	throwforce = WEAPON_FORCE_NORMAL
 	throw_speed = 3
 	throw_range = 5
 	matter = list(DEFAULT_WALL_MATERIAL = 75)
@@ -78,7 +78,7 @@
 /obj/item/weapon/screwdriver/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob)
 	if(!istype(M) || user.a_intent == "help")
 		return ..()
-	if(user.zone_sel.selecting != "eyes" && user.zone_sel.selecting != "head")
+	if(user.targeted_organ != "eyes" && user.targeted_organ != "head")
 		return ..()
 	if((CLUMSY in user.mutations) && prob(50))
 		M = user
@@ -94,7 +94,7 @@
 	icon_state = "cutters"
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
-	force = 6.0
+	force = WEAPON_FORCE_WEAK
 	throw_speed = 2
 	throw_range = 9
 	w_class = 2.0
@@ -134,8 +134,8 @@
 	slot_flags = SLOT_BELT
 
 	//Amount of OUCH when it's thrown
-	force = 3.0
-	throwforce = 5.0
+	force = WEAPON_FORCE_WEAK
+	throwforce = WEAPON_FORCE_WEAK
 	throw_speed = 1
 	throw_range = 5
 	w_class = 2.0
@@ -212,7 +212,7 @@
 		if(prob(5))
 			remove_fuel(1)
 
-		if(get_fuel() == 0)
+		if(get_fuel() < 1)
 			setWelding(0)
 
 	//I'm not sure what this does. I assume it has to do with starting fires...
@@ -299,11 +299,12 @@
 				M << "<span class='notice'>You switch the [src] on.</span>"
 			else if(T)
 				T.visible_message("<span class='danger'>\The [src] turns on.</span>")
-			src.force = 15
+			src.force = WEAPON_FORCE_PAINFULL
 			src.damtype = "fire"
 			src.w_class = 4
 			welding = 1
 			update_icon()
+			set_light(l_range = 1.4, l_power = 1, l_color = COLOR_ORANGE)
 			processing_objects |= src
 		else
 			if(M)
@@ -316,11 +317,12 @@
 			M << "<span class='notice'>You switch \the [src] off.</span>"
 		else if(T)
 			T.visible_message("<span class='warning'>\The [src] turns off.</span>")
-		src.force = 3
+		src.force = WEAPON_FORCE_WEAK
 		src.damtype = "brute"
 		src.w_class = initial(src.w_class)
 		src.welding = 0
 		update_icon()
+		set_light(l_range = 0, l_power = 0, l_color = COLOR_ORANGE)
 
 //Decides whether or not to damage a player's eyes based on what they're wearing as protection
 //Note: This should probably be moved to mob
@@ -334,33 +336,33 @@
 		var/safety = H.eyecheck()
 		switch(safety)
 			if(FLASH_PROTECTION_MODERATE)
-				usr << "<span class='warning'>Your eyes sting a little.</span>"
+				H << "<span class='warning'>Your eyes sting a little.</span>"
 				E.damage += rand(1, 2)
 				if(E.damage > 12)
-					user.eye_blurry += rand(3,6)
+					H.eye_blurry += rand(3,6)
 			if(FLASH_PROTECTION_NONE)
-				usr << "<span class='warning'>Your eyes burn.</span>"
+				H << "<span class='warning'>Your eyes burn.</span>"
 				E.damage += rand(2, 4)
 				if(E.damage > 10)
 					E.damage += rand(4,10)
 			if(FLASH_PROTECTION_REDUCED)
-				usr << "<span class='danger'>Your equipment intensify the welder's glow. Your eyes itch and burn severely.</span>"
-				user.eye_blurry += rand(12,20)
+				H << "<span class='danger'>Your equipment intensify the welder's glow. Your eyes itch and burn severely.</span>"
+				H.eye_blurry += rand(12,20)
 				E.damage += rand(12, 16)
 		if(safety<FLASH_PROTECTION_MAJOR)
 			if(E.damage > 10)
 				user << "<span class='warning'>Your eyes are really starting to hurt. This can't be good for you!</span>"
 
 			if (E.damage >= E.min_broken_damage)
-				user << "<span class='danger'>You go blind!</span>"
-				user.sdisabilities |= BLIND
+				H << "<span class='danger'>You go blind!</span>"
+				H.sdisabilities |= BLIND
 			else if (E.damage >= E.min_bruised_damage)
-				user << "<span class='danger'>You go blind!</span>"
-				user.eye_blind = 5
-				user.eye_blurry = 5
-				user.disabilities |= NEARSIGHTED
+				H << "<span class='danger'>You go blind!</span>"
+				H.eye_blind = 5
+				H.eye_blurry = 5
+				H.disabilities |= NEARSIGHTED
 				spawn(100)
-					user.disabilities &= ~NEARSIGHTED
+					H.disabilities &= ~NEARSIGHTED
 
 /obj/item/weapon/weldingtool/largetank
 	name = "industrial welding tool"
@@ -379,7 +381,7 @@
 	name = "experimental welding tool"
 	max_fuel = 40
 	w_class = 3.0
-	origin_tech = list(TECH_ENGINEERING = 4, TECH_PHORON = 3)
+	origin_tech = list(TECH_ENGINEERING = 4, TECH_PLASMA = 3)
 	matter = list(DEFAULT_WALL_MATERIAL = 70, "glass" = 120)
 	var/last_gen = 0
 
@@ -402,8 +404,8 @@
 	icon_state = "crowbar"
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
-	force = 5.0
-	throwforce = 7.0
+	force = WEAPON_FORCE_PAINFULL
+	throwforce = WEAPON_FORCE_NORMAL
 	item_state = "crowbar"
 	w_class = 2.0
 	origin_tech = list(TECH_ENGINEERING = 1)
@@ -419,7 +421,7 @@
 
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/external/S = H.organs_by_name[user.zone_sel.selecting]
+		var/obj/item/organ/external/S = H.organs_by_name[user.targeted_organ]
 
 		if (!S) return
 		if(!(S.status & ORGAN_ROBOT) || user.a_intent != I_HELP)

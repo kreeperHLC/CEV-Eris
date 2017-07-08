@@ -1,7 +1,7 @@
 // Stacked resources. They use a material datum for a lot of inherited values.
 /obj/item/stack/material
-	force = 5.0
-	throwforce = 5
+	force = WEAPON_FORCE_NORMAL
+	throwforce = WEAPON_FORCE_NORMAL
 	w_class = 3.0
 	throw_speed = 3
 	throw_range = 3
@@ -9,7 +9,7 @@
 
 	var/default_type = DEFAULT_WALL_MATERIAL
 	var/material/material
-	var/perunit
+	var/perunit = SHEET_MATERIAL_AMOUNT
 	var/apply_colour //temp pending icon rewrite
 
 /obj/item/stack/material/New()
@@ -28,7 +28,6 @@
 	stacktype = material.stack_type
 	if(islist(material.stack_origin_tech))
 		origin_tech = material.stack_origin_tech.Copy()
-	perunit = SHEET_MATERIAL_AMOUNT
 
 	if(apply_colour)
 		color = material.icon_colour
@@ -109,10 +108,10 @@
 	icon_state = "sheet-uranium"
 	default_type = "uranium"
 
-/obj/item/stack/material/phoron
-	name = "solid phoron"
-	icon_state = "sheet-phoron"
-	default_type = "phoron"
+/obj/item/stack/material/plasma
+	name = "solid plasma"
+	icon_state = "sheet-plasma"
+	default_type = "plasma"
 
 /obj/item/stack/material/plastic
 	name = "plastic"
@@ -196,16 +195,16 @@
 	icon_state = "sheet-rglass"
 	default_type = "rglass"
 
-/obj/item/stack/material/glass/phoronglass
+/obj/item/stack/material/glass/plasmaglass
 	name = "borosilicate glass"
 	desc = "This sheet is special platinum-glass alloy designed to withstand large temperatures"
 	singular_name = "borosilicate glass sheet"
-	icon_state = "sheet-phoronglass"
+	icon_state = "sheet-plasmaglass"
 	default_type = "borosilicate glass"
 
-/obj/item/stack/material/glass/phoronrglass
+/obj/item/stack/material/glass/plasmarglass
 	name = "reinforced borosilicate glass"
 	desc = "This sheet is special platinum-glass alloy designed to withstand large temperatures. It is reinforced with few rods."
 	singular_name = "reinforced borosilicate glass sheet"
-	icon_state = "sheet-phoronrglass"
+	icon_state = "sheet-plasmarglass"
 	default_type = "reinforced borosilicate glass"

@@ -7,18 +7,12 @@
 	use_power = 1
 	idle_power_usage = 300
 	active_power_usage = 300
-	var/circuit = null //The path to the circuit board type. If circuit==null, the computer can't be disassembled.
 	var/processing = 0
-
+	var/CheckFaceFlag = 1 //for direction check
 	var/icon_keyboard = "generic_key"
 	var/icon_screen = "generic"
-	var/light_range_on = 2
-	var/light_power_on = 1
-	var/overlay_layer
-
-/obj/machinery/computer/New()
-	overlay_layer = layer
-	..()
+	var/light_range_on = 1.5
+	var/light_power_on = 2
 
 /obj/machinery/computer/initialize()
 	power_change()
@@ -65,18 +59,18 @@
 	if(stat & NOPOWER)
 		set_light(0)
 		if(icon_keyboard)
-			overlays += image(icon,"[icon_keyboard]_off", overlay_layer)
+			overlays += image(icon,"[icon_keyboard]_off")
 		return
 	else
 		set_light(light_range_on, light_power_on)
 
 	if(stat & BROKEN)
-		overlays += image(icon,"[icon_state]_broken", overlay_layer)
+		overlays += image(icon,"[icon_state]_broken")
 	else
-		overlays += image(icon,icon_screen, overlay_layer)
+		overlays += image(icon,icon_screen)
 
 	if(icon_keyboard)
-		overlays += image(icon, icon_keyboard, overlay_layer)
+		overlays += image(icon, icon_keyboard)
 
 /obj/machinery/computer/power_change()
 	..()
@@ -99,16 +93,17 @@
 /obj/machinery/computer/attackby(I as obj, user as mob)
 	if(istype(I, /obj/item/weapon/screwdriver) && circuit)
 		playsound(src.loc, 'sound/items/Screwdriver.ogg', 50, 1)
-		if(do_after(user, 20))
-			var/obj/structure/computerframe/A = new /obj/structure/computerframe( src.loc )
-			var/obj/item/weapon/circuitboard/M = new circuit( A )
+		if(do_after(user, 20, src))
+			var/obj/structure/computerframe/A = new /obj/structure/computerframe(src.loc)
+			var/obj/item/weapon/circuitboard/M = new circuit(A)
+			A.dir = src.dir
 			A.circuit = M
 			A.anchored = 1
 			for (var/obj/C in src)
 				C.loc = src.loc
 			if (src.stat & BROKEN)
 				user << "<span class='notice'>The broken glass falls out.</span>"
-				new /obj/item/weapon/material/shard( src.loc )
+				new /obj/item/weapon/material/shard(src.loc)
 				A.state = 3
 				A.icon_state = "3"
 			else
@@ -119,3 +114,28 @@
 			qdel(src)
 	else
 		..()
+/obj/machinery/computer/Topic(href, href_list)
+	if(..())
+		return 1
+	if (issilicon(usr) || !CheckFaceFlag || CheckFace(src,usr))
+		keyboardsound(usr)
+		return 0
+	else
+		usr << "You need to stand in front of console's keyboard!"
+		return 1
+
+/obj/proc/keyboardsound(mob/user as mob)
+	if(!issilicon(user))
+		playsound(src, "keyboard", 100, 1, 0)
+
+/obj/machinery/computer/attack_hand(mob/user as mob)//check mob direction
+	if(..())
+		return 1
+	if(!issilicon(user))
+		return 0
+	if (issilicon(usr) || !CheckFaceFlag || CheckFace(src,user))
+		keyboardsound(user)
+		return 0
+	else
+		user << "you need stay face to console"
+		return 1

@@ -36,7 +36,7 @@ var/list/ghost_traps
 	..()
 
 // Check for bans, proper atom types, etc.
-/datum/ghosttrap/proc/assess_candidate(var/mob/dead/observer/candidate, var/mob/target)
+/datum/ghosttrap/proc/assess_candidate(var/mob/observer/ghost/candidate, var/mob/target)
 	if(!candidate.MayRespawn(1, minutes_since_death))
 		return 0
 	if(islist(ban_checks))
@@ -54,7 +54,7 @@ var/list/ghost_traps
 	else
 		request_timeouts -= target
 
-	for(var/mob/dead/observer/O in player_list)
+	for(var/mob/observer/ghost/O in player_list)
 		if(!O.MayRespawn())
 			continue
 		if(islist(ban_checks))
@@ -74,7 +74,7 @@ var/list/ghost_traps
 	if(..())
 		return 1
 	if(href_list["candidate"] && href_list["target"])
-		var/mob/dead/observer/candidate = locate(href_list["candidate"]) // BYOND magic.
+		var/mob/observer/ghost/candidate = locate(href_list["candidate"]) // BYOND magic.
 		var/mob/target = locate(href_list["target"])                     // So much BYOND magic.
 		if(!target || !candidate)
 			return
@@ -109,8 +109,8 @@ var/list/ghost_traps
 	target << "<b>Remember, the purpose of your existence is to serve the crew and the station. Above all else, do no harm.</b>"
 	target << "<b>Use say [target.get_language_prefix()]b to speak to other artificial intelligences.</b>"
 	var/turf/T = get_turf(target)
-	T.visible_message("<span class='notice'>\The [src] chimes quietly.</span>")
 	var/obj/item/device/mmi/digital/posibrain/P = target.loc
+	T.visible_message("<span class='notice'>\The [P] chimes quietly.</span>")
 	if(!istype(P)) //wat
 		return
 	P.searching = 0
@@ -127,30 +127,13 @@ var/list/ghost_traps
 		target.real_name = newname
 		target.name = target.real_name
 
-/***********************************
-* Diona pods and walking mushrooms *
-***********************************/
-/datum/ghosttrap/plant
-	object = "living plant"
-	ban_checks = list("Dionaea")
-	pref_check = BE_PLANT
-	ghost_trap_message = "They are occupying a living plant now."
-	ghost_trap_role = "Plant"
-
-/datum/ghosttrap/plant/welcome_candidate(var/mob/target)
-	target << "<span class='alium'><B>You awaken slowly, stirring into sluggish motion as the air caresses you.</B></span>"
-	// This is a hack, replace with some kind of species blurb proc.
-	if(istype(target,/mob/living/carbon/alien/diona))
-		target << "<B>You are \a [target], one of a race of drifting interstellar plantlike creatures that sometimes share their seeds with human traders.</B>"
-		target << "<B>Too much darkness will send you into shock and starve you, but light will help you heal.</B>"
-
 /*****************
 * Cortical Borer *
 *****************/
 /datum/ghosttrap/borer
 	object = "cortical borer"
 	ban_checks = list("Borer")
-	pref_check = MODE_BORER
+	pref_check = ROLE_BORER
 	ghost_trap_message = "They are occupying a borer now."
 	ghost_trap_role = "Cortical Borer"
 	can_set_own_name = FALSE
@@ -177,7 +160,7 @@ var/list/ghost_traps
 	minutes_since_death = DRONE_SPAWN_DELAY
 	..()
 
-datum/ghosttrap/drone/assess_candidate(var/mob/dead/observer/candidate, var/mob/target)
+datum/ghosttrap/drone/assess_candidate(var/mob/observer/ghost/candidate, var/mob/target)
 	. = ..()
 	if(. && !target.can_be_possessed_by(candidate))
 		return 0
@@ -186,3 +169,18 @@ datum/ghosttrap/drone/transfer_personality(var/mob/candidate, var/mob/living/sil
 	if(!assess_candidate(candidate))
 		return 0
 	drone.transfer_personality(candidate.client)
+
+/**************
+* personal AI *
+**************/
+/datum/ghosttrap/pai
+	object = "pAI"
+	pref_check = BE_PAI
+	ghost_trap_message = "They are occupying a pAI now."
+	ghost_trap_role = "pAI"
+
+datum/ghosttrap/pai/assess_candidate(var/mob/observer/ghost/candidate, var/mob/target)
+	return 0
+
+datum/ghosttrap/pai/transfer_personality(var/mob/candidate, var/mob/living/silicon/robot/drone/drone)
+	return 0

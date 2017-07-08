@@ -26,21 +26,26 @@ var/global/defer_powernet_rebuild = 0      // True if net rebuild will be called
 
 #define AI_CAMERA_LUMINOSITY 6
 
+//Frame types
+#define FRAME_DEFAULT 0
+#define FRAME_VERTICAL 1		//For 2-tiles machines
+//#define FRAME_HORIZONTAL 2
+
 // Camera networks
 #define NETWORK_CRESCENT "Crescent"
-#define NETWORK_CIVILIAN_EAST "Civilian East"
-#define NETWORK_CIVILIAN_WEST "Civilian West"
+#define NETWORK_FIRST_SECTION "First Section"
+#define	NETWORK_SECOND_SECTION "Second Section"
+#define	NETWORK_THIRD_SECTION "Third Section"
+#define	NETWORK_FOURTH_SECTION "Fourth Section"
 #define NETWORK_COMMAND "Command"
 #define NETWORK_ENGINE "Engine"
 #define NETWORK_ENGINEERING "Engineering"
-#define NETWORK_ENGINEERING_OUTPOST "Engineering Outpost"
-#define NETWORK_ERT "ZeEmergencyResponseTeam"
-#define NETWORK_EXODUS "Exodus"
+#define NETWORK_CEV_ERIS "CEV Eris"
 #define NETWORK_MEDICAL "Medical"
 #define NETWORK_MERCENARY "MercurialNet"
-#define NETWORK_MINE "MINE"
+#define NETWORK_MINE "Mining Shuttle - Hulk"
 #define NETWORK_RESEARCH "Research"
-#define NETWORK_RESEARCH_OUTPOST "Research Outpost"
+#define NETWORK_RESEARCH_OUTPOST "Research Shuttle - Vasiliy Dokuchaev"
 #define NETWORK_ROBOTS "Robots"
 #define NETWORK_PRISON "Prison"
 #define NETWORK_SECURITY "Security"
@@ -48,7 +53,7 @@ var/global/defer_powernet_rebuild = 0      // True if net rebuild will be called
 #define NETWORK_THUNDER "Thunderdome"
 
 // Those networks can only be accessed by pre-existing terminals. AIs and new terminals can't use them.
-var/list/restricted_camera_networks = list(NETWORK_ERT,NETWORK_MERCENARY,"Secret")
+var/list/restricted_camera_networks = list(NETWORK_MERCENARY,"Secret")
 
 
 //singularity defines
@@ -95,3 +100,25 @@ var/list/restricted_camera_networks = list(NETWORK_ERT,NETWORK_MERCENARY,"Secret
 #define ATMOS_DEFAULT_VOLUME_FILTER 200 // L.
 #define ATMOS_DEFAULT_VOLUME_MIXER  200 // L.
 #define ATMOS_DEFAULT_VOLUME_PIPE   70  // L.
+
+//Disposal pipes
+#define PIPE_TYPE_STRAIGHT 0
+#define PIPE_TYPE_BENT 1
+#define PIPE_TYPE_JUNC 2
+#define PIPE_TYPE_JUNC_FLIP 3
+#define PIPE_TYPE_JUNC_Y 4
+#define PIPE_TYPE_TRUNK 5
+#define PIPE_TYPE_BIN 6
+#define PIPE_TYPE_OUTLET 7
+#define PIPE_TYPE_INTAKE 8
+#define PIPE_TYPE_JUNC_SORT 9
+#define PIPE_TYPE_JUNC_SORT_FLIP 10
+#define PIPE_TYPE_UP 11
+#define PIPE_TYPE_DOWN 12
+#define PIPE_TYPE_TAGGER 13
+#define PIPE_TYPE_TAGGER_PART 14
+
+#define SORT_TYPE_NORMAL 0
+#define SORT_TYPE_WILDCARD 1
+#define SORT_TYPE_UNTAGGED 2
+

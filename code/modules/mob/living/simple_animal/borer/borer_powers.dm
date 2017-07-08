@@ -88,7 +88,7 @@
 	M << "Something slimy begins probing at the opening of your ear canal..."
 	src << "You slither up [M] and begin probing at their ear canal..."
 
-	if(!do_after(src,30))
+	if(!do_after(src,30, progress = 0))
 		src << "As [M] moves away, you are dislodged and fall to the ground."
 		return
 
@@ -163,7 +163,7 @@
 
 	src << "<span class = 'danger'>You settle into the empty brainpan and begin to expand, fusing inextricably with the dead flesh of [H].</span>"
 
-	H.add_language("Cortical Link")
+	H.add_language(LANGUAGE_CORTICAL)
 
 	if(host.stat == 2)
 		H.verbs |= /mob/living/carbon/human/proc/jumpstart
@@ -173,7 +173,7 @@
 	H.verbs |= /mob/living/carbon/proc/spawn_larvae
 
 	if(H.client)
-		H.ghostize(0)
+		H.daemonize()
 
 	if(src.mind)
 		src.mind.special_role = "Borer Husk"
@@ -294,7 +294,7 @@
 
 			src << "\red <B>You plunge your probosci deep into the cortex of the host brain, interfacing directly with their nervous system.</B>"
 			host << "\red <B>You feel a strange shifting sensation behind your eyes as an alien consciousness displaces yours.</B>"
-			host.add_language("Cortical Link")
+			host.add_language(LANGUAGE_CORTICAL)
 
 			// host -> brain
 			var/h2b_id = host.computer_id
@@ -350,6 +350,6 @@
 	visible_message("<span class='warning'>With a hideous, rattling moan, [src] shudders back to life!</span>")
 
 	rejuvenate()
-	vessel.add_reagent("blood",560-vessel.total_volume)
+	restore_blood()
 	fixblood()
 	update_canmove()

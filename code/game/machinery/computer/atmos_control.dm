@@ -15,9 +15,6 @@
 	var/list/monitored_alarm_ids = null
 	var/datum/nano_module/atmos_control/atmos_control
 
-/obj/machinery/computer/atmoscontrol/New()
-	..()
-
 /obj/machinery/computer/atmoscontrol/laptop
 	name = "Atmospherics Laptop"
 	desc = "A cheap laptop."
@@ -25,6 +22,7 @@
 	icon_keyboard = "laptop_key"
 	icon_screen = "atmoslaptop"
 	density = 0
+	CheckFaceFlag = 0
 
 /obj/machinery/computer/atmoscontrol/attack_ai(var/mob/user as mob)
 	ui_interact(user)

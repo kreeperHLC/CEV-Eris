@@ -47,7 +47,7 @@
 	var/auto_return = 1	// true if auto return to home beacon after unload
 	var/auto_pickup = 1 // true if auto-pickup at beacon
 
-	var/obj/item/weapon/cell/cell
+	var/obj/item/weapon/cell/big/cell
 						// the installed power cell
 
 	// constants for internal wiring bitflags
@@ -59,7 +59,7 @@
 	..()
 	wires = new(src)
 	botcard = new(src)
-	botcard.access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_qm, access_mining, access_mining_station)
+	botcard.access = list(access_maint_tunnels, access_mailsorting, access_cargo, access_cargo_bot, access_merchant, access_mining, access_mining_station)
 	cell = new(src)
 	cell.charge = 2000
 	cell.maxcharge = 2000
@@ -91,8 +91,8 @@
 // cell: insert it
 // other: chance to knock rider off bot
 /obj/machinery/bot/mulebot/attackby(var/obj/item/I, var/mob/user)
-	if(istype(I,/obj/item/weapon/cell) && open && !cell)
-		var/obj/item/weapon/cell/C = I
+	if(istype(I,/obj/item/weapon/cell/big) && open && !cell)
+		var/obj/item/weapon/cell/big/C = I
 		user.drop_item()
 		C.loc = src
 		cell = C
@@ -283,7 +283,7 @@
 
 			if("cellinsert")
 				if(open && !cell)
-					var/obj/item/weapon/cell/C = usr.get_active_hand()
+					var/obj/item/weapon/cell/big/C = usr.get_active_hand()
 					if(istype(C))
 						usr.drop_item()
 						cell = C

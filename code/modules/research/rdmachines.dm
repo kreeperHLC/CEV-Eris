@@ -2,6 +2,7 @@
 
 //All devices that link into the R&D console fall into thise type for easy identification and some shared procs.
 
+var/list/default_material_composition = list("steel" = 0, "glass" = 0, "gold" = 0, "silver" = 0, "plasma" = 0, "uranium" = 0, "diamond" = 0)
 /obj/machinery/r_n_d
 	name = "R&D Device"
 	icon = 'icons/obj/machines/research.dmi'
@@ -10,6 +11,8 @@
 	use_power = 1
 	var/busy = 0
 	var/obj/machinery/computer/rdconsole/linked_console
+
+	var/list/materials = list()
 
 /obj/machinery/r_n_d/attack_hand(mob/user as mob)
 	return
@@ -24,8 +27,8 @@
 			return /obj/item/stack/material/gold
 		if("silver")
 			return /obj/item/stack/material/silver
-		if("phoron")
-			return /obj/item/stack/material/phoron
+		if("plasma")
+			return /obj/item/stack/material/plasma
 		if("uranium")
 			return /obj/item/stack/material/uranium
 		if("diamond")
@@ -42,9 +45,22 @@
 			return "gold"
 		if(/obj/item/stack/material/silver)
 			return "silver"
-		if(/obj/item/stack/material/phoron)
-			return "phoron"
+		if(/obj/item/stack/material/plasma)
+			return "plasma"
 		if(/obj/item/stack/material/uranium)
 			return "uranium"
 		if(/obj/item/stack/material/diamond)
 			return "diamond"
+
+/obj/machinery/r_n_d/proc/eject(var/material, var/amount)
+	if(!(material in materials))
+		return
+	var/obj/item/stack/material/sheetType = getMaterialType(material)
+	var/perUnit = initial(sheetType.perunit)
+	var/eject = round(materials[material] / perUnit)
+	eject = amount == -1 ? eject : min(eject, amount)
+	if(eject < 1)
+		return
+	var/obj/item/stack/material/S = new sheetType(loc)
+	S.amount = eject
+	materials[material] -= eject * perUnit

@@ -1,7 +1,7 @@
 var/datum/antagonist/loyalists/loyalists
 
 /datum/antagonist/loyalists
-	id = MODE_LOYALIST
+	id = ROLE_LOYALIST
 	role_text = "Head Loyalist"
 	role_text_plural = "Loyalists"
 	bantype = "loyalist"
@@ -28,6 +28,8 @@ var/datum/antagonist/loyalists/loyalists
 	faction_indicator = "loyal"
 	faction_invisible = 1
 	restricted_jobs = list("AI", "Cyborg")
+
+	faction = "loyalist"
 
 /datum/antagonist/loyalists/New()
 	..()

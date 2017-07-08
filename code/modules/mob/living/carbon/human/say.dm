@@ -1,9 +1,9 @@
 /mob/living/carbon/human/say(var/message)
 	var/alt_name = ""
-	if(name != GetVoice())
-		alt_name = "(as [get_id_name("Unknown")])"
+	if(name != rank_prefix_name(GetVoice()))
+		alt_name = "(as [rank_prefix_name(get_id_name())])"
 
-	message = sanitize(message)
+	message = capitalize_cp1251(sanitize(message))
 	..(message, alt_name = alt_name)
 
 /mob/living/carbon/human/proc/forcesay(list/append)
@@ -48,9 +48,6 @@
 
 	//These only pertain to common. Languages are handled by mob/say_understands()
 	if (!speaking)
-		if (istype(other, /mob/living/carbon/alien/diona))
-			if(other.languages.len >= 2) //They've sucked down some blood and can speak common now.
-				return 1
 		if (istype(other, /mob/living/silicon))
 			return 1
 		if (istype(other, /mob/living/carbon/brain))
@@ -142,16 +139,6 @@
 		verb = parent[2]
 		if(parent[3])
 			speech_problem_flag = 1
-
-		var/braindam = getBrainLoss()
-		if(braindam >= 60)
-			speech_problem_flag = 1
-			if(prob(braindam/4))
-				message = stutter(message)
-				verb = pick("stammers", "stutters")
-			if(prob(braindam))
-				message = uppertext(message)
-				verb = "yells loudly"
 
 	var/list/returns[3]
 	returns[1] = message

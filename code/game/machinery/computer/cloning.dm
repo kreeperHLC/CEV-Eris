@@ -3,8 +3,7 @@
 	icon = 'icons/obj/computer.dmi'
 	icon_keyboard = "med_key"
 	icon_screen = "dna"
-	light_color = "#315ab4"
-	circuit = /obj/item/weapon/circuitboard/cloning
+	light_color = COLOR_LIME
 	req_access = list(access_heads) //Only used for record deletion right now.
 	var/obj/machinery/dna_scannernew/scanner = null //Linked scanner. For scanning.
 	var/list/pods = list() //Linked cloning pods.
@@ -18,7 +17,7 @@
 
 /obj/machinery/computer/cloning/initialize()
 	..()
-	set_expansion(/datum/expansion/multitool, new/datum/expansion/multitool/cryo(src, list(/proc/is_operable)))
+	set_extension(src, /datum/extension/multitool, /datum/extension/multitool/cryo, list(/proc/is_operable))
 	updatemodules()
 
 /obj/machinery/computer/cloning/Destroy()
@@ -34,7 +33,7 @@
 	var/obj/machinery/dna_scannernew/scannerf = null
 
 	//Try to find scanner on adjacent tiles first
-	for(dir in list(NORTH,EAST,SOUTH,WEST))
+	for(var/dir in list(NORTH,EAST,SOUTH,WEST))
 		scannerf = locate(/obj/machinery/dna_scannernew, get_step(src, dir))
 		if (scannerf)
 			return scannerf
@@ -106,6 +105,8 @@
 	return attack_hand(user)
 
 /obj/machinery/computer/cloning/attack_hand(mob/user as mob)
+	if(..())
+		return
 	user.set_machine(src)
 	add_fingerprint(user)
 
@@ -400,13 +401,13 @@
 	R.name=R.dna.real_name
 	R.types=DNA2_BUF_UI|DNA2_BUF_UE|DNA2_BUF_SE
 	R.languages=subject.languages
-	R.flavor=subject.flavor_texts.Copy()
+	R.flavor=subject.flavor_text
 
 	//Add an implant if needed
 	var/obj/item/weapon/implant/health/imp = locate(/obj/item/weapon/implant/health, subject)
 	if (isnull(imp))
 		imp = new /obj/item/weapon/implant/health(subject)
-		imp.implanted = subject
+		imp.install(subject)
 		R.implant = "\ref[imp]"
 	//Update it if needed
 	else

@@ -8,7 +8,7 @@
 	idle_power_usage = 5
 	active_power_usage = 40000	//40 kW. (this the power drawn when charging)
 	power_channel = EQUIP
-	var/obj/item/weapon/cell/charging = null
+	var/obj/item/weapon/cell/big/charging = null
 	var/chargelevel = -1
 
 /obj/machinery/cell_charger/update_icon()
@@ -16,7 +16,7 @@
 
 	if(charging && !(stat & (BROKEN|NOPOWER)) )
 
-		var/newlevel = 	round(charging.percent() * 4.0 / 99)
+		var/newlevel = round(charging.percent() * 4.0 / 99)
 		//world << "nl: [newlevel]"
 
 		if(chargelevel != newlevel)
@@ -40,7 +40,7 @@
 	if(stat & BROKEN)
 		return
 
-	if(istype(W, /obj/item/weapon/cell) && anchored)
+	if(istype(W, /obj/item/weapon/cell/big) && anchored)
 		if(charging)
 			user << "<span class='warning'>There is already a cell in the charger.</span>"
 			return
@@ -52,8 +52,8 @@
 				user << "<span class='warning'>The [name] blinks red as you try to insert the cell!</span>"
 				return
 
-			user.drop_item()
-			W.loc = src
+			user.drop_from_inventory(W)
+			W.forceMove(src)
 			charging = W
 			user.visible_message("[user] inserts a cell into the charger.", "You insert a cell into the charger.")
 			chargelevel = -1

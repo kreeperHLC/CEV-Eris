@@ -23,7 +23,7 @@
 
 	// Should this all be in Touch()?
 	if(istype(H))
-		if(H != src && check_shields(0, null, H, H.zone_sel.selecting, H.name))
+		if(H != src && check_shields(0, null, H, H.targeted_organ, H.name))
 			H.do_attack_animation(src)
 			return 0
 
@@ -34,7 +34,7 @@
 				playsound(loc, 'sound/weapons/punchmiss.ogg', 25, 1, -1)
 				visible_message("\red <B>[H] has attempted to punch [src]!</B>")
 				return 0
-			var/obj/item/organ/external/affecting = get_organ(ran_zone(H.zone_sel.selecting))
+			var/obj/item/organ/external/affecting = get_organ(ran_zone(H.targeted_organ))
 			var/armor_block = run_armor_check(affecting, "melee")
 
 			if(HULK in H.mutations)
@@ -79,7 +79,7 @@
 
 				H.visible_message("<span class='danger'>\The [H] is trying perform CPR on \the [src]!</span>")
 
-				if(!do_after(H, 30))
+				if(!do_after(H, 30, src))
 					return
 
 				adjustOxyLoss(-(min(getOxyLoss(), 5)))
@@ -117,7 +117,16 @@
 			return 1
 
 		if(I_HURT)
-
+			if(M.targeted_organ == "mouth" && wear_mask && istype(wear_mask, /obj/item/weapon/grenade)) 
+				var/obj/item/weapon/grenade/G = wear_mask 
+				if(!G.active) 
+					visible_message("<span class='danger'>\The [M] pulls the pin from \the [src]'s [G.name]!</span>") 
+					G.activate(M) 
+					update_inv_wear_mask() 
+				else 
+					M << "<span class='warning'>\The [G] is already primed! Run!</span>" 
+				return
+			
 			if(!istype(H))
 				attack_generic(H,rand(1,3),"punched")
 				return
@@ -125,7 +134,7 @@
 			var/rand_damage = rand(1, 5)
 			var/block = 0
 			var/accurate = 0
-			var/hit_zone = H.zone_sel.selecting
+			var/hit_zone = H.targeted_organ
 			var/obj/item/organ/external/affecting = get_organ(hit_zone)
 
 			if(!affecting || affecting.is_stump())
@@ -236,7 +245,7 @@
 
 			if(w_uniform)
 				w_uniform.add_fingerprint(M)
-			var/obj/item/organ/external/affecting = get_organ(ran_zone(M.zone_sel.selecting))
+			var/obj/item/organ/external/affecting = get_organ(ran_zone(M.targeted_organ))
 
 			var/list/holding = list(get_active_hand() = 40, get_inactive_hand = 20)
 
@@ -285,7 +294,7 @@
 
 /mob/living/carbon/human/attack_generic(var/mob/user, var/damage, var/attack_message)
 
-	if(!damage)
+	if(!damage || !istype(user))
 		return
 
 	user.attack_log += text("\[[time_stamp()]\] <font color='red'>attacked [src.name] ([src.ckey])</font>")
@@ -311,7 +320,7 @@
 	if(!has_grab)
 		return 0
 
-	if(!def_zone) def_zone = user.zone_sel.selecting
+	if(!def_zone) def_zone = user.targeted_organ
 	var/target_zone = check_zone(def_zone)
 	if(!target_zone)
 		return 0
@@ -320,7 +329,7 @@
 		return 0
 
 	user.visible_message("<span class='warning'>[user] begins to dislocate [src]'s [organ.joint]!</span>")
-	if(do_after(user, 100))
+	if(do_after(user, 100, progress = 0))
 		organ.dislocate(1)
 		src.visible_message("<span class='danger'>[src]'s [organ.joint] [pick("gives way","caves in","crumbles","collapses")]!</span>")
 		return 1

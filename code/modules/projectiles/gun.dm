@@ -63,6 +63,8 @@
 	var/scoped_accuracy = null
 	var/list/burst_accuracy = list(0) //allows for different accuracies for each shot in a burst. Applied on top of accuracy
 	var/list/dispersion = list(0)
+	var/requires_two_hands
+	var/wielded_icon = "gun_wielded"
 
 	var/next_fire_time = 0
 
@@ -86,17 +88,30 @@
 	if(isnull(scoped_accuracy))
 		scoped_accuracy = accuracy
 
+/obj/item/weapon/gun/update_held_icon()
+	if(requires_two_hands)
+		var/mob/living/M = loc
+		if(istype(M))
+			if((M.l_hand == src && !M.r_hand) || (M.r_hand == src && !M.l_hand))
+				name = "[initial(name)] (wielded)"
+				item_state = wielded_icon
+			else
+				name = initial(name)
+				item_state = initial(item_state)
+				update_icon(ignore_inhands=1) // In case item_state is set somewhere else.
+	..()
+
 //Checks whether a given mob can use the gun
 //Any checks that shouldn't result in handle_click_empty() being called if they fail should go here.
 //Otherwise, if you want handle_click_empty() to be called, check in consume_next_projectile() and return null there.
 /obj/item/weapon/gun/proc/special_check(var/mob/user)
+
 	if(!istype(user, /mob/living))
 		return 0
 	if(!user.IsAdvancedToolUser())
 		return 0
 
 	var/mob/living/M = user
-
 	if(HULK in M.mutations)
 		M << "<span class='danger'>Your fingers are much too large for the trigger guard!</span>"
 		return 0
@@ -132,10 +147,25 @@
 	if(user && user.a_intent == I_HELP) //regardless of what happens, refuse to shoot if help intent is on
 		user << "<span class='warning'>You refrain from firing your [src] as your intent is set to help.</span>"
 	else
+
+
+		var/obj/item/weapon/gun/off_hand   //DUAL WIELDING
+		if(ishuman(user) && user.a_intent == "harm")
+			var/mob/living/carbon/human/H = user
+			if(H.r_hand == src && istype(H.l_hand, /obj/item/weapon/gun))
+				off_hand = H.l_hand
+
+			else if(H.l_hand == src && istype(H.r_hand, /obj/item/weapon/gun))
+				off_hand = H.r_hand
+
+			if(off_hand && off_hand.can_hit(user))
+				spawn(1)
+				off_hand.Fire(A,user,params)
+
 		Fire(A,user,params) //Otherwise, fire normally.
 
 /obj/item/weapon/gun/attack(atom/A, mob/living/user, def_zone)
-	if (A == user && user.zone_sel.selecting == "mouth" && !mouthshoot)
+	if (A == user && user.targeted_organ == "mouth" && !mouthshoot)
 		handle_suicide(user)
 	else if(user.a_intent == I_HURT) //point blank shooting
 		Fire(A, user, pointblank=1)
@@ -160,6 +190,13 @@
 	user.setMoveCooldown(shoot_time) //no moving while shooting either
 	next_fire_time = world.time + shoot_time
 
+	var/held_acc_mod = 0
+	var/held_disp_mod = 0
+	if(requires_two_hands)
+		if((user.l_hand == src && user.r_hand) || (user.r_hand == src && user.l_hand))
+			held_acc_mod = -3
+			held_disp_mod = 3
+
 	//actually attempt to shoot
 	var/turf/targloc = get_turf(target) //cache this in case target gets deleted during shooting, e.g. if it was a securitron that got destroyed.
 	for(var/i in 1 to burst)
@@ -168,14 +205,14 @@
 			handle_click_empty(user)
 			break
 
-		var/acc = burst_accuracy[min(i, burst_accuracy.len)]
-		var/disp = dispersion[min(i, dispersion.len)]
+		var/acc = burst_accuracy[min(i, burst_accuracy.len)] + held_acc_mod
+		var/disp = dispersion[min(i, dispersion.len)] + held_disp_mod
 		process_accuracy(projectile, user, target, acc, disp)
 
 		if(pointblank)
 			process_point_blank(projectile, user, target)
 
-		if(process_projectile(projectile, user, target, user.zone_sel.selecting, clickparams))
+		if(process_projectile(projectile, user, target, user.targeted_organ, clickparams))
 			handle_post_fire(user, target, pointblank, reflex)
 			update_icon()
 
@@ -185,8 +222,6 @@
 		if(!(target && target.loc))
 			target = targloc
 			pointblank = 0
-
-	update_held_icon()
 
 	//update timing
 	user.setClickCooldown(DEFAULT_QUICK_COOLDOWN)
@@ -214,14 +249,14 @@
 		user.visible_message("*click click*", "<span class='danger'>*click*</span>")
 	else
 		src.visible_message("*click click*")
-	playsound(src.loc, 'sound/weapons/empty.ogg', 100, 1)
+	playsound(src.loc, 'sound/weapons/guns/misc/gun_empty.ogg', 100, 1)
 
 //called after successfully firing
 /obj/item/weapon/gun/proc/handle_post_fire(mob/user, atom/target, var/pointblank=0, var/reflex=0)
 	if(silenced)
 		playsound(user, fire_sound, 10, 1)
 	else
-		playsound(user, fire_sound, 50, 1)
+		playsound(user, fire_sound, 60, 1)
 
 		if(reflex)
 			user.visible_message(
@@ -313,9 +348,9 @@
 	var/mob/living/carbon/human/M = user
 
 	mouthshoot = 1
-	M.visible_message("\red [user] sticks their gun in their mouth, ready to pull the trigger...")
-	if(!do_after(user, 40))
-		M.visible_message("\blue [user] decided life was worth living")
+	M.visible_message("<span class='danger'>[user] sticks their gun in their mouth, ready to pull the trigger...</span>")
+	if(!do_after(user, 40, progress=0))
+		M.visible_message("<span class='notice'>[user] decided life was worth living</span>")
 		mouthshoot = 0
 		return
 	var/obj/item/projectile/in_chamber = consume_next_projectile()
@@ -324,7 +359,7 @@
 		if(silenced)
 			playsound(user, fire_sound, 10, 1)
 		else
-			playsound(user, fire_sound, 50, 1)
+			playsound(user, fire_sound, 60, 1)
 		if(istype(in_chamber, /obj/item/projectile/beam/lastertag))
 			user.show_message("<span class = 'warning'>You feel rather silly, trying to commit suicide with a toy.</span>")
 			mouthshoot = 0
@@ -387,5 +422,6 @@
 /obj/item/weapon/gun/attack_self(mob/user)
 	var/datum/firemode/new_mode = switch_firemodes(user)
 	if(new_mode)
+		playsound(src.loc, 'sound/weapons/guns/interact/selector.ogg', 100, 1)
 		user << "<span class='notice'>\The [src] is now set to [new_mode.name].</span>"
 

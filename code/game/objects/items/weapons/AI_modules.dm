@@ -13,9 +13,9 @@ AI MODULES
 	item_state = "electronic"
 	desc = "An AI Module for transmitting encrypted instructions to the AI."
 	flags = CONDUCT
-	force = 5.0
+	force = WEAPON_FORCE_WEAK
 	w_class = 2.0
-	throwforce = 5.0
+	throwforce = WEAPON_FORCE_WEAK
 	throw_speed = 3
 	throw_range = 15
 	origin_tech = list(TECH_DATA = 3)
@@ -34,7 +34,7 @@ AI MODULES
 			usr << "You haven't selected an AI to transmit laws to!"
 			return
 
-		if(ticker && ticker.mode && ticker.mode.name == "blob")
+		if(ticker && ticker.mode && ticker.mode.name == MODE_BLOB)
 			usr << "Law uploads have been disabled by [company_name]!"
 			return
 
@@ -44,8 +44,6 @@ AI MODULES
 			usr << "Upload failed. Only a faint signal is being detected from the AI, and it is not responding to our requests. It may be low on power."
 		else
 			src.transmitInstructions(comp.current, usr)
-			comp.current << "These are your laws now:"
-			comp.current.show_laws()
 			for(var/mob/living/silicon/robot/R in mob_list)
 				if(R.lawupdate && (R.connected_ai == comp.current))
 					R << "These are your laws now:"

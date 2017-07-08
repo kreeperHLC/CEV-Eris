@@ -54,7 +54,7 @@
 /proc/hear(var/range, var/atom/source)
 
 	var/lum = source.luminosity
-	source.luminosity = 6
+	source.luminosity = world.view
 
 	var/list/heard = view(range, source)
 	source.luminosity = lum
@@ -148,40 +148,6 @@
 			turfs += T
 	return turfs
 
-
-
-//var/debug_mob = 0
-
-// Will recursively loop through an atom's contents and check for mobs, then it will loop through every atom in that atom's contents.
-// It will keep doing this until it checks every content possible. This will fix any problems with mobs, that are inside objects,
-// being unable to hear people due to being in a box within a bag.
-
-/proc/recursive_content_check(var/atom/O,  var/list/L = list(), var/recursion_limit = 3, var/client_check = 1, var/sight_check = 1, var/include_mobs = 1, var/include_objects = 1)
-
-	if(!recursion_limit)
-		return L
-
-	for(var/I in O.contents)
-
-		if(ismob(I))
-			if(!sight_check || isInSight(I, O))
-				L |= recursive_content_check(I, L, recursion_limit - 1, client_check, sight_check, include_mobs, include_objects)
-				if(include_mobs)
-					if(client_check)
-						var/mob/M = I
-						if(M.client)
-							L |= M
-					else
-						L |= I
-
-		else if(istype(I,/obj/))
-			if(!sight_check || isInSight(I, O))
-				L |= recursive_content_check(I, L, recursion_limit - 1, client_check, sight_check, include_mobs, include_objects)
-				if(include_objects)
-					L |= I
-
-	return L
-
 // Returns a list of mobs and/or objects in range of R from source. Used in radio and say code.
 
 /proc/get_mobs_or_objects_in_view(var/R, var/atom/source, var/include_mobs = 1, var/include_objects = 1)
@@ -196,13 +162,11 @@
 
 	for(var/I in range)
 		if(ismob(I))
-			hear |= recursive_content_check(I, hear, 3, 1, 0, include_mobs, include_objects)
 			if(include_mobs)
 				var/mob/M = I
 				if(M.client)
 					hear += M
 		else if(istype(I,/obj/))
-			hear |= recursive_content_check(I, hear, 3, 1, 0, include_mobs, include_objects)
 			if(include_objects)
 				hear += I
 
@@ -241,7 +205,7 @@
 			var/turf/ear = get_turf(M)
 			if(ear)
 				// Ghostship is magic: Ghosts can hear radio chatter from anywhere
-				if(speaker_coverage[ear] || (istype(M, /mob/dead/observer) && (M.client) && (M.client.prefs.toggles & CHAT_GHOSTRADIO)))
+				if(speaker_coverage[ear] || (isghost(M) && M.is_preference_enabled(/datum/client_preference/ghost_radio)))
 					. |= M		// Since we're already looping through mobs, why bother using |= ? This only slows things down.
 	return .
 
@@ -320,7 +284,7 @@ proc/isInSight(var/atom/A, var/atom/B)
 	var/list/candidates = list() //List of candidate KEYS to assume control of the new larva ~Carn
 	var/i = 0
 	while(candidates.len <= 0 && i < 5)
-		for(var/mob/dead/observer/G in player_list)
+		for(var/mob/observer/ghost/G in player_list)
 			if(((G.client.inactivity/10)/60) <= buffer + i) // the most active players are more likely to become an alien
 				if(!(G.mind && G.mind.current && G.mind.current.stat != DEAD))
 					candidates += G.key
@@ -333,8 +297,8 @@ proc/isInSight(var/atom/A, var/atom/B)
 	var/list/candidates = list() //List of candidate KEYS to assume control of the new larva ~Carn
 	var/i = 0
 	while(candidates.len <= 0 && i < 5)
-		for(var/mob/dead/observer/G in player_list)
-			if(MODE_XENOMORPH in G.client.prefs.be_special_role)
+		for(var/mob/observer/ghost/G in player_list)
+			if(ROLE_XENOMORPH in G.client.prefs.be_special_role)
 				if(((G.client.inactivity/10)/60) <= ALIEN_SELECT_AFK_BUFFER + i) // the most active players are more likely to become an alien
 					if(!(G.mind && G.mind.current && G.mind.current.stat != DEAD))
 						candidates += G.key
@@ -419,6 +383,23 @@ datum/projectile_data
 			GetGreenPart(hexa),
 			GetBluePart(hexa)
 		)
+
+/proc/iscolor(var/color)
+	var/h = copytext(color,1,2)
+	var/r = GetRedPart(color)
+	var/g = GetGreenPart(color)
+	var/b = GetBluePart(color)
+
+	if(!isnum(r) || r > 255 || r < 0)
+		return FALSE
+	if(!isnum(g) || g > 255 || g < 0)
+		return FALSE
+	if(!isnum(b) || b > 255 || b < 0)
+		return FALSE
+	if(h != "#")
+		return FALSE
+
+	return TRUE
 
 /proc/MixColors(const/list/colors)
 	var/list/reds = list()

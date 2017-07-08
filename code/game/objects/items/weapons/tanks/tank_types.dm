@@ -3,7 +3,7 @@
  *		Oxygen
  *		Anesthetic
  *		Air
- *		Phoron
+ *		Plasma
  *		Emergency Oxygen
  */
 
@@ -14,6 +14,7 @@
 	name = "oxygen tank"
 	desc = "A tank of oxygen."
 	icon_state = "oxygen"
+	force = WEAPON_FORCE_PAINFULL
 	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
 
 
@@ -63,6 +64,7 @@
 	name = "air tank"
 	desc = "Mixed anyone?"
 	icon_state = "oxygen"
+	force = WEAPON_FORCE_PAINFULL
 
 
 	examine(mob/user)
@@ -79,24 +81,25 @@
 
 
 /*
- * Phoron
+ * Plasma
  */
-/obj/item/weapon/tank/phoron
-	name = "phoron tank"
-	desc = "Contains dangerous phoron. Do not inhale. Warning: extremely flammable."
-	icon_state = "phoron"
+/obj/item/weapon/tank/plasma
+	name = "plasma tank"
+	desc = "Contains dangerous plasma. Do not inhale. Warning: extremely flammable."
+	icon_state = "plasma"
+	force = WEAPON_FORCE_NORMAL
 	gauge_icon = null
 	flags = CONDUCT
 	slot_flags = null	//they have no straps!
 
 
-/obj/item/weapon/tank/phoron/New()
+/obj/item/weapon/tank/plasma/New()
 	..()
 
-	src.air_contents.adjust_gas("phoron", (3*ONE_ATMOSPHERE)*70/(R_IDEAL_GAS_EQUATION*T20C))
+	src.air_contents.adjust_gas("plasma", (3*ONE_ATMOSPHERE)*70/(R_IDEAL_GAS_EQUATION*T20C))
 	return
 
-/obj/item/weapon/tank/phoron/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/item/weapon/tank/plasma/attackby(obj/item/weapon/W as obj, mob/user as mob)
 	..()
 
 	if (istype(W, /obj/item/weapon/flamethrower))
@@ -120,7 +123,7 @@
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	w_class = 2.0
-	force = 4.0
+	force = WEAPON_FORCE_NORMAL
 	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
 	volume = 2 //Tiny. Real life equivalents only have 21 breaths of oxygen in them. They're EMERGENCY tanks anyway -errorage (dangercon 2011)
 
@@ -148,37 +151,13 @@
 	gauge_icon = "indicator_emergency_double"
 	volume = 10
 
-/obj/item/weapon/tank/emergency_nitrogen
-	name = "emergency nitrogen tank"
-	desc = "An emergency air tank hastily painted red and issued to Vox crewmembers."
-	icon_state = "emergency_nitro"
-	gauge_icon = "indicator_emergency"
-	gauge_cap = 4
-	flags = CONDUCT
-	slot_flags = SLOT_BELT
-	w_class = 2.0
-	force = 4.0
-	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
-	volume = 2
-	
-	New()
-		..()
-		src.air_contents.adjust_gas("nitrogen", (3*ONE_ATMOSPHERE)*volume/(R_IDEAL_GAS_EQUATION*T20C))
-
-		return
-
-
-	examine(mob/user)
-		if(..(user, 0) && air_contents.gas["nitrogen"] < 0.2 && loc==user)
-			user << text("<span class='danger'>The meter on \the [src] indicates you are almost out of air!</span>")
-			user << sound('sound/effects/alert.ogg')
-
 /*
  * Nitrogen
  */
 /obj/item/weapon/tank/nitrogen
 	name = "nitrogen tank"
 	desc = "A tank of nitrogen."
+	force = WEAPON_FORCE_PAINFULL
 	icon_state = "oxygen_fr"
 	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
 

@@ -1,45 +1,35 @@
 /mob/living/carbon/human
 	//Hair colour and style
-	var/r_hair = 0
-	var/g_hair = 0
-	var/b_hair = 0
+	var/hair_color = "#000000"
 	var/h_style = "Bald"
 
 	//Facial hair colour and style
-	var/r_facial = 0
-	var/g_facial = 0
-	var/b_facial = 0
+	var/facial_color = "#000000"
 	var/f_style = "Shaved"
 
 	//Eye colour
-	var/r_eyes = 0
-	var/g_eyes = 0
-	var/b_eyes = 0
+	var/eyes_color = "#000000"
 
 	var/s_tone = 0	//Skin tone
 
 	//Skin colour
-	var/r_skin = 0
-	var/g_skin = 0
-	var/b_skin = 0
+	var/skin_color = "#000000"
 
 	var/size_multiplier = 1 //multiplier for the mob's icon size
 	var/damage_multiplier = 1 //multiplies melee combat damage
 	var/icon_update = 1 //whether icon updating shall take place
+
+	var/datum/body_build/body_build = null
 
 	var/lip_style = null	//no lipstick by default- arguably misleading, as it could be used for general makeup
 
 	var/age = 30		//Player's age (pure fluff)
 	var/b_type = "A+"	//Player's bloodtype
 
-	var/underwear = 1	//Which underwear the player wants
-	var/undershirt = 0	//Which undershirt the player wants.
+	var/list/all_underwear = list()
 	var/backbag = 2		//Which backpack type the player has chosen. Nothing, Satchel or Backpack.
 
 	// General information
-	var/home_system = ""
-	var/citizenship = ""
-	var/personal_faction = ""
 	var/religion = ""
 
 	//Equipment slots
@@ -56,10 +46,6 @@
 	var/obj/item/r_store = null
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
-
-	var/used_skillpoints = 0
-	var/skill_specialization = null
-	var/list/skills = list()
 
 	var/icon/stand_icon = null
 	var/icon/lying_icon = null
@@ -79,7 +65,6 @@
 	var/mob/remoteview_target = null
 	var/hand_blood_color
 
-	var/list/flavor_texts = list()
 	var/gunshot_residue
 	var/pulling_punches // Are you trying not to hurt your opponent?
 
@@ -94,3 +79,11 @@
 	var/equipment_see_invis					// Max see invibility level granted by equipped items
 	var/equipment_prescription				// Eye prescription granted by equipped items
 	var/list/equipment_overlays = list()	// Extra overlays from equipped items
+
+	var/med_record = ""
+	var/sec_record = ""
+	var/gen_record = ""
+	var/exploit_record = ""
+
+	var/stance_damage = 0 //Whether this mob's ability to stand has been affected
+	var/identifying_gender // In case the human identifies as another gender than it's biological

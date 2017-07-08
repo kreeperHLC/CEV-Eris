@@ -104,11 +104,9 @@ var/const/RADIO_HIGH_FREQ	= 1600
 
 var/const/BOT_FREQ	= 1447
 var/const/COMM_FREQ = 1353
-var/const/ERT_FREQ	= 1345
 var/const/AI_FREQ	= 1343
 var/const/DTH_FREQ	= 1341
 var/const/SYND_FREQ = 1213
-var/const/ENT_FREQ	= 1461 //entertainment frequency. This is not a diona exclusive frequency.
 
 // department channels
 var/const/PUB_FREQ = 1459
@@ -130,25 +128,23 @@ var/list/radiochannels = list(
 	"Medical"		= MED_FREQ,
 	"Engineering"	= ENG_FREQ,
 	"Security" 		= SEC_FREQ,
-	"Response Team" = ERT_FREQ,
 	"Special Ops" 	= DTH_FREQ,
 	"Mercenary" 	= SYND_FREQ,
 	"Supply" 		= SUP_FREQ,
 	"Service" 		= SRV_FREQ,
 	"AI Private"	= AI_FREQ,
-	"Entertainment" = ENT_FREQ,
 	"Medical(I)"	= MED_I_FREQ,
 	"Security(I)"	= SEC_I_FREQ
 )
 
-// central command channels, i.e deathsquid & response teams
-var/list/CENT_FREQS = list(ERT_FREQ, DTH_FREQ)
+// central command channels, i.e deathsquid
+var/list/CENT_FREQS = list(DTH_FREQ)
 
 // Antag channels, i.e. Syndicate
 var/list/ANTAG_FREQS = list(SYND_FREQ)
 
 //Department channels, arranged lexically
-var/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FREQ, SCI_FREQ, SRV_FREQ, SUP_FREQ, ENT_FREQ)
+var/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FREQ, SCI_FREQ, SRV_FREQ, SUP_FREQ)
 
 #define TRANSMISSION_WIRE	0
 #define TRANSMISSION_RADIO	1
@@ -157,7 +153,7 @@ var/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FREQ, SCI
 	// Antags!
 	if (frequency in ANTAG_FREQS)
 		return "syndradio"
-	// centcomm channels (deathsquid and ert)
+	// centcomm channels
 	if(frequency in CENT_FREQS)
 		return "centradio"
 	// command channel
@@ -179,8 +175,6 @@ var/list/DEPT_FREQS = list(AI_FREQ, COMM_FREQ, ENG_FREQ, MED_FREQ, SEC_FREQ, SCI
 		return "supradio"
 	if(frequency == SRV_FREQ) // service
 		return "srvradio"
-	if(frequency == ENT_FREQ) //entertainment
-		return "entradio"
 	if(frequency in DEPT_FREQS)
 		return "deptradio"
 
@@ -277,7 +271,6 @@ var/global/datum/controller/radio/radio_controller
 /datum/radio_frequency/proc/send_to_filter(obj/source, datum/signal/signal, var/filter, var/turf/start_point = null, var/range = null)
 	if (range && !start_point)
 		return
-
 	for(var/obj/device in devices[filter])
 		if(device == source)
 			continue
@@ -285,9 +278,8 @@ var/global/datum/controller/radio/radio_controller
 			var/turf/end_point = get_turf(device)
 			if(!end_point)
 				continue
-			if(start_point.z!=end_point.z || get_dist(start_point, end_point) > range)
+			if(start_point.z != end_point.z || get_dist(start_point, end_point) > range)
 				continue
-
 		device.receive_signal(signal, TRANSMISSION_RADIO, frequency)
 
 /datum/radio_frequency/proc/add_listener(obj/device as obj, var/filter as text|null)
@@ -307,7 +299,7 @@ var/global/datum/controller/radio/radio_controller
 /datum/radio_frequency/proc/remove_listener(obj/device)
 	for (var/devices_filter in devices)
 		var/list/devices_line = devices[devices_filter]
-		devices_line-=device
+		devices_line -= device
 		while (null in devices_line)
 			devices_line -= null
 		if (devices_line.len==0)

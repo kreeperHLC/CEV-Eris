@@ -1,6 +1,6 @@
 /mob/living/carbon/human/proc/handle_strip(var/slot_to_strip,var/mob/living/user)
 
-	if(!slot_to_strip || !istype(user))
+	if(!slot_to_strip || !user.IsAdvancedToolUser())
 		return
 
 	if(user.incapacitated()  || !user.Adjacent(src))
@@ -13,22 +13,22 @@
 		// Handle things that are part of this interface but not removing/replacing a given item.
 		if("pockets")
 			visible_message("<span class='danger'>\The [user] is trying to empty \the [src]'s pockets!</span>")
-			if(do_after(user,HUMAN_STRIP_DELAY))
+			if(do_mob(user,src,HUMAN_STRIP_DELAY,progress = 0))
 				empty_pockets(user)
 			return
 		if("splints")
 			visible_message("<span class='danger'>\The [user] is trying to remove \the [src]'s splints!</span>")
-			if(do_after(user,HUMAN_STRIP_DELAY))
+			if(do_mob(user,src,HUMAN_STRIP_DELAY,progress = 0))
 				remove_splints(user)
 			return
 		if("sensors")
 			visible_message("<span class='danger'>\The [user] is trying to set \the [src]'s sensors!</span>")
-			if(do_after(user,HUMAN_STRIP_DELAY))
+			if(do_mob(user,src,HUMAN_STRIP_DELAY,progress = 0))
 				toggle_sensors(user)
 			return
 		if("internals")
 			visible_message("<span class='danger'>\The [usr] is trying to set \the [src]'s internals!</span>")
-			if(do_after(user,HUMAN_STRIP_DELAY))
+			if(do_mob(user,src,HUMAN_STRIP_DELAY, progress = 0))
 				toggle_internals(user)
 			return
 		if("tie")
@@ -40,7 +40,7 @@
 				return
 			visible_message("<span class='danger'>\The [usr] is trying to remove \the [src]'s [A.name]!</span>")
 
-			if(!do_after(user,HUMAN_STRIP_DELAY))
+			if(!do_mob(user,src,HUMAN_STRIP_DELAY,progress=0))
 				return
 
 			if(!A || suit.loc != src || !(A in suit.accessories))
@@ -71,7 +71,7 @@
 	else
 		visible_message("<span class='danger'>\The [user] is trying to put \a [held] on \the [src]!</span>")
 
-	if(!do_after(user,HUMAN_STRIP_DELAY))
+	if(!do_mob(user,src,HUMAN_STRIP_DELAY,progress = 0))
 		return
 
 	if(!stripping && user.get_active_hand() != held)
@@ -138,8 +138,9 @@
 	if(internal)
 		internal.add_fingerprint(user)
 		internal = null
-		if(internals)
-			internals.icon_state = "internal0"
+		if(HUDneed.Find("internal"))
+			var/obj/screen/HUDelm = HUDneed["internal"]
+			HUDelm.icon_state = "internal0"
 	else
 		// Check for airtight mask/helmet.
 		if(!(istype(wear_mask, /obj/item/clothing/mask) || istype(head, /obj/item/clothing/head/helmet/space)))
@@ -155,7 +156,10 @@
 	if(internal)
 		visible_message("<span class='warning'>\The [src] is now running on internals!</span>")
 		internal.add_fingerprint(user)
-		if (internals)
-			internals.icon_state = "internal1"
+/*		if (internals)
+			internals.icon_state = "internal1"*/
+		if(HUDneed.Find("internal"))
+			var/obj/screen/HUDelm = HUDneed["internal"]
+			HUDelm.icon_state = "internal1"
 	else
 		visible_message("<span class='danger'>\The [user] disables \the [src]'s internals!</span>")

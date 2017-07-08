@@ -5,7 +5,7 @@
 	desc = "Used to access the various cameras on the station."
 	icon_keyboard = "security_key"
 	icon_screen = "cameras"
-	light_color = "#a91515"
+	light_color = COLOR_WHITE
 	var/current_network = null
 	var/obj/machinery/camera/current_camera = null
 	var/last_pic = 1.0
@@ -92,8 +92,8 @@
 		if (src.z > 6)
 			user << "<span class='danger'>Unable to establish a connection:</span> You're too far away from the station!"
 			return
-		if(stat & (NOPOWER|BROKEN))	return
-
+		if(..())
+			return
 		if(!isAI(user))
 			user.set_machine(src)
 		ui_interact(user)

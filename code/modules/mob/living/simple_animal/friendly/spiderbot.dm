@@ -9,7 +9,7 @@
 
 	var/obj/item/device/radio/borg/radio = null
 	var/mob/living/silicon/ai/connected_ai = null
-	var/obj/item/weapon/cell/cell = null
+	var/obj/item/weapon/cell/big/cell = null
 	var/obj/machinery/camera/camera = null
 	var/obj/item/device/mmi/mmi = null
 	var/list/req_access = list(access_robotics) //Access needed to pop out the brain.
@@ -43,8 +43,8 @@
 
 /mob/living/simple_animal/spiderbot/New()
 	..()
-	add_language("Galactic Common")
-	default_language = all_languages["Galactic Common"]
+	add_language(LANGUAGE_COMMON)
+	default_language = all_languages[LANGUAGE_COMMON]
 	verbs |= /mob/living/proc/ventcrawl
 	verbs |= /mob/living/proc/hide
 
@@ -61,7 +61,7 @@
 		if(!B.brainmob.key)
 			var/ghost_can_reenter = 0
 			if(B.brainmob.mind)
-				for(var/mob/dead/observer/G in player_list)
+				for(var/mob/observer/ghost/G in player_list)
 					if(G.can_reenter_corpse && G.mind == B.brainmob.mind)
 						ghost_can_reenter = 1
 						break
@@ -81,7 +81,7 @@
 
 		if(istype(O, /obj/item/device/mmi/digital))
 			positronic = 1
-			add_language("Robot Talk")
+			add_language(LANGUAGE_ROBOT)
 
 		user.drop_item()
 		src.mmi = O
@@ -130,7 +130,7 @@
 			return 0
 
 	else
-		O.attack(src, user, user.zone_sel.selecting)
+		O.attack(src, user, user.targeted_organ)
 
 /mob/living/simple_animal/spiderbot/emag_act(var/remaining_charges, var/mob/user)
 	if (emagged)
@@ -177,7 +177,7 @@
 		real_name = initial(real_name)
 		name = real_name
 		update_icon()
-	remove_language("Robot Talk")
+	remove_language(LANGUAGE_ROBOT)
 	positronic = null
 
 /mob/living/simple_animal/spiderbot/Destroy()
@@ -204,7 +204,7 @@
 	held_item.loc = src.loc
 	held_item = null
 
-	gibs(loc, viruses, null, null, /obj/effect/gibspawner/robot) //TODO: use gib() or refactor spiderbots into synthetics.
+	gibs(loc, null, null, /obj/effect/gibspawner/robot) //TODO: use gib() or refactor spiderbots into synthetics.
 	qdel(src)
 	return
 

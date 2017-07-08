@@ -9,7 +9,7 @@ var/global/universe_has_ended = 0
 
 /datum/universal_state/supermatter_cascade/OnShuttleCall(var/mob/user)
 	if(user)
-		user << "<span class='sinister'>All you hear on the frequency is static and panicked screaming. There will be no shuttle call today.</span>"
+		user << "<span class='sinister'>All you hear on the frequency is static and panicked screaming. There is no escape.</span>"
 	return 0
 
 /datum/universal_state/supermatter_cascade/OnTurfChange(var/turf/T)
@@ -42,11 +42,12 @@ var/global/universe_has_ended = 0
 
 	world << sound('sound/effects/cascade.ogg')
 
-	for(var/mob/M in player_list)
-		flick("e_flash", M.flash)
+	for(var/mob/living/M in player_list)
+		if (M.HUDtech.Find("flash"))
+			flick("e_flash", M.HUDtech["flash"])
 
 	if(emergency_shuttle.can_recall())
-		priority_announcement.Announce("The emergency shuttle has returned due to bluespace distortion.")
+		priority_announcement.Announce("The evacuation has been aborted due to bluespace distortion.")
 		emergency_shuttle.recall()
 
 	AreaSet()
@@ -95,9 +96,9 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 	spawn(0)
 		for(var/atom/movable/lighting_overlay/L in world)
 			if(L.z in config.admin_levels)
-				L.update_lumcount(1,1,1)
+				L.update_overlay(1,1,1)
 			else
-				L.update_lumcount(0.0, 0.4, 1)
+				L.update_overlay(0.0, 0.4, 1)
 
 		for(var/turf/space/T in turfs)
 			OnTurfChange(T)
@@ -122,6 +123,8 @@ The access requirements on the Asteroid Shuttles' consoles have now been revoked
 			continue
 		if(M.current.stat!=2)
 			M.current.Weaken(10)
-			flick("e_flash", M.current.flash)
+//			flick("e_flash", M.current.flash)
+			if (M.current.HUDtech.Find("flash"))
+				flick("e_flash", M.current.HUDtech["flash"])
 
 		clear_antag_roles(M)

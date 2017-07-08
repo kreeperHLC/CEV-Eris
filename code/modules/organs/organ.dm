@@ -6,8 +6,8 @@ var/list/organ_cache = list()
 	var/dead_icon
 	var/mob/living/carbon/human/owner = null
 	var/status = 0
-	var/vital //Lose a vital limb, die immediately.
-	var/damage = 0 // amount of damage to the organ
+	var/vital 		//Lose a vital limb, die immediately.
+	var/damage = 0 	// amount of damage to the organ
 
 	var/min_bruised_damage = 10
 	var/min_broken_damage = 30
@@ -15,6 +15,7 @@ var/list/organ_cache = list()
 	var/organ_tag = "organ"
 
 	var/parent_organ = "chest"
+	var/obj/item/organ/external/parent
 	var/robotic = 0 //For being a robot
 	var/rejecting   // Is this organ already being rejected?
 
@@ -48,8 +49,9 @@ var/list/organ_cache = list()
 /obj/item/organ/proc/update_health()
 	return
 
-/obj/item/organ/New(var/mob/living/carbon/holder, var/internal)
+/obj/item/organ/New(var/mob/living/carbon/holder, var/datum/organ_description/OD)
 	..(holder)
+	var/internal = !istype(src, /obj/item/organ/external)
 	create_reagents(5)
 	if(!max_damage)
 		max_damage = min_broken_damage * 2
@@ -73,14 +75,21 @@ var/list/organ_cache = list()
 				if(!blood_DNA)
 					blood_DNA = list()
 				blood_DNA[dna.unique_enzymes] = dna.b_type
+				if(internal)
+					H.internal_organs_by_name[src.organ_tag] = src
 		if(internal)
 			holder.internal_organs |= src
+	if(internal)
+		update_icon()
 
 /obj/item/organ/proc/set_dna(var/datum/dna/new_dna)
 	if(new_dna)
 		dna = new_dna.Clone()
+		if(!blood_DNA)
+			blood_DNA = list()
 		blood_DNA.Cut()
 		blood_DNA[dna.unique_enzymes] = dna.b_type
+		species = all_species[new_dna.species]
 
 /obj/item/organ/proc/die()
 	if(status & ORGAN_ROBOT)
@@ -125,7 +134,7 @@ var/list/organ_cache = list()
 		if(germ_level >= INFECTION_LEVEL_THREE)
 			die()
 
-	else if(owner.bodytemperature >= 170)	//cryo stops germs from moving and doing their bad stuffs
+	else if(owner && owner.bodytemperature >= 170)	//cryo stops germs from moving and doing their bad stuffs
 		//** Handle antibiotics and curing infections
 		handle_antibiotics()
 		handle_rejection()
@@ -203,7 +212,9 @@ var/list/organ_cache = list()
 
 //Germs
 /obj/item/organ/proc/handle_antibiotics()
-	var/antibiotics = owner.reagents.get_reagent_amount("spaceacillin")
+	var/antibiotics = 0
+	if(owner)
+		antibiotics = owner.reagents.get_reagent_amount("spaceacillin")
 
 	if (!germ_level || antibiotics < 5)
 		return
@@ -263,14 +274,12 @@ var/list/organ_cache = list()
 	if(!(status & ORGAN_ROBOT))
 		return
 	switch (severity)
-		if (1.0)
-			take_damage(20)
-			return
-		if (2.0)
-			take_damage(7)
-			return
-		if(3.0)
+		if (1)
+			take_damage(9)
+		if (2)
 			take_damage(3)
+		if (3)
+			take_damage(1)
 
 /obj/item/organ/proc/removed(var/mob/living/user)
 
@@ -325,16 +334,6 @@ var/list/organ_cache = list()
 	if(robotic)
 		status |= ORGAN_ROBOT
 
-/obj/item/organ/eyes/replaced(var/mob/living/carbon/human/target)
-
-	// Apply our eye colour to the target.
-	if(istype(target) && eye_colour)
-		target.r_eyes = eye_colour[1]
-		target.g_eyes = eye_colour[2]
-		target.b_eyes = eye_colour[3]
-		target.update_eyes()
-	..()
-
 /obj/item/organ/proc/bitten(mob/user)
 
 	if(robotic)
@@ -363,6 +362,21 @@ var/list/organ_cache = list()
 /obj/item/organ/attack_self(mob/user as mob)
 
 	// Convert it to an edible form, yum yum.
-	if(!robotic && user.a_intent == "help" && user.zone_sel.selecting == "mouth")
+	if(!robotic && user.a_intent == I_HELP && user.targeted_organ == "mouth")
 		bitten(user)
 		return
+
+/obj/item/organ/proc/install(mob/living/carbon/human/H)
+	if(!istype(H))
+		return 1
+
+	owner = H
+	forceMove(owner)
+	if(parent_organ)
+		parent = H.get_organ(parent_organ)
+
+	if(H.dna)
+		if(!blood_DNA)
+			blood_DNA = list()
+		blood_DNA[H.dna.unique_enzymes] = H.dna.b_type
+	processing_objects -= src

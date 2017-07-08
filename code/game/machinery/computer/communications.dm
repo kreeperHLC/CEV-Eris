@@ -29,7 +29,6 @@
 	var/const/STATE_STATUSDISPLAY = 7
 	var/const/STATE_ALERT_LEVEL = 8
 	var/const/STATE_CONFIRM_LEVEL = 9
-	var/const/STATE_CREWTRANSFER = 10
 
 	var/status_display_freq = "1435"
 	var/stat_msg1
@@ -76,34 +75,19 @@
 			crew_announcement.announcer = ""
 
 		if("swipeidseclevel")
-			var/mob/M = usr
-			var/obj/item/weapon/card/id/I = M.get_active_hand()
-			if (istype(I, /obj/item/device/pda))
-				var/obj/item/device/pda/pda = I
-				I = pda.id
-			if (I && istype(I))
-				if(access_heads in I.access) //Let heads change the alert level.
-					var/old_level = security_level
-					if(!tmp_alertlevel) tmp_alertlevel = SEC_LEVEL_GREEN
-					if(tmp_alertlevel < SEC_LEVEL_GREEN) tmp_alertlevel = SEC_LEVEL_GREEN
-					if(tmp_alertlevel > SEC_LEVEL_BLUE) tmp_alertlevel = SEC_LEVEL_BLUE //Cannot engage delta with this
-					set_security_level(tmp_alertlevel)
-					if(security_level != old_level)
-						//Only notify the admins if an actual change happened
-						log_game("[key_name(usr)] has changed the security level to [get_security_level()].")
-						message_admins("[key_name_admin(usr)] has changed the security level to [get_security_level()].")
-						switch(security_level)
-							if(SEC_LEVEL_GREEN)
-								feedback_inc("alert_comms_green",1)
-							if(SEC_LEVEL_BLUE)
-								feedback_inc("alert_comms_blue",1)
-					tmp_alertlevel = 0
-				else:
-					usr << "You are not authorized to do this."
-					tmp_alertlevel = 0
+			if(src.authenticated) //Let heads change the alert level.
+				var/old_level = security_level
+				if(!tmp_alertlevel) tmp_alertlevel = SEC_LEVEL_GREEN
+				if(tmp_alertlevel < SEC_LEVEL_GREEN) tmp_alertlevel = SEC_LEVEL_GREEN
+				if(tmp_alertlevel > SEC_LEVEL_BLUE) tmp_alertlevel = SEC_LEVEL_BLUE //Cannot engage delta with this
+				set_security_level(tmp_alertlevel)
+				if(security_level != old_level)
+					//Only notify the admins if an actual change happened
+					log_game("[key_name(usr)] has changed the security level to [get_security_level()].")
+					message_admins("[key_name_admin(usr)] has changed the security level to [get_security_level()].")
+
+				tmp_alertlevel = 0
 				state = STATE_DEFAULT
-			else
-				usr << "You need to swipe your ID."
 
 		if("announce")
 			if(src.authenticated==1)
@@ -181,7 +165,7 @@
 			stat_msg2 = reject_bad_text(sanitize(input("Line 2", "Enter Message Text", stat_msg2) as text|null, 40), 40)
 			src.updateDialog()
 
-		// OMG CENTCOMM LETTERHEAD
+//noway
 		if("MessageCentcomm")
 			if(src.authenticated==1)
 				if(centcomm_message_cooldown)
@@ -193,12 +177,9 @@
 				var/input = sanitize(input("Please choose a message to transmit to [boss_short] via quantum entanglement.  Please be aware that this process is very expensive, and abuse will lead to... termination.  Transmission does not guarantee a response. There is a 30 second delay before you may send another message, be clear, full and concise.", "To abort, send an empty message.", ""))
 				if(!input || !(usr in view(1,src)))
 					return
-				Centcomm_announce(input, usr)
-				usr << "<span class='notice'>Message transmitted.</span>"
+				usr << "<span class='notice'>No response from the remote server. Please, contact your system administrator.</span>"
 				log_say("[key_name(usr)] has made an IA [boss_short] announcement: [input]")
 				centcomm_message_cooldown = 1
-				spawn(300)//30 second cooldown
-					centcomm_message_cooldown = 0
 
 
 		// OMG SYNDICATE ...LETTERHEAD
@@ -210,12 +191,10 @@
 				var/input = sanitize(input(usr, "Please choose a message to transmit to \[ABNORMAL ROUTING CORDINATES\] via quantum entanglement.  Please be aware that this process is very expensive, and abuse will lead to... termination. Transmission does not guarantee a response. There is a 30 second delay before you may send another message, be clear, full and concise.", "To abort, send an empty message.", ""))
 				if(!input || !(usr in view(1,src)))
 					return
-				Syndicate_announce(input, usr)
-				usr << "<span class='notice'>Message transmitted.</span>"
+				usr << "<span class='notice'>No response from the remote server. Please, contact your system administrator.</span>"
 				log_say("[key_name(usr)] has made an illegal announcement: [input]")
 				centcomm_message_cooldown = 1
-				spawn(300)//10 minute cooldown
-					centcomm_message_cooldown = 0
+
 
 		if("RestoreBackup")
 			usr << "Backup routing data restored!"
@@ -286,7 +265,7 @@
 	user.set_machine(src)
 	var/dat = "<head><title>Communications Console</title></head><body>"
 	if (emergency_shuttle.has_eta())
-		var/timeleft = emergency_shuttle.estimate_arrival_time()
+		var/timeleft = emergency_shuttle.estimate_prepare_time()
 		dat += "<B>Emergency shuttle</B>\n<BR>\nETA: [timeleft / 60 % 60]:[add_zero(num2text(timeleft % 60), 2)]<BR>"
 
 	if (istype(user, /mob/living/silicon))
@@ -366,7 +345,7 @@
 		if(STATE_CONFIRM_LEVEL)
 			dat += "Current alert level: [get_security_level()]<BR>"
 			dat += "Confirm the change to: [num2seclevel(tmp_alertlevel)]<BR>"
-			dat += "<A HREF='?src=\ref[src];operation=swipeidseclevel'>Swipe ID</A> to confirm change.<BR>"
+			dat += "<A HREF='?src=\ref[src];operation=swipeidseclevel'>OK</A> to confirm change.<BR>"
 
 	dat += "<BR>\[ [(src.state != STATE_DEFAULT) ? "<A HREF='?src=\ref[src];operation=main'>Main Menu</A> | " : ""]<A HREF='?src=\ref[user];mach_close=communications'>Close</A> \]"
 	user << browse(dat, "window=communications;size=400x500")
@@ -454,7 +433,7 @@
 		user << "The emergency shuttle is already on its way."
 		return
 
-	if(ticker.mode.name == "blob")
+	if(ticker.mode.name == MODE_BLOB)
 		user << "Under directive 7-10, [station_name()] is quarantined until further notice."
 		return
 
@@ -495,11 +474,9 @@
 			//New version pretends to call the shuttle but cause the shuttle to return after a random duration.
 			emergency_shuttle.auto_recall = 1
 
-		if(ticker.mode.name == "blob" || ticker.mode.name == "epidemic")
+		if(ticker.mode.name == MODE_BLOB || ticker.mode.name == MODE_EPIDEMIC)
 			user << "Under directive 7-10, [station_name()] is quarantined until further notice."
 			return
-
-	emergency_shuttle.call_transfer()
 
 	//delay events in case of an autotransfer
 	if (isnull(user))
@@ -514,7 +491,7 @@
 /proc/cancel_call_proc(var/mob/user)
 	if (!( ticker ) || !emergency_shuttle.can_recall())
 		return
-	if((ticker.mode.name == "blob")||(ticker.mode.name == "Meteor"))
+	if((ticker.mode.name == MODE_BLOB)||(ticker.mode.name == MODE_METEOR))
 		return
 
 	if(!emergency_shuttle.going_to_centcom()) //check that shuttle isn't already heading to centcomm

@@ -29,6 +29,7 @@
 		user << "This device is not powered."
 		return
 	if(istype(W,/obj/item/weapon/card/id))
+		playsound(usr.loc, 'sound/machines/id_swipe.ogg', 100, 1)
 		var/obj/item/weapon/card/id/ID = W
 		if(access_keycard_auth in ID.access)
 			if(active == 1)
@@ -65,9 +66,6 @@
 	if(screen == 1)
 		dat += "Select an event to trigger:<ul>"
 		dat += "<li><A href='?src=\ref[src];triggerevent=Red alert'>Red alert</A></li>"
-		if(!config.ert_admin_call_only)
-			dat += "<li><A href='?src=\ref[src];triggerevent=Emergency Response Team'>Emergency Response Team</A></li>"
-
 		dat += "<li><A href='?src=\ref[src];triggerevent=Grant Emergency Maintenance Access'>Grant Emergency Maintenance Access</A></li>"
 		dat += "<li><A href='?src=\ref[src];triggerevent=Revoke Emergency Maintenance Access'>Revoke Emergency Maintenance Access</A></li>"
 		dat += "</ul>"
@@ -94,6 +92,7 @@
 		reset()
 
 	updateUsrDialog()
+	playsound(usr.loc, 'sound/machines/button.ogg', 100, 1)
 	add_fingerprint(usr)
 	return
 
@@ -142,24 +141,12 @@
 	switch(event)
 		if("Red alert")
 			set_security_level(SEC_LEVEL_RED)
-			feedback_inc("alert_keycard_auth_red",1)
+
 		if("Grant Emergency Maintenance Access")
 			make_maint_all_access()
-			feedback_inc("alert_keycard_auth_maintGrant",1)
+
 		if("Revoke Emergency Maintenance Access")
 			revoke_maint_all_access()
-			feedback_inc("alert_keycard_auth_maintRevoke",1)
-		if("Emergency Response Team")
-			if(is_ert_blocked())
-				usr << "\red All emergency response teams are dispatched and can not be called at this time."
-				return
-
-			trigger_armed_response_team(1)
-			feedback_inc("alert_keycard_auth_ert",1)
-
-/obj/machinery/keycard_auth/proc/is_ert_blocked()
-	if(config.ert_admin_call_only) return 1
-	return ticker.mode && ticker.mode.ert_disabled
 
 var/global/maint_all_access = 0
 

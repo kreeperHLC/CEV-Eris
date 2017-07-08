@@ -39,6 +39,12 @@
 	spawn(2)
 		updateMineralOverlays(1)
 
+/turf/simulated/mineral/can_build_cable()
+	return !density
+
+/turf/simulated/mineral/is_plating()
+	return 1
+
 /turf/simulated/mineral/proc/updateMineralOverlays(var/update_neighbors)
 	var/list/step_overlays = list("s" = NORTH, "n" = SOUTH, "w" = EAST, "e" = WEST)
 	for(var/direction in step_overlays)
@@ -109,10 +115,9 @@
 	new /obj/effect/mineral(src, mineral)
 
 //Not even going to touch this pile of spaghetti
-/turf/simulated/mineral/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/turf/simulated/mineral/attackby(obj/item/weapon/W, mob/living/user)
 
-	if (!(istype(usr, /mob/living/carbon/human) || ticker) && ticker.mode.name != "monkey")
-		usr << "\red You don't have the dexterity to do this!"
+	if (!user.IsAdvancedToolUser())
 		return
 
 	if (istype(W, /obj/item/device/core_sampler))
@@ -128,9 +133,9 @@
 
 	if (istype(W, /obj/item/device/measuring_tape))
 		var/obj/item/device/measuring_tape/P = W
-		user.visible_message("\blue[user] extends [P] towards [src].","\blue You extend [P] towards [src].")
-		if(do_after(user,25))
-			user << "\blue \icon[P] [src] has been excavated to a depth of [2*excavation_level]cm."
+		user.visible_message("<span class='notice'>\The [user] extends [P] towards [src].</span>","<span class='notice'>You extend [P] towards [src].</span>")
+		if(do_after(user,25, src))
+			user << "<span class='notice'>\icon[P] [src] has been excavated to a depth of [2*excavation_level]cm.</span>"
 		return
 
 	if (istype(W, /obj/item/weapon/pickaxe))
@@ -163,8 +168,8 @@
 				if(prob(50))
 					artifact_debris()
 
-		if(do_after(user,P.digspeed))
-			user << "\blue You finish [P.drill_verb] the rock."
+		if(do_after(user,P.digspeed, src))
+			user << "<span class='notice'>You finish [P.drill_verb] the rock.</span>"
 
 			if(finds && finds.len)
 				var/datum/find/F = finds[1]
@@ -237,7 +242,7 @@
 				O.geologic_data = geologic_data
 
 	else
-		return attack_hand(user)
+		return ..()
 
 /turf/simulated/mineral/proc/clear_ore_effects()
 	for(var/obj/effect/mineral/M in contents)
@@ -271,11 +276,13 @@
 		for(var/mob/living/M in range(src, 200))
 			M << "<font color='red'><b>[pick("A high pitched [pick("keening","wailing","whistle")]","A rumbling noise like [pick("thunder","heavy machinery")]")] somehow penetrates your mind before fading away!</b></font>"
 			if(pain)
-				flick("pain",M.pain)
+				if (M.HUDtech.Find("pain"))
+					flick("pain",M.HUDtech["pain"])
 				if(prob(50))
 					M.adjustBruteLoss(5)
 			else
-				flick("flash",M.flash)
+				if (M.HUDtech.Find("flash"))
+					flick("flash", M.HUDtech["flash"])
 				if(prob(50))
 					M.Stun(5)
 			M.apply_effect(25, IRRADIATE)
@@ -361,7 +368,7 @@
 			if(6)
 				var/quantity = rand(1,3)
 				for(var/i=0, i<quantity, i++)
-					new /obj/item/weapon/material/shard/phoron(src)
+					new /obj/item/weapon/material/shard/plasma(src)
 
 			if(7)
 				var/obj/item/stack/material/uranium/R = new(src)
@@ -369,7 +376,7 @@
 
 /turf/simulated/mineral/random
 	name = "Mineral deposit"
-	var/mineralSpawnChanceList = list("Uranium" = 5, "Platinum" = 5, "Iron" = 35, "Coal" = 35, "Diamond" = 1, "Gold" = 5, "Silver" = 5, "Phoron" = 10)
+	var/mineralSpawnChanceList = list("Uranium" = 5, "Platinum" = 5, "Iron" = 35, "Coal" = 35, "Diamond" = 1, "Gold" = 5, "Silver" = 5, "Plasma" = 10)
 	var/mineralChance = 100 //10 //means 10% chance of this plot changing to a mineral deposit
 
 /turf/simulated/mineral/random/New()
@@ -384,7 +391,7 @@
 
 /turf/simulated/mineral/random/high_chance
 	mineralChance = 100 //25
-	mineralSpawnChanceList = list("Uranium" = 10, "Platinum" = 10, "Iron" = 20, "Coal" = 20, "Diamond" = 2, "Gold" = 10, "Silver" = 10, "Phoron" = 20)
+	mineralSpawnChanceList = list("Uranium" = 10, "Platinum" = 10, "Iron" = 20, "Coal" = 20, "Diamond" = 2, "Gold" = 10, "Silver" = 10, "Plasma" = 20)
 
 
 /**********************Asteroid**************************/
@@ -408,6 +415,13 @@
 	var/overlay_detail
 	has_resources = 1
 
+	footstep_sounds = list("human" = list(\
+		'sound/effects/footstep/asteroid1.ogg',\
+		'sound/effects/footstep/asteroid2.ogg',\
+		'sound/effects/footstep/asteroid3.ogg',\
+		'sound/effects/footstep/asteroid4.ogg',\
+		'sound/effects/footstep/asteroid5.ogg'))
+
 /turf/simulated/floor/asteroid/New()
 
 	if(prob(20))
@@ -425,10 +439,9 @@
 	return
 
 /turf/simulated/floor/asteroid/is_plating()
-	return 0
+	return !density
 
 /turf/simulated/floor/asteroid/attackby(obj/item/weapon/W as obj, mob/user as mob)
-
 	if(!W || !user)
 		return 0
 
@@ -457,9 +470,9 @@
 		user << "\red You start digging."
 		playsound(user.loc, 'sound/effects/rustle1.ogg', 50, 1)
 
-		if(!do_after(user,40)) return
+		if(!do_after(user,40, src)) return
 
-		user << "\blue You dug a hole."
+		user << "<span class='notice'>You dug a hole.</span>"
 		gets_dug()
 
 	else if(istype(W,/obj/item/weapon/storage/bag/ore))

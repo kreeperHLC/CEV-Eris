@@ -86,7 +86,7 @@
 	var/scan_data = ""
 
 	if(timeofdeath)
-		scan_data += "<b>Time of death:</b> [worldtime2text(timeofdeath)]<br><br>"
+		scan_data += "<b>Time of death:</b> [worldtime2stationtime(timeofdeath)]<br><br>"
 
 	var/n = 1
 	for(var/wdata_idx in wdata)
@@ -133,7 +133,7 @@
 		if(damaging_weapon)
 			scan_data += "Severity: [damage_desc]<br>"
 			scan_data += "Hits by weapon: [total_hits]<br>"
-		scan_data += "Approximate time of wound infliction: [worldtime2text(age)]<br>"
+		scan_data += "Approximate time of wound infliction: [worldtime2stationtime(age)]<br>"
 		scan_data += "Affected limbs: [D.organ_names]<br>"
 		scan_data += "Possible weapons:<br>"
 		for(var/weapon_name in weapon_chances)
@@ -191,7 +191,7 @@
 
 	src.timeofdeath = M.timeofdeath
 
-	var/obj/item/organ/external/S = M.get_organ(user.zone_sel.selecting)
+	var/obj/item/organ/external/S = M.get_organ(user.targeted_organ)
 	if(!S)
 		usr << "<span class='warning'>You can't scan this body part.</span>"
 		return

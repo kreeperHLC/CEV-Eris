@@ -89,7 +89,7 @@
 	icon_state = "golden_cup"
 	item_state = "" //nope :(
 	w_class = 4
-	force = 14
+	force = WEAPON_FORCE_PAINFULL
 	throwforce = 10
 	amount_per_transfer_from_this = 20
 	possible_transfer_amounts = null
@@ -225,8 +225,8 @@
 	icon_state = "lithiumflask"
 
 /obj/item/weapon/reagent_containers/food/drinks/flask/detflask
-	name = "Detective's Flask"
-	desc = "A metal flask with a leather band and golden badge belonging to the detective."
+	name = "Inspector's Flask"
+	desc = "A metal flask with a leather band and golden badge belonging to the inspector."
 	icon_state = "detflask"
 	volume = 60
 	center_of_mass = list("x"=17, "y"=8)

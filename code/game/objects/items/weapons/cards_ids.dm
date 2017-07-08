@@ -95,11 +95,6 @@ var/const/NO_EMAG_ACT = -50
 	desc = "A card used to provide ID and determine access across the station."
 	icon_state = "id"
 	item_state = "card-id"
-
-	sprite_sheets = list(
-		"Resomi" = 'icons/mob/species/resomi/id.dmi'
-		)
-
 	var/access = list()
 	var/registered_name = "Unknown" // The name registered_name on the card
 	slot_flags = SLOT_ID
@@ -199,17 +194,6 @@ var/const/NO_EMAG_ACT = -50
 	usr << "The fingerprint hash on the card is [fingerprint_hash]."
 	return
 
-/obj/item/weapon/card/id/silver
-	name = "identification card"
-	desc = "A silver card which shows honour and dedication."
-	icon_state = "silver"
-	item_state = "silver_id"
-
-/obj/item/weapon/card/id/gold
-	name = "identification card"
-	desc = "A golden card which shows power and might."
-	icon_state = "gold"
-	item_state = "gold_id"
 
 /obj/item/weapon/card/id/syndicate_command
 	name = "syndicate ID card"
@@ -240,24 +224,6 @@ var/const/NO_EMAG_ACT = -50
 	access = get_all_station_access() + access_synth
 	..()
 
-/obj/item/weapon/card/id/centcom
-	name = "\improper CentCom. ID"
-	desc = "An ID straight from Cent. Com."
-	icon_state = "centcom"
-	registered_name = "Central Command"
-	assignment = "General"
-	New()
-		access = get_all_centcom_access()
-		..()
-
-/obj/item/weapon/card/id/centcom/ERT
-	name = "\improper Emergency Response Team ID"
-	assignment = "Emergency Response Team"
-
-/obj/item/weapon/card/id/centcom/ERT/New()
-	..()
-	access |= get_all_station_access()
-
 /obj/item/weapon/card/id/all_access
 	name = "\improper Administrator's spare ID"
 	desc = "The spare ID of the Lord of Lords himself."
@@ -268,4 +234,92 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/weapon/card/id/all_access/New()
 	access = get_access_ids()
 	..()
-    
+
+/obj/item/weapon/card/id/centcom
+	name = "\improper CentCom. ID"
+	desc = "An ID straight from Cent. Com."
+	icon_state = "centcom"
+	registered_name = "Central Command"
+	assignment = "General"
+	New()
+		access = get_all_centcom_access()
+		..()
+
+/obj/item/weapon/card/id/gold
+	icon_state = "gold"
+	item_state = "gold_id"
+
+/obj/item/weapon/card/id/sci
+	icon_state = "id_sci"
+
+/obj/item/weapon/card/id/gene
+	icon_state = "id_gene"
+
+/obj/item/weapon/card/id/chem
+	icon_state = "id_chem"
+
+/obj/item/weapon/card/id/med
+	icon_state = "id_med"
+
+/obj/item/weapon/card/id/sci
+	icon_state = "id_sci"
+
+/obj/item/weapon/card/id/viro
+	icon_state = "id_viro"
+
+/obj/item/weapon/card/id/heatlab
+	icon_state = "id_heatlab"
+
+/obj/item/weapon/card/id/rd
+	icon_state = "id_rd"
+
+/obj/item/weapon/card/id/cmo
+	icon_state = "id_cmo"
+
+/obj/item/weapon/card/id/det
+	icon_state = "id_inspector"
+
+/obj/item/weapon/card/id/medcpec
+	icon_state = "id_medspec"
+
+/obj/item/weapon/card/id/sec
+	icon_state = "id_operative"
+
+/obj/item/weapon/card/id/hos
+	icon_state = "id_hos"
+
+/obj/item/weapon/card/id/hop
+	icon_state = "id_hop"
+
+/obj/item/weapon/card/id/ce
+	icon_state = "id_ce"
+
+/obj/item/weapon/card/id/engie
+	icon_state = "id_engie"
+
+/obj/item/weapon/card/id/atmos
+	icon_state = "id_atmos"
+
+/obj/item/weapon/card/id/car
+	icon_state = "id_car"
+
+/obj/item/weapon/card/id/hydro
+	icon_state = "id_hydro"
+
+/obj/item/weapon/card/id/chaplain
+	icon_state = "id_chaplain"
+
+/obj/item/weapon/card/id/black
+	icon_state = "id_black"
+
+/obj/item/weapon/card/id/dkgrey
+	icon_state = "id_dkgrey"
+
+/obj/item/weapon/card/id/ltgrey
+	icon_state = "id_ltgrey"
+
+/obj/item/weapon/card/id/white
+	icon_state = "id_white"
+
+/obj/item/weapon/card/id/blankwhite
+	icon_state = "id_blankwhite"

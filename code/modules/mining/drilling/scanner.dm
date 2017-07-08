@@ -10,7 +10,7 @@
 /obj/item/weapon/mining_scanner/attack_self(mob/user as mob)
 	user << "You begin sweeping \the [src] about, scanning for metal deposits."
 
-	if(!do_after(user, 50))
+	if(!do_after(user, 50,src))
 		return
 
 	var/list/metals = list(
@@ -32,7 +32,7 @@
 				if("silicates", "carbonaceous rock", "iron")	ore_type = "surface minerals"
 				if("gold", "silver", "diamond")					ore_type = "precious metals"
 				if("uranium")									ore_type = "nuclear fuel"
-				if("phoron", "osmium", "hydrogen")				ore_type = "exotic matter"
+				if("plasma", "osmium", "hydrogen")				ore_type = "exotic matter"
 
 			if(ore_type) metals[ore_type] += T.resources[metal]
 

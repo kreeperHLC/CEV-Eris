@@ -60,7 +60,7 @@
 	icon_state = "chest"
 	part = list("groin","chest")
 	var/wires = 0.0
-	var/obj/item/weapon/cell/cell = null
+	var/obj/item/weapon/cell/big/cell = null
 
 /obj/item/robot_parts/head
 	name = "head"
@@ -105,7 +105,6 @@
 	if(src.l_arm && src.r_arm)
 		if(src.l_leg && src.r_leg)
 			if(src.chest && src.head)
-				feedback_inc("cyborg_frames_built",1)
 				return 1
 	return 0
 
@@ -185,7 +184,7 @@
 			if(!M.brainmob.key)
 				var/ghost_can_reenter = 0
 				if(M.brainmob.mind)
-					for(var/mob/dead/observer/G in player_list)
+					for(var/mob/observer/ghost/G in player_list)
 						if(G.can_reenter_corpse && G.mind == M.brainmob.mind)
 							ghost_can_reenter = 1
 							break
@@ -228,7 +227,6 @@
 				cell_component.wrapped = O.cell
 				cell_component.installed = 1
 
-			feedback_inc("cyborg_birth",1)
 			callHook("borgify", list(O))
 			O.Namepick()
 
@@ -249,7 +247,7 @@
 
 /obj/item/robot_parts/chest/attackby(obj/item/W as obj, mob/user as mob)
 	..()
-	if(istype(W, /obj/item/weapon/cell))
+	if(istype(W, /obj/item/weapon/cell/big))
 		if(src.cell)
 			user << "<span class='warning'>You have already inserted a cell!</span>"
 			return

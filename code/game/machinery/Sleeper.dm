@@ -71,9 +71,9 @@
 			if(DEAD)
 				data["stat"] = "<font color='red'>Dead</font>"
 		data["health"] = occupant.health
-		if(iscarbon(occupant))
-			var/mob/living/carbon/C = occupant
-			data["pulse"] = C.get_pulse(GETPULSE_TOOL)
+		if(ishuman(occupant))
+			var/mob/living/carbon/human/H = occupant
+			data["pulse"] = H.get_pulse(GETPULSE_TOOL)
 		data["brute"] = occupant.getBruteLoss()
 		data["burn"] = occupant.getFireLoss()
 		data["oxy"] = occupant.getOxyLoss()
@@ -115,6 +115,7 @@
 			if(href_list["chemical"] in available_chemicals) // Your hacks are bad and you should feel bad
 				inject_chemical(usr, href_list["chemical"], text2num(href_list["amount"]))
 
+	playsound(loc, 'sound/machines/button.ogg', 100, 1)
 	return 1
 
 /obj/machinery/sleeper/attack_ai(var/mob/user)
@@ -173,7 +174,7 @@
 	else
 		visible_message("\The [user] starts putting [M] into \the [src].")
 
-	if(do_after(user, 20))
+	if(do_after(user, 20, src))
 		if(occupant)
 			user << "<span class='warning'>\The [src] is already occupied.</span>"
 			return

@@ -66,6 +66,7 @@
 /obj/machinery/door/blast/proc/force_open()
 	src.operating = 1
 	flick(icon_state_opening, src)
+	playsound(src.loc, 'sound/machines/Custom_blastdooropen.ogg', 65, 0)
 	src.density = 0
 	update_nearby_tiles()
 	src.update_icon()
@@ -81,6 +82,7 @@
 	src.operating = 1
 	src.layer = closed_layer
 	flick(icon_state_closing, src)
+	playsound(src.loc, 'sound/machines/Custom_blastdoorclose.ogg', 65, 0)
 	src.density = 1
 	update_nearby_tiles()
 	src.update_icon()
@@ -119,9 +121,9 @@
 			usr << "<span class='warning'>You don't have enough sheets to repair this! You need at least [amt] sheets.</span>"
 			return
 		usr << "<span class='notice'>You begin repairing [src]...</span>"
-		if(do_after(usr, 30))
+		if(do_after(usr, 30, src))
 			if(P.use(amt))
-				usr << "<span class='notice'>You have repaired \The [src]</span>"
+				usr << "<span class='notice'>You have repaired \the [src]</span>"
 				src.repair()
 			else
 				usr << "<span class='warning'>You don't have enough sheets to repair this! You need at least [amt] sheets.</span>"
@@ -147,6 +149,7 @@
 	if (src.operating || (stat & BROKEN || stat & NOPOWER))
 		return
 	force_close()
+	crush()
 
 
 // Proc: repair()
@@ -166,7 +169,7 @@
 
 // SUBTYPE: Regular
 // Your classical blast door, found almost everywhere.
-obj/machinery/door/blast/regular
+/obj/machinery/door/blast/regular
 	icon_state_open = "pdoor0"
 	icon_state_opening = "pdoorc0"
 	icon_state_closed = "pdoor1"
@@ -175,7 +178,7 @@ obj/machinery/door/blast/regular
 	maxhealth = 600
 	block_air_zones = 1
 
-obj/machinery/door/blast/regular/open
+/obj/machinery/door/blast/regular/open
 	icon_state = "pdoor0"
 	density = 0
 	opacity = 0
@@ -188,3 +191,15 @@ obj/machinery/door/blast/regular/open
 	icon_state_closed = "shutter1"
 	icon_state_closing = "shutterc1"
 	icon_state = "shutter1"
+
+/obj/machinery/door/proc/crush()
+	for(var/mob/living/L in get_turf(src))
+		if(ishuman(L)) //For humans
+			var/mob/living/carbon/human/H = L
+			H.adjustBruteLoss(DOOR_CRUSH_DAMAGE)
+			H.emote("scream")
+			H.Weaken(5)
+		else //for simple_animals & borgs
+			L.adjustBruteLoss(DOOR_CRUSH_DAMAGE)
+	for(var/obj/mecha/M in get_turf(src))
+		M.take_damage(DOOR_CRUSH_DAMAGE)

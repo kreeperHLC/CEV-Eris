@@ -109,7 +109,7 @@
 
 /mob/living/proc/handle_disabilities()
 	//Eyes
-	if(disabilities & BLIND || stat)	//blindness from disability or unconsciousness doesn't get better on its own
+	if(sdisabilities & BLIND || stat)	//blindness from disability or unconsciousness doesn't get better on its own
 		eye_blind = max(eye_blind, 1)
 	else if(eye_blind)			//blindness, heals slowly over time
 		eye_blind = max(eye_blind-1,0)
@@ -117,7 +117,7 @@
 		eye_blurry = max(eye_blurry-1, 0)
 
 	//Ears
-	if(disabilities & DEAF)		//disabled-deaf, doesn't get better on its own
+	if(sdisabilities & DEAF)		//disabled-deaf, doesn't get better on its own
 		setEarDamage(-1, max(ear_deaf, 1))
 	else
 		// deafness heals slowly over time, unless ear_damage is over 100
@@ -134,23 +134,22 @@
 	return 1
 
 /mob/living/proc/handle_vision()
-	client.screen.Remove(global_hud.blurry, global_hud.druggy, global_hud.vimpaired, global_hud.darkMask, global_hud.nvg, global_hud.thermal, global_hud.meson, global_hud.science)
+//	client.screen.Remove(global_hud.blurry, global_hud.druggy, global_hud.vimpaired, global_hud.darkMask, global_hud.nvg, global_hud.thermal, global_hud.meson, global_hud.science)
 	update_sight()
 
 	if(stat == DEAD)
 		return
 
-	if(blind)
-		if(eye_blind)
-			blind.layer = 18
-		else
-			blind.layer = 0
-			if (disabilities & NEARSIGHTED)
-				client.screen += global_hud.vimpaired
-			if (eye_blurry)
-				client.screen += global_hud.blurry
-			if (druggy)
-				client.screen += global_hud.druggy
+/*	if(eye_blind)
+		blind.alpha = 255
+	else
+		blind.alpha = 0
+		if (disabilities & NEARSIGHTED)
+			client.screen += global_hud.vimpaired
+		if (eye_blurry)
+			client.screen += global_hud.blurry
+		if (druggy)
+			client.screen += global_hud.druggy*/
 	if(machine)
 		var/viewflags = machine.check_eye(src)
 		if(viewflags < 0)
@@ -164,7 +163,7 @@
 		reset_view(null)
 
 /mob/living/proc/update_sight()
-	if(stat == DEAD)
+	if(stat == DEAD || eyeobj)
 		update_dead_sight()
 	else
 		sight &= ~(SEE_TURFS|SEE_MOBS|SEE_OBJS)
@@ -184,3 +183,32 @@
 
 /mob/living/proc/handle_hud_icons_health()
 	return
+
+/*/mob/living/proc/HUD_create()
+	if (!usr.client)
+		return
+	usr.client.screen.Cut()
+	if(istype(usr, /mob/living/carbon/human) && (usr.client.prefs.UI_style != null))
+		if (!global.HUDdatums.Find(usr.client.prefs.UI_style))
+			log_debug("[usr] try update a HUD, but HUDdatums not have [usr.client.prefs.UI_style]!")
+		else
+			var/mob/living/carbon/human/H = usr
+			var/datum/hud/human/HUDdatum = global.HUDdatums[usr.client.prefs.UI_style]
+			if (!H.HUDneed.len)
+				if (H.HUDprocess.len)
+					log_debug("[usr] have object in HUDprocess list, but HUDneed is empty.")
+					for(var/obj/screen/health/HUDobj in H.HUDprocess)
+						H.HUDprocess -= HUDobj
+						qdel(HUDobj)
+				for(var/HUDname in HUDdatum.HUDneed)
+					if(!H.species.hud.ProcessHUD.Find(HUDname))
+						continue
+					var/HUDtype = HUDdatum.HUDneed[HUDname]
+					var/obj/screen/HUD = new HUDtype()
+					world << "[HUD] added"
+					H.HUDneed += HUD
+					if (HUD.type in HUDdatum.HUDprocess)
+						world << "[HUD] added in process"
+						H.HUDprocess += HUD
+					world << "[HUD] added in screen"
+*/

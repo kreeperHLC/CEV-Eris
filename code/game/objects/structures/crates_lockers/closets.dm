@@ -14,12 +14,15 @@
 	var/breakout = 0 //if someone is currently breaking out. mutex
 	var/storage_capacity = 2 * MOB_MEDIUM //This is so that someone can't pack hundreds of items in a locker/crate
 							  //then open it in a populated area to crash clients.
-	var/open_sound = 'sound/machines/click.ogg'
-	var/close_sound = 'sound/machines/click.ogg'
+	var/open_sound = 'sound/machines/Custom_closetopen.ogg'
+	var/close_sound = 'sound/machines/Custom_closetclose.ogg'
 
 	var/store_misc = 1
 	var/store_items = 1
 	var/store_mobs = 1
+
+/obj/structure/closet/can_prevent_fall()
+	return TRUE
 
 /obj/structure/closet/initialize()
 	..()
@@ -93,7 +96,7 @@
 
 	src.icon_state = src.icon_opened
 	src.opened = 1
-	playsound(src.loc, open_sound, 15, 1, -3)
+	playsound(src.loc, open_sound, 100, 1, -3)
 	density = 0
 	return 1
 
@@ -115,7 +118,7 @@
 	src.icon_state = src.icon_closed
 	src.opened = 0
 
-	playsound(src.loc, close_sound, 15, 1, -3)
+	playsound(src.loc, close_sound, 100, 1, -3)
 	density = 1
 	return 1
 
@@ -320,15 +323,13 @@
 /obj/structure/closet/attack_generic(var/mob/user, var/damage, var/attack_message = "destroys", var/wallbreaker)
 	if(!damage || !wallbreaker)
 		return
-	user.do_attack_animation(src)
+	attack_animation(user)
 	visible_message("<span class='danger'>[user] [attack_message] the [src]!</span>")
 	dump_contents()
 	spawn(1) qdel(src)
 	return 1
 
 /obj/structure/closet/proc/req_breakout()
-	if(breakout)
-		return 0 //Already breaking out.
 	if(opened)
 		return 0 //Door's open... wait, why are you in it's contents then?
 	if(!welded)
@@ -338,7 +339,7 @@
 /obj/structure/closet/proc/mob_breakout(var/mob/living/escapee)
 	var/breakout_time = 2 //2 minutes by default
 
-	if(!req_breakout())
+	if(breakout || !req_breakout())
 		return
 
 	escapee.setClickCooldown(100)
@@ -346,17 +347,14 @@
 	//okay, so the closet is either welded or locked... resist!!!
 	escapee << "<span class='warning'>You lean on the back of \the [src] and start pushing the door open. (this will take about [breakout_time] minutes)</span>"
 
-	visible_message("<span class='danger'>The [src] begins to shake violently!</span>")
+	visible_message("<span class='danger'>\The [src] begins to shake violently!</span>")
 
 	breakout = 1 //can't think of a better way to do this right now.
 	for(var/i in 1 to (6*breakout_time * 2)) //minutes * 6 * 5seconds * 2
-		playsound(src.loc, 'sound/effects/grillehit.ogg', 100, 1)
-		animate_shake()
-
-		if(!do_after(escapee, 50)) //5 seconds
+		if(!do_after(escapee, 50, src)) //5 seconds
 			breakout = 0
 			return
-		if(!escapee || escapee.stat || escapee.loc != src)
+		if(!escapee || escapee.incapacitated() || escapee.loc != src)
 			breakout = 0
 			return //closet/user destroyed OR user dead/unconcious OR user no longer in closet OR closet opened
 		//Perform the same set of checks as above for weld and lock status to determine if there is even still a point in 'resisting'...
@@ -364,10 +362,14 @@
 			breakout = 0
 			return
 
+		playsound(src.loc, 'sound/effects/grillehit.ogg', 100, 1)
+		animate_shake()
+		add_fingerprint(escapee)
+
 	//Well then break it!
 	breakout = 0
 	escapee << "<span class='warning'>You successfully break out!</span>"
-	visible_message("<span class='danger'>\the [escapee] successfully broke out of \the [src]!</span>")
+	visible_message("<span class='danger'>\The [escapee] successfully broke out of \the [src]!</span>")
 	playsound(src.loc, 'sound/effects/grillehit.ogg', 100, 1)
 	break_open()
 	animate_shake()

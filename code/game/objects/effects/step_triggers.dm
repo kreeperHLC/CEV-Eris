@@ -13,7 +13,7 @@
 	..()
 	if(!H)
 		return
-	if(istype(H, /mob/dead/observer) && !affect_ghosts)
+	if(isobserver(H) && !(isghost(H) && affect_ghosts))
 		return
 	Trigger(H)
 
@@ -115,3 +115,13 @@
 				A.y = rand(teleport_y, teleport_y_offset)
 				A.z = rand(teleport_z, teleport_z_offset)
 
+/* Step trigger to display message if *TRIGGERED* */
+/obj/effect/step_trigger/message
+	var/message	//the message to give to the mob
+	var/once = 1
+
+/obj/effect/step_trigger/message/Trigger(mob/M as mob)
+	if(M.client)
+		M << "<span class='info'>[message]</span>"
+		if(once)
+			qdel(src)

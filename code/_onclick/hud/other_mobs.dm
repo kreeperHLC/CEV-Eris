@@ -1,28 +1,30 @@
 
-/datum/hud/proc/unplayer_hud()
-	return
+//datum/hud/proc/unplayer_hud()
+//	return
 
-/mob/dead/observer/instantiate_hud(var/datum/hud/HUD)
-	HUD.ghost_hud()
+//mob/observer/ghost/instantiate_hud(var/datum/hud/HUD)
+//	HUD.ghost_hud()
 
-/datum/hud/proc/ghost_hud()
-	return
+//datum/hud/proc/ghost_hud()
+//	return
 
-/mob/living/carbon/brain/instantiate_hud(var/datum/hud/HUD)
-	HUD.brain_hud()
+//mob/living/carbon/brain/instantiate_hud(var/datum/hud/HUD)
+//	HUD.brain_hud()
 
-/datum/hud/proc/brain_hud(ui_style = 'icons/mob/screen1_Midnight.dmi')
+/*/datum/hud/proc/brain_hud(ui_style = 'icons/mob/screen1_Midnight.dmi')
 	mymob.blind = new /obj/screen()
 	mymob.blind.icon = 'icons/mob/screen1_full.dmi'
 	mymob.blind.icon_state = "blackimageoverlay"
 	mymob.blind.name = " "
 	mymob.blind.screen_loc = "1,1"
-	mymob.blind.layer = 0
+	mymob.blind.mouse_opacity = 0
+	mymob.blind.layer = 18
+	mymob.blind.alpha = 0*/
 
-/mob/living/silicon/ai/instantiate_hud(var/datum/hud/HUD)
-	HUD.ai_hud()
+//mob/living/silicon/ai/instantiate_hud(var/datum/hud/HUD)
+//	HUD.ai_hud()
 
-/datum/hud/proc/ai_hud()
+/*/datum/hud/proc/ai_hud()
 	return
 
 /datum/hud/proc/blob_hud(ui_style = 'icons/mob/screen1_Midnight.dmi')
@@ -69,7 +71,7 @@
 	ico.MapColors(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1)
 	ico.DrawBox(rgb(255,255,255,1),1,ico.Height()/2,ico.Width()/2,ico.Height())
 	using = new /obj/screen( src )
-	using.name = "help"
+	using.name = I_HELP
 	using.icon = ico
 	using.screen_loc = ui_zonesel
 	using.layer = 21
@@ -80,7 +82,7 @@
 	ico.MapColors(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1)
 	ico.DrawBox(rgb(255,255,255,1),ico.Width()/2,ico.Height()/2,ico.Width(),ico.Height())
 	using = new /obj/screen( src )
-	using.name = "disarm"
+	using.name = I_DISARM
 	using.icon = ico
 	using.screen_loc = ui_zonesel
 	using.layer = 21
@@ -91,7 +93,7 @@
 	ico.MapColors(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1)
 	ico.DrawBox(rgb(255,255,255,1),ico.Width()/2,1,ico.Width(),ico.Height()/2)
 	using = new /obj/screen( src )
-	using.name = "grab"
+	using.name = I_GRAB
 	using.icon = ico
 	using.screen_loc = ui_zonesel
 	using.layer = 21
@@ -112,12 +114,12 @@
 	mymob.client.screen = null
 	mymob.client.screen += src.adding
 
-	return
+	return*/
 
-/mob/living/simple_animal/construct/instantiate_hud(var/datum/hud/HUD)
-	HUD.construct_hud()
+///mob/living/simple_animal/construct/instantiate_hud(var/datum/hud/HUD)
+//	HUD.construct_hud()
 
-/datum/hud/proc/construct_hud()
+/*/datum/hud/proc/construct_hud()
 	var/constructtype
 
 	if(istype(mymob,/mob/living/simple_animal/construct/armoured) || istype(mymob,/mob/living/simple_animal/construct/behemoth))
@@ -168,4 +170,5 @@
 
 	mymob.client.screen = null
 
-	mymob.client.screen += list(mymob.fire, mymob.healths, mymob.pullin, mymob.zone_sel, mymob.purged, mymob.flash)
+	mymob.client.screen += list(mymob.fire, mymob.healths, mymob.pullin, mymob.zone_sel, mymob.purged, mymob.flash)*/
+

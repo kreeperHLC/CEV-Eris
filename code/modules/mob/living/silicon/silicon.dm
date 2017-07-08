@@ -33,7 +33,7 @@
 /mob/living/silicon/New()
 	silicon_mob_list |= src
 	..()
-	add_language("Galactic Common")
+	add_language(LANGUAGE_COMMON)
 	init_id()
 	init_subsystems()
 
@@ -66,10 +66,12 @@
 			Stun(rand(5,10))
 		if(2)
 			src.take_organ_damage(0,10,emp=1)
-			Stun(rand(1,5))
-	flick("noise", src:flash)
-	src << "\red <B>*BZZZT*</B>"
-	src << "\red Warning: Electromagnetic pulse detected."
+			confused = (min(confused + 2, 30))
+//	flick("noise", src.flash)
+	if (HUDtech.Find("flash"))
+		flick("noise", HUDtech["flash"])
+	src << "<span class='danger'><B>*BZZZT*</B></span>"
+	src << "<span class='danger'>Warning: Electromagnetic pulse detected.</span>"
 	..()
 
 /mob/living/silicon/stun_effect_act(var/stun_amount, var/agony_amount)
@@ -166,7 +168,7 @@
 		show_emergency_shuttle_eta()
 		show_system_integrity()
 		show_malf_ai()
-	..()
+	. = ..()
 
 // this function displays the stations manifest in a separate window
 /mob/living/silicon/proc/show_station_manifest()
@@ -264,7 +266,8 @@
 
 /mob/living/silicon/ex_act(severity)
 	if(!blinded)
-		flick("flash", flash)
+		if (HUDtech.Find("flash"))
+			flick("flash", HUDtech["flash"])
 
 	switch(severity)
 		if(1.0)
@@ -338,7 +341,7 @@
 /mob/living/silicon/ai/raised_alarm(var/datum/alarm/A)
 	var/cameratext = ""
 	for(var/obj/machinery/camera/C in A.cameras())
-		cameratext += "[(cameratext == "")? "" : "|"]<A HREF=?src=\ref[src];switchcamera=\ref[C]>[C.c_tag]</A>"
+		cameratext += "[(cameratext == "")? "" : "|"]<A HREF='?src=\ref[src];switchcamera=\ref[C]'>[C.c_tag]</A>"
 	src << "[A.alarm_name()]! ([(cameratext)? cameratext : "No Camera"])"
 
 

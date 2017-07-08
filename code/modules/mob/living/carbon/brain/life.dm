@@ -175,7 +175,7 @@
 		see_in_dark = 2
 		see_invisible = SEE_INVISIBLE_LIVING
 
-	if (healths)
+/*	if (healths)
 		if (stat != 2)
 			switch(health)
 				if(100 to INFINITY)
@@ -193,7 +193,7 @@
 				else
 					healths.icon_state = "health6"
 		else
-			healths.icon_state = "health7"
+			healths.icon_state = "health7"*/
 
 		if (stat == 2 || (XRAY in src.mutations))
 			sight |= SEE_TURFS
@@ -210,22 +210,22 @@
 	if (client)
 		client.screen.Remove(global_hud.blurry,global_hud.druggy,global_hud.vimpaired)
 
-	if ((blind && stat != 2))
-		if ((blinded))
-			blind.layer = 18
-		else
-			blind.layer = 0
+/*	if (stat != 2)
+		if (blind)
+			if ((blinded))
+				blind.alpha = 255
+			else
+				blind.alpha = 0
 
-			if (disabilities & NEARSIGHTED)
-				client.screen += global_hud.vimpaired
+				if (disabilities & NEARSIGHTED)
+					client.screen += global_hud.vimpaired
 
-			if (eye_blurry)
-				client.screen += global_hud.blurry
+				if (eye_blurry)
+					client.screen += global_hud.blurry
 
-			if (druggy)
-				client.screen += global_hud.druggy
+				if (druggy)
+					client.screen += global_hud.druggy*/
 
-	if (stat != 2)
 		if (machine)
 			if (!( machine.check_eye(src) ))
 				reset_view(null)
@@ -233,15 +233,8 @@
 			if(client && !client.adminobs)
 				reset_view(null)
 
-	return 1
+		return 1
 
-	if (stat != 2)
-		if (machine)
-			if (machine.check_eye(src) < 0)
-				reset_view(null)
-		else
-			if(client && !client.adminobs)
-				reset_view(null)
 
 /*/mob/living/carbon/brain/emp_act(severity)
 	if(!(container && istype(container, /obj/item/device/mmi)))

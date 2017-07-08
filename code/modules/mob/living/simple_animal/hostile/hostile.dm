@@ -78,7 +78,6 @@
 			walk_to(src, target_mob, 1, move_to_delay)
 
 /mob/living/simple_animal/hostile/proc/AttackTarget()
-
 	stop_automated_movement = 1
 	if(!target_mob || SA_attackable(target_mob))
 		LoseTarget()
@@ -104,6 +103,7 @@
 	if(istype(target_mob,/obj/machinery/bot))
 		var/obj/machinery/bot/B = target_mob
 		B.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
+		return B
 
 /mob/living/simple_animal/hostile/proc/LoseTarget()
 	stance = HOSTILE_STANCE_IDLE
@@ -203,7 +203,7 @@
 
 /mob/living/simple_animal/hostile/proc/check_horde()
 	return 0
-	if(emergency_shuttle.shuttle.location)
+	if(emergency_shuttle.location())
 		if(!enroute && !target_mob)	//The shuttle docked, all monsters rush for the escape hallway
 			if(!shuttletarget && escape_list.len) //Make sure we didn't already assign it a target, and that there are targets to pick
 				shuttletarget = pick(escape_list) //Pick a shuttle target
@@ -220,13 +220,9 @@
 /mob/living/simple_animal/hostile/proc/horde()
 	var/turf/T = get_step_to(src, shuttletarget)
 	for(var/atom/A in T)
-		if(istype(A,/obj/machinery/door/airlock))
-			var/obj/machinery/door/airlock/D = A
+		if(istype(A,/obj/machinery/door/))
+			var/obj/machinery/door/D = A
 			D.open(1)
-		else if(istype(A,/obj/structure/simple_door))
-			var/obj/structure/simple_door/D = A
-			if(D.density)
-				D.Open()
 		else if(istype(A,/obj/structure/cult/pylon))
 			A.attack_generic(src, rand(melee_damage_lower, melee_damage_upper))
 		else if(istype(A, /obj/structure/window) || istype(A, /obj/structure/closet) || istype(A, /obj/structure/table) || istype(A, /obj/structure/grille))
